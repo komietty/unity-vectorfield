@@ -14,10 +14,8 @@ namespace ddg {
         public HalfEdge twin;
         public bool onBoundary;
 
-        public HalfEdge(int id){
-            this.id = id;
-        }
-        public Vector3 Vector() { return next.vert.pos - vert.pos; }
+        public HalfEdge(int id){ this.id = id; }
+        public Vector3 Vector() => next.vert.pos - vert.pos; 
     }
 
     public struct Vert {
@@ -39,8 +37,21 @@ namespace ddg {
             var once = false;
             while (true) {
                 while (curr.onBoundary) { curr = curr.twin.next; }
-                if (curr.id == tgt.id && once) break;
+                if (once && curr.id == tgt.id) break;
+                once = true;
                 yield return curr.next.corner;
+                curr = curr.twin.next;
+            };
+        }
+
+        public IEnumerable<HalfEdge> GetAdjacentHalfedges(HalfEdge[] hes) {
+            var tgt = hes[hid];
+            var curr = tgt;
+            var endId = tgt.id;
+            var once = false;
+            while (true) {
+                if (once && curr.id == tgt.id) break;
+                yield return curr;
                 curr = curr.twin.next;
                 once = true;
             };

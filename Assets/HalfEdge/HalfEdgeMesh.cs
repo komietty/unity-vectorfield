@@ -12,10 +12,13 @@ namespace ddg {
         public Edge[] edges         { get; protected set; }
         public Face[] faces         { get; protected set; }
         public Face[] boundaries    { get; protected set; }
+        public int eulerCharactaristics => faces.Length - edges.Length + verts.Length;
 
         public HalfEdgeMesh(Mesh m) {
-            var vrts = m.vertices;
-            var idxs = m.GetIndices(0);
+            //var mesh = Weld(m);
+            var mesh = m;
+            var vrts = mesh.vertices;
+            var idxs = mesh.GetIndices(0);
             var keys = (Span<Key>)(stackalloc Key[idxs.Length]);
             PreallocateElements(vrts, idxs);
 
@@ -29,9 +32,19 @@ namespace ddg {
                 h0.vert = new Vert(i0, idxs[i0], vrts[idxs[i0]]);
                 h1.vert = new Vert(i1, idxs[i1], vrts[idxs[i1]]);
                 h2.vert = new Vert(i2, idxs[i2], vrts[idxs[i2]]);
-                h0.next = h1; h0.prev = h2;
-                h1.next = h2; h1.prev = h0;
-                h2.next = h0; h2.prev = h1;
+
+                // assign face
+                var f = new Face();
+                f.hid = i2;
+                faces[i / 3] = f;
+
+                // assign edge
+
+                h0.next = h1; h0.prev = h2; h0.face = f;
+                h1.next = h2; h1.prev = h0; h1.face = f;
+                h2.next = h0; h2.prev = h1; h2.face = f;
+
+
                 keys[i0] = new Key(idxs[i0], idxs[i1]);
                 keys[i1] = new Key(idxs[i1], idxs[i2]);
                 keys[i2] = new Key(idxs[i2], idxs[i0]);
@@ -120,13 +133,37 @@ namespace ddg {
                 }
             }
             var nEdges = sortedEdges.Count;
-            var nFaces = idcs.Length / 3;
             var nHalfedges = 2 * nEdges;
             var nInteriorHalfedges = nHalfedges - nBoundaryHe;
             this.halfedges = new HalfEdge[nHalfedges];
             this.corners = new Corner[nInteriorHalfedges];
             this.boundaries = new Face[nBoundaryHe];
             this.verts = new Vert[vrts.Length];
+            this.edges = new Edge[nEdges];
+            this.faces = new Face[idcs.Length / 3];
+        }
+
+        Mesh Weld(Mesh original) {
+            var ogl_vrts = original.vertices;
+            var ogl_idcs = original.triangles;
+            var alt_mesh = new Mesh();
+            var alt_vrts = ogl_vrts.Distinct().ToArray();
+            var alt_idcs = new int[ogl_idcs.Length];
+            var vrt_rplc = new int[ogl_vrts.Length];
+            for (var i = 0; i < ogl_vrts.Length; i++) {
+                var o = -1;
+                for (var j = 0; j < alt_vrts.Length; j++) {
+                    if (alt_vrts[j] == ogl_vrts[i]) { o = j; break; }
+                }
+                vrt_rplc[i] = o;
+            }
+
+            for (var i = 0; i < alt_idcs.Length; i++) {
+                alt_idcs[i] = vrt_rplc[ogl_idcs[i]];
+            }
+            alt_mesh.SetVertices(alt_vrts);
+            alt_mesh.SetTriangles(alt_idcs, 0);
+            return alt_mesh;
         }
 
         public struct Key {
