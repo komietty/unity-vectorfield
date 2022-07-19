@@ -16,7 +16,6 @@ namespace ddg {
         public HalfEdgeMesh(Mesh mesh) {
             var vrts = mesh.vertices;
             var idxs = mesh.GetIndices(0);
-
             var keys = (Span<Key>)(stackalloc Key[idxs.Length]);
             PreallocateElements(vrts, idxs);
 
