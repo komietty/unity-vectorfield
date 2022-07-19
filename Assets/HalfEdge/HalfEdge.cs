@@ -6,7 +6,6 @@ namespace ddg {
     public class HalfEdge {
         public int id;
         public Vert vert;
-        public Edge edge;
         public Face face;
         public Corner corner;
         public HalfEdge next;
@@ -50,18 +49,11 @@ namespace ddg {
             var endId = tgt.id;
             var once = false;
             while (true) {
-                if (once && curr.id == tgt.id) break;
+                if (once && curr.id == endId) break;
                 yield return curr;
                 curr = curr.twin.next;
                 once = true;
             };
-        }
-    }
-
-    public struct Edge {
-        public int hid;
-        public Edge(int hid) {
-            this.hid = hid;
         }
     }
 

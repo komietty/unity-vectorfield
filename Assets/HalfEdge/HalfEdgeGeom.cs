@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace ddg {
     public class HalfEdgeGeom {
@@ -11,15 +12,18 @@ namespace ddg {
             this.mesh = new HalfEdgeMesh(mesh);
         }
 
-        public float Length(Edge e) {
-            return halfedges[e.hid].Vector().magnitude;
+        public float Length(HalfEdge h) {
+            //return h.Vector().magnitude;
+            return Mathf.Sqrt(Vector3.Dot(h.Vector(), h.Vector()));
         }
+
         public bool FaceNormal(Face f, out Vector3 o){
             o = new Vector3();
-            if(halfedges[f.hid].onBoundary) return false;
-            var u = halfedges[f.hid].Vector();
-            var v = halfedges[f.hid].prev.Vector() * -1;
-            o = Vector3.Cross(v, u).normalized;
+            var h = halfedges[f.hid];
+            if(h.onBoundary) return false;
+            var u = h.Vector();
+            var v = h.prev.Vector() * -1;
+            o = Vector3.Cross(u, v).normalized;
             return true;
         }
 
@@ -32,10 +36,23 @@ namespace ddg {
         public float DihedralAngle(HalfEdge h) {
             FaceNormal(h.face, out Vector3 n_ijk);
             FaceNormal(h.twin.face, out Vector3 n_jil);
-            var vec = h.Vector() / Length(h.edge);
+            var vec = h.Vector() / Length(h);
             var crs = Vector3.Cross(n_ijk, n_jil);
             var dot = Vector3.Dot(n_ijk, n_jil);
-            return Mathf.Atan2(Vector3.Dot(vec, crs), dot);
+            var ang = Mathf.Atan2(Vector3.Dot(vec, crs), dot);
+
+/*
+                Debug.Log(n_ijk + ", " + n_jil);
+                Debug.Log(vec);
+                Debug.Log(ang * 180 / Mathf.PI);
+                var _crs = Vector3.Cross(n_jil, n_ijk);
+                var _dot = Vector3.Dot(n_jil, n_ijk);
+                var _ang = Mathf.Atan2(Vector3.Dot(vec, _crs), _dot);
+                Assert.IsTrue(Mathf.Abs(ang) == Mathf.Abs(_ang));
+                Debug.Log("-----------");
+
+*/
+            return ang;
         }
 
         public float AngleDefect(Vert v) {
@@ -49,8 +66,12 @@ namespace ddg {
         public float ScalarMeanCurvature(Vert v) {
             var sum = 0f;
             foreach (var h in v.GetAdjacentHalfedges(halfedges)) {
-                sum += DihedralAngle(h) * Length(h.edge);
+                sum += DihedralAngle(h) * Length(h);
+                //Debug.Log("d: " + DihedralAngle(h) + ", l: " + Length(h));
+                //Debug.Log("v1: " + h.vert.pos);
+                //Debug.Log("v2: " + h.next.vert.pos);
             }
+            //Debug.Log("============" + sum * 0.5f);
             return sum * 0.5f;
         }
     }
