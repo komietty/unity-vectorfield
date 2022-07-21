@@ -1,8 +1,3 @@
-//
-//  Basis.cpp
-//  EigenDll
-//
-
 #include "Basis.hpp"
 
 DllExport void InverseMat_FullPivLU(int dim, float a[], float ans[]) {
@@ -26,5 +21,28 @@ DllExport void InverseMat_FullPivLU(int dim, float a[], float ans[]) {
             count++;
         }
     }
+}
+
+
+DllExport S* GenSparseMtx(Trpl* triplets, int len){
+    S* M = new S();
+    std::vector<T> entries;
+    for(auto i = 0; i < len; i++){
+        auto a = triplets[i];
+        entries.push_back(T(a.v, a.i, a.j));
+    }
+    (*M).setFromTriplets(entries.begin(), entries.end());
+    return M;
+}
+
+DllExport S* GenDiagMtx(float* diagonals, int len){
+    S* M = new S(len, len);
+    std::vector<T> entries;
+    for(auto i = 0; i < len; i++){
+        auto d = diagonals[i];
+        entries.push_back(T(d, i, i));
+    }
+    (*M).setFromTriplets(entries.begin(), entries.end());
+    return M;
 }
 

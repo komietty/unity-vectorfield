@@ -11,7 +11,9 @@ namespace ddg {
             this.mesh = new HalfEdgeMesh(mesh);
         }
 
-        public float Length(HalfEdge h) { return h.Vector().magnitude; }
+        public float Length(HalfEdge h) {
+            return h.Vector().magnitude;
+        }
 
         float Cotan(HalfEdge h){
             var p = h.prev.Vector();
@@ -53,15 +55,15 @@ namespace ddg {
         }
 
         public float AngleDefect(Vert v) {
-            var sum = Mathf.PI * 2;
-            foreach (var c in v.GetAdjacentConers(halfedges)) { sum -= Angle(c); }
-            return sum;
+            var o = Mathf.PI * 2;
+            foreach (var c in v.GetAdjacentConers(halfedges)) o -= Angle(c);
+            return o;
         }
 
         public float BarycentricDualArea(Vert v) {
-            var sum = 0f;
-            foreach(var f in v.GetAdjacentFaces(halfedges)) { sum += Area(f); }
-            return sum / 3;
+            var o = 0f;
+            foreach (var f in v.GetAdjacentFaces(halfedges)) o += Area(f);
+            return o / 3;
         } 
 
         public float CircumcentricDualArea(Vert v) {
@@ -76,14 +78,15 @@ namespace ddg {
             return sum * 0.125f;
         }
 
-        public float ScalarGaussCurvature(Vert v) => AngleDefect(v); 
+        public float ScalarGaussCurvature(Vert v) {
+            return AngleDefect(v);
+        }
 
         public float ScalarMeanCurvature(Vert v) {
-            var sum = 0f;
-            foreach (var h in v.GetAdjacentHalfedges(halfedges)) {
-                sum += DihedralAngle(h) * Length(h);
-            }
-            return sum * 0.5f;
+            var o = 0f;
+            foreach (var h in v.GetAdjacentHalfedges(halfedges))
+                o += DihedralAngle(h) * Length(h);
+            return o * 0.5f;
         }
         
         public Vector2 PrincipalCurvature(Vert v) {
