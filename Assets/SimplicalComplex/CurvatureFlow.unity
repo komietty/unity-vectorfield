@@ -288,6 +288,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   delta: 0.1
+  type: 0
 --- !u!1 &745660130
 GameObject:
   m_ObjectHideFlags: 0
