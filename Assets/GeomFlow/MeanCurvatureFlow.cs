@@ -48,7 +48,8 @@ namespace ddg {
                     var a = geom.Cotan(h);
                     var b = geom.Cotan(h.twin);
                     var c = (a + b) * 0.5f;
-                    t.Add((i, h.next.vert.vid, -c));
+                    t.Add((i, h.next.vid, -c));
+                    //t.Add((i, h.next.vert.vid, -c));
                     s += c;
                 }
                 t.Add((i, i, s));
@@ -66,10 +67,10 @@ namespace ddg {
                 var p = v.pos;
                 f0.SetRow(v.vid, new double[3] { p.x, p.y, p.z });
             }
-            //Debug.Log(f0);
+            Debug.Log(f0);
             var lu = flowMtx.LU();
             var fh = lu.Solve(f0);
-            Debug.Log(fh);
+            //Debug.Log(fh);
 
             for (var i = 0; i < l; i++) {
                 var r = fh.Row(i);

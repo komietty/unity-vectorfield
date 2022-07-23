@@ -21,8 +21,9 @@ namespace ddg {
         IEnumerator CornerCoroutine(int id) {
             var hes = mesh.halfedges;
             yield return null;
-            foreach(var c in hes[id].vert.GetAdjacentConers(hes)) {
-                cube1.transform.position = hes[c.hid].vert.pos;
+            foreach(var c in mesh.verts[hes[id].vid].GetAdjacentConers(hes)) {
+            //foreach(var c in hes[id].vert.GetAdjacentConers(hes)) {
+                cube1.transform.position = mesh.verts[hes[c.hid].vid].pos;
                 yield return new WaitForSeconds(0.5f);
             }
         }

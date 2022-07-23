@@ -11,21 +11,26 @@ namespace ddg {
             this.mesh = new HalfEdgeMesh(mesh);
         }
 
+        public Vector3 Vector(HalfEdge h) {
+            return mesh.verts[h.next.vid].pos - mesh.verts[h.vid].pos;
+        }
+
         public float Length(HalfEdge h) {
-            return h.Vector().magnitude;
+            return Vector(h).magnitude;
+            //return h.Vector().magnitude;
         }
 
         public float Cotan(HalfEdge h){
-            var p = h.prev.Vector();
-            var n = h.next.Vector() * -1;
+            var p = Vector(h.prev);
+            var n = Vector(h.next) * -1;
             return Vector3.Dot(p, n) / Vector3.Cross(p, n).magnitude;
         }
 
         float Area(Face f) {
             var h = halfedges[f.hid];
             if (h.onBoundary) return 0f;
-            var u = h.Vector();
-            var v = h.prev.Vector() * -1;
+            var u = Vector(h);
+            var v = Vector(h.prev) * -1;
             return Vector3.Cross(u, v).magnitude * 0.5f;
         }
 
@@ -33,22 +38,22 @@ namespace ddg {
             o = new Vector3();
             var h = halfedges[f.hid];
             if(h.onBoundary) return false;
-            var u = h.Vector();
-            var v = h.prev.Vector() * -1;
+            var u = Vector(h);
+            var v = Vector(h.prev) * -1;
             o = Vector3.Cross(u, v).normalized;
             return true;
         }
 
         public float Angle(Corner c) {
-            var v1 = halfedges[c.hid].next.Vector().normalized;
-            var v2 = halfedges[c.hid].prev.Vector().normalized * -1;
+            var v1 = Vector(halfedges[c.hid].next).normalized;
+            var v2 = Vector(halfedges[c.hid].prev).normalized * -1;
             return Mathf.Acos(Vector3.Dot(v1, v2));
         }
 
         public float DihedralAngle(HalfEdge h) {
             FaceNormal(h.face, out Vector3 n_ijk);
             FaceNormal(h.twin.face, out Vector3 n_jil);
-            var vec = h.Vector() / Length(h);
+            var vec = Vector(h) / Length(h);
             var crs = Vector3.Cross(n_ijk, n_jil);
             var dot = Vector3.Dot(n_ijk, n_jil);
             return Mathf.Atan2(Vector3.Dot(vec, crs), dot);
@@ -71,8 +76,8 @@ namespace ddg {
             foreach (var h in v.GetAdjacentHalfedges(halfedges)) {
                 var v0 = Cotan(h);
                 var v1 = Cotan(h.prev);
-                var l0 = h.Vector().sqrMagnitude;
-                var l1 = h.prev.Vector().sqrMagnitude;
+                var l0 = Vector(h).sqrMagnitude;
+                var l1 = Vector(h.prev).sqrMagnitude;
                 sum += v0 * l0 + v1 * l1;
             }
             return sum * 0.125f;

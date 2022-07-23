@@ -19,24 +19,25 @@ namespace ddg {
         }
 
         void Update() {
+            var vs = mesh.verts;
             if(Input.GetKeyDown(KeyCode.Space)){
                 count = (count + 1) % mesh.halfedges.Length;
                 curr = mesh.halfedges[count];
-                var p = (curr.vert.pos + curr.next.vert.pos) / 2;
+                var p = (vs[curr.vid].pos + vs[curr.next.vid].pos) / 2;
                 cube1.transform.position = p;
-                cube2.transform.position = curr.vert.pos;
+                cube2.transform.position = vs[curr.vid].pos;
             }
             if(Input.GetKeyDown(KeyCode.N)){
                 curr = curr.next;
-                var p = (curr.vert.pos + curr.next.vert.pos) / 2;
+                var p = (vs[curr.vid].pos + vs[curr.next.vid].pos) / 2;
                 cube1.transform.position = p;
-                cube2.transform.position = curr.vert.pos;
+                cube2.transform.position = vs[curr.vid].pos;
             }
             if(Input.GetKeyDown(KeyCode.T)){
                 curr = curr.twin;
-                var p = (curr.vert.pos + curr.next.vert.pos) / 2;
+                var p = (vs[curr.vid].pos + vs[curr.next.vid].pos) / 2;
                 cube1.transform.position = p;
-                cube2.transform.position = curr.vert.pos;
+                cube2.transform.position = vs[curr.vid].pos;
             }
         }
     }

@@ -5,6 +5,7 @@ using UnityEngine;
 namespace ddg {
     public class HalfEdge {
         public int id;
+        public int vid;
         public Vert vert;
         public Face face;
         public Corner corner;
@@ -14,7 +15,7 @@ namespace ddg {
         public bool onBoundary;
 
         public HalfEdge(int id){ this.id = id; }
-        public Vector3 Vector() => next.vert.pos - vert.pos; 
+        //public Vector3 Vector() => next.vert.pos - vert.pos; 
     }
 
     public struct Vert {

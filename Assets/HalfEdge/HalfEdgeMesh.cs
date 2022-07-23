@@ -26,9 +26,12 @@ namespace ddg {
                 var h0 = new HalfEdge(i0);
                 var h1 = new HalfEdge(i1);
                 var h2 = new HalfEdge(i2);
-                h0.vert = new Vert(i0, idxs[i0], vrts[idxs[i0]]);
-                h1.vert = new Vert(i1, idxs[i1], vrts[idxs[i1]]);
-                h2.vert = new Vert(i2, idxs[i2], vrts[idxs[i2]]);
+                h0.vid = idxs[i0];
+                h1.vid = idxs[i1];
+                h2.vid = idxs[i2];
+                //h0.vert = new Vert(i0, idxs[i0], vrts[idxs[i0]]);
+                //h1.vert = new Vert(i1, idxs[i1], vrts[idxs[i1]]);
+                //h2.vert = new Vert(i2, idxs[i2], vrts[idxs[i2]]);
 
                 var f = new Face();
                 f.hid = i2;
@@ -55,9 +58,12 @@ namespace ddg {
                 halfedges[i0] = h0;
                 halfedges[i1] = h1;
                 halfedges[i2] = h2;
-                verts[idxs[i0]] = h0.vert;
-                verts[idxs[i1]] = h1.vert;
-                verts[idxs[i2]] = h2.vert;
+                //verts[idxs[i0]] = h0.vert;
+                //verts[idxs[i1]] = h1.vert;
+                //verts[idxs[i2]] = h2.vert;
+                verts[idxs[i0]] = new Vert(i0, idxs[i0], vrts[idxs[i0]]);
+                verts[idxs[i1]] = new Vert(i1, idxs[i1], vrts[idxs[i1]]);
+                verts[idxs[i2]] = new Vert(i2, idxs[i2], vrts[idxs[i2]]);
             }
 
             var hasTwinHes = new List<int>();
@@ -85,7 +91,8 @@ namespace ddg {
                             next = twin.next;
                         }
                         f.hid = i;
-                        bh.vert = next.vert;
+                        //bh.vert = next.vert;
+                        bh.vid = next.vid;
                         bh.face = f;
                         bh.onBoundary = true;
                         bh.twin = curr;
