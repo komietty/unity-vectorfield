@@ -14,7 +14,7 @@ namespace ddg {
 
         [DllImport("libEigenDll")] static extern void GetValues(IntPtr m, [In, Out] float[] values);
 
-        [DllImport("libEigenDll")] static extern IntPtr Plus(IntPtr m1, IntPtr m2);
+        [DllImport("libEigenDll")] static extern IntPtr Plus(IntPtr m1, IntPtr m2, int nrows, int ncols);
         [DllImport("libEigenDll")] static extern IntPtr Minus(IntPtr m1, IntPtr m2);
         [DllImport("libEigenDll")] static extern IntPtr Times(IntPtr m1, IntPtr m2);
         [DllImport("libEigenDll")] static extern IntPtr Invert(IntPtr m);
@@ -26,6 +26,15 @@ namespace ddg {
         public int NCols;
         public int NRows;
 
+        public static DenseMtx Plus (DenseMtx m1, DenseMtx m2) {
+            //if(m1.NRows != m2.NRows || m1.NCols != m2.NCols) throw new Exception();
+            return new DenseMtx(Plus(m1.m, m2.m, 3, 3));
+            //return new DenseMtx(Plus(m1.m, m2.m, m1.NRows, m2.NCols));
+        }
+
+        public static DenseMtx Minus(DenseMtx m1, DenseMtx m2) { return new DenseMtx(Minus(m1.m, m2.m)); }
+
+        public DenseMtx(IntPtr m) { this.m = m; }
         public DenseMtx(Type t, int nrow, int ncol, float v = 0) {
             this.NRows = nrow;
             this.NCols = ncol;

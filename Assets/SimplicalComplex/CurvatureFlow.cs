@@ -3,20 +3,33 @@ using UnityEngine;
 
 namespace ddg {
     public class CurvatureFlow : MonoBehaviour {
+        [SerializeField, Range(0.001f, 0.1f)] protected float delta = 0.001f;
         HalfEdgeGeom geom;
         MeanCurvatureFlow flow;
+        MeshFilter filt;
 
         void Start() {
-            var filt = GetComponentInChildren<MeshFilter>();
+            filt = GetComponentInChildren<MeshFilter>();
             var rend = GetComponentInChildren<MeshRenderer>();
-            var mesh = Weld(filt.sharedMesh);
+            //var mesh = Weld(filt.sharedMesh);
+            var mesh = new Mesh();
+            mesh.SetVertices(new Vector3[]{
+                new Vector3(0, -0.5f, -1),
+                new Vector3(0.866025f, -0.5f, 0.5f),
+                new Vector3(-0.866025f, -0.5f, 0.5f),
+                new Vector3(0, 0.5f, 0),
+                });
+            mesh.SetIndices(new int[]{0, 3, 1, 0, 1, 2, 1, 3, 2, 2, 3, 0}, MeshTopology.Triangles, 0);
             filt.sharedMesh = mesh;
             geom = new HalfEdgeGeom(mesh);
             flow = new MeanCurvatureFlow(geom);
         }
 
-        void OnDestroy(){
-            flow.Dispose();
+        void Update() {
+            if(Input.GetKeyDown(KeyCode.Space)){
+                flow.Integrate(delta);
+                filt.sharedMesh.SetVertices(geom.mesh.verts.Select(v => v.pos).ToArray());
+            }
         }
 
         Mesh Weld(Mesh original) {

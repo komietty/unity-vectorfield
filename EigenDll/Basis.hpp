@@ -10,7 +10,7 @@
 
 typedef Eigen::Triplet<float> T;
 typedef Eigen::SparseMatrix<float> S;
-typedef Eigen::MatrixXd D;
+typedef Eigen::MatrixXf D;
 
 #pragma pack(push, 1)
 struct StructA {
@@ -50,26 +50,45 @@ extern "C" {
     // Dense
     DllExport D* GenDenseOnes(int nrows, int ncols) {
         D* m = new D(nrows, ncols);
-        (*m).setOnes();
+        m->setOnes();
         return m;
         
     }
 
     DllExport D* GenDenseZeros(int nrows, int ncols) {
         D* m = new D(nrows, ncols);
-        (*m).setZero();
+        m->setZero();
         return m;
     }
 
     DllExport void GetValues(D* m, float* values) {
-        int r = (int)(*m).rows();
-        int c = (int)(*m).cols();
+        int r = (int)m->rows();
+        int c = (int)m->cols();
         for (int i = 0; i < r; i++) {
             for (int j = 0; j < c; j++) {
                 values[j + i * c] = (*m)(i,j);
             }
         }
     }
+
+    DllExport D* Plus(D* m1, D* m2, int nrows, int ncols) {
+        D* m = new D(nrows, ncols);
+        (*m).setOnes();
+        return m;
+        
+    };
+
+    DllExport D* Minus(D* m1, D* m2) {
+        D* m = new D();
+        *m = (*m1) - (*m2);
+        return m;
+    };
+
+    DllExport D* Times(D* m1, D* m2) {
+        D* m = new D();
+        *m = (*m1) * (*m2);
+        return m;
+    };
 
     DllExport void FreeAllocDense(D* m) { delete m; };
 
@@ -85,24 +104,6 @@ extern "C" {
     DllExport int nCols(S* m) { return (int)(*m).cols(); };
 
 
-    DllExport S* Plus(S* m1, S* m2) {
-        S* v = new S();
-        *v = (*m1) + (*m2);
-        return v;
-        
-    };
-
-    DllExport S* Minus(S* m1, S* m2) {
-        S* v = new S();
-        *v = (*m1) - (*m2);
-        return v;
-    };
-
-    DllExport S* Times(S* m1, S* m2) {
-        S* v = new S();
-        *v = (*m1) * (*m2);
-        return v;
-    };
 }
 
 #endif

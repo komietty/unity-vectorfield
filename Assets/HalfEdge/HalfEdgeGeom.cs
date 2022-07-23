@@ -15,7 +15,7 @@ namespace ddg {
             return h.Vector().magnitude;
         }
 
-        float Cotan(HalfEdge h){
+        public float Cotan(HalfEdge h){
             var p = h.prev.Vector();
             var n = h.next.Vector() * -1;
             return Vector3.Dot(p, n) / Vector3.Cross(p, n).magnitude;
@@ -26,7 +26,7 @@ namespace ddg {
             if (h.onBoundary) return 0f;
             var u = h.Vector();
             var v = h.prev.Vector() * -1;
-            return Vector3.Cross(u, v).magnitude;
+            return Vector3.Cross(u, v).magnitude * 0.5f;
         }
 
         public bool FaceNormal(Face f, out Vector3 o){
@@ -62,7 +62,7 @@ namespace ddg {
 
         public float BarycentricDualArea(Vert v) {
             var o = 0f;
-            foreach (var f in v.GetAdjacentFaces(halfedges)) o += Area(f);
+            foreach (var f in v.GetAdjacentFaces(halfedges)) { o += Area(f); }
             return o / 3;
         } 
 
