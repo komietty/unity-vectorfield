@@ -8,11 +8,12 @@ namespace ddg {
         HalfEdgeGeom geom;
         MeanCurvatureFlow flow;
         MeshFilter filt;
+        Mesh mesh;
 
         void Start() {
             filt = GetComponentInChildren<MeshFilter>();
             var rend = GetComponentInChildren<MeshRenderer>();
-            var mesh = MeshUtils.Weld(filt.sharedMesh);
+            mesh = MeshUtils.Weld(filt.sharedMesh);
             filt.sharedMesh = mesh;
             geom = new HalfEdgeGeom(mesh);
             flow = new MeanCurvatureFlow(geom, type);
@@ -21,7 +22,8 @@ namespace ddg {
         void Update() {
             if(Input.GetKeyDown(KeyCode.Space)){
                 flow.Integrate(delta);
-                filt.sharedMesh.SetVertices(geom.mesh.verts.Select(v => v.pos).ToArray());
+                mesh.SetVertices(geom.mesh.verts.Select(v => v.pos).ToArray());
+                mesh.RecalculateNormals();
             }
         }
     }

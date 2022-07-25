@@ -17,7 +17,6 @@ namespace ddg {
 
         public float Length(HalfEdge h) {
             return Vector(h).magnitude;
-            //return h.Vector().magnitude;
         }
 
         public float Cotan(HalfEdge h){

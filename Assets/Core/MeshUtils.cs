@@ -25,5 +25,22 @@ namespace ddg {
             alt_mesh.SetTriangles(alt_idcs, 0);
             return alt_mesh;
         }
+
+        public static void Normalize(Vector3[] ps, bool rescale = true) {
+            var n = ps.Length;
+            var c = new Vector3();
+            foreach (var p in ps) { c += p; }
+            c /= n;
+
+            var rad = -1f;
+            for (int i = 0; i < n; i++) {
+                ps[i] -= c;
+                rad = Mathf.Max(rad, ps[i].magnitude);
+            }
+
+            if (rescale) {
+                for (int i = 0; i < n; i++) { ps[i] /= rad; }
+            }
+        }
     }
 }

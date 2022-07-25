@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace ddg {
     public class MeanCurvatureFlow {
-        [DllImport("libEigenDll")] static extern void SolveLU(int ntrps, int nvrts, [In, Out] Trp[] trps, [In, Out] Vec[] vrts, [In, Out] Vec[] outs);
+        [DllImport("libEigenDll")] static extern void SolveLU(int ntrps, int nvrts, [In] Trp[] trps, [In] Vector3[] vrts, [Out] Vector3[] outs);
         public enum Type { Simple, Modified }
         Type type = Type.Simple;
         HalfEdgeGeom geom;
@@ -19,7 +19,7 @@ namespace ddg {
         public MeanCurvatureFlow(HalfEdgeGeom geom, Type type) {
             this.geom = geom;
             this.type = type;
-            L = GenLaplaceMtx();
+            if (type == Type.Modified) L = GenLaplaceMtx();
         }
 
         public SparseMatrix GenFlowMtx(double h){
@@ -63,21 +63,15 @@ namespace ddg {
                 var c = itrator.Count();
                 var trps = new Trp[c];
                 var itr = 0;
-                var vrts = new Vec[l];
-                var outs = new Vec[l];
+                var vrts = new Vector3[l];
+                var outs = new Vector3[l];
                 foreach (var v in itrator) { trps[itr] = new Trp(v.Item3, v.Item1, v.Item2); itr++; }
-                for (var i = 0; i < l; i++)
-                {
-                    var v = geom.mesh.verts[i];
-                    vrts[i] = new Vec(v.pos.x, v.pos.y, v.pos.z);
-                }
+                for (var i = 0; i < l; i++) { vrts[i] = geom.mesh.verts[i].pos; }
+
                 SolveLU(c, l, trps, vrts, outs);
-                for (var i = 0; i < l; i++) {
-                    var o = outs[i];
-                    var p = new Vector3((float)o.x, (float)o.y, (float)o.z);
-                    geom.mesh.verts[i].pos = p;
-                }
-                //for (var i = 0; i < l; i++) { Debug.Log("x:" + outs[i].x + "y:" + outs[i].y + "z:" + outs[i].z); }
+
+                MeshUtils.Normalize(outs, true);
+                for (var i = 0; i < l; i++) { geom.mesh.verts[i].pos = outs[i]; }
             }else {
                 var f0 = new DenseMatrix(l, 3);
                 foreach (var v in geom.mesh.verts) {
@@ -104,18 +98,6 @@ namespace ddg {
                 this.v = v;
                 this.i = i;
                 this.j = j;
-            }
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public struct Vec {
-            public float x;
-            public float y;
-            public float z;
-            public Vec(float x, float y, float z) {
-                this.x = x;
-                this.y = y;
-                this.z = z;
             }
         }
     }

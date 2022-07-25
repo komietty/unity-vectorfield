@@ -13,9 +13,7 @@ namespace ddg {
         public HalfEdge prev;
         public HalfEdge twin;
         public bool onBoundary;
-
-        public HalfEdge(int id){ this.id = id; }
-        //public Vector3 Vector() => next.vert.pos - vert.pos; 
+        public HalfEdge(int id) { this.id = id; }
     }
 
     public struct Vert {
