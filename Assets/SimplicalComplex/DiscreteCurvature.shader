@@ -10,7 +10,6 @@ Shader "Unlit/DiscreteCurvature" {
             #pragma vertex vert
             #pragma fragment frag
             #include "UnityCG.cginc"
-            #include "../Curvature/Curvature.hlsl"
             StructuredBuffer<float3> _Color;
 
             struct appdata {
