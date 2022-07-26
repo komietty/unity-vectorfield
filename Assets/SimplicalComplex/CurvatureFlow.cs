@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace ddg {
     public class CurvatureFlow : MonoBehaviour {
+        [SerializeField] protected bool native = true;
         [SerializeField, Range(0.001f, 0.1f)] protected float delta = 0.001f;
         [SerializeField] protected MeanCurvatureFlow.Type type;
         HalfEdgeGeom geom;
@@ -15,7 +16,7 @@ namespace ddg {
             mesh = MeshUtils.Weld(filt.sharedMesh);
             filt.sharedMesh = mesh;
             geom = new HalfEdgeGeom(mesh);
-            flow = new MeanCurvatureFlow(geom, type);
+            flow = new MeanCurvatureFlow(geom, type, native);
             mesh.RecalculateNormals();
         }
 

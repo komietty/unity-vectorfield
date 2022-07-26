@@ -1,23 +1,24 @@
-using UnityEngine;
-using System;
+using Unity.Mathematics;
+using System.Collections.Generic;
 
 namespace ddg {
+    using static Unity.Mathematics.math;
     public class HalfEdgeGeom: HalfEdgeMesh {
 
-        public HalfEdgeGeom(Mesh mesh) : base(mesh) { }
+        public HalfEdgeGeom(UnityEngine.Mesh mesh) : base(mesh) { }
 
-        public Vector3 Vector(HalfEdge h) {
+        public float3 Vector(HalfEdge h) {
             return Pos[h.next.vid] - Pos[h.vid];
         }
 
         public float Length(HalfEdge h) {
-            return Vector(h).magnitude;
+            return length(Vector(h));
         }
 
         public float Cotan(HalfEdge h){
             var p = Vector(h.prev);
             var n = Vector(h.next) * -1;
-            return Vector3.Dot(p, n) / Vector3.Cross(p, n).magnitude;
+            return dot(p, n) / length(cross(p, n));
         }
 
         float Area(Face f) {
@@ -25,53 +26,53 @@ namespace ddg {
             if (h.onBoundary) return 0f;
             var u = Vector(h);
             var v = Vector(h.prev) * -1;
-            return Vector3.Cross(u, v).magnitude * 0.5f;
+            return length(cross(u, v)) * 0.5f;
         }
 
-        public bool FaceNormal(Face f, out Vector3 o){
-            o = new Vector3();
+        public bool FaceNormal(Face f, out float3 o){
+            o = new float3();
             var h = halfedges[f.hid];
             if(h.onBoundary) return false;
             var u = Vector(h);
             var v = Vector(h.prev) * -1;
-            o = Vector3.Cross(u, v).normalized;
+            o = normalize(cross(u, v));
             return true;
         }
 
         public float Angle(Corner c) {
-            var v1 = Vector(halfedges[c.hid].next).normalized;
-            var v2 = Vector(halfedges[c.hid].prev).normalized * -1;
-            return Mathf.Acos(Vector3.Dot(v1, v2));
+            var v1 = normalize(Vector(halfedges[c.hid].next));
+            var v2 = normalize(Vector(halfedges[c.hid].prev)) * -1;
+            return acos(dot(v1, v2));
         }
 
         public float DihedralAngle(HalfEdge h) {
-            FaceNormal(h.face, out Vector3 n_ijk);
-            FaceNormal(h.twin.face, out Vector3 n_jil);
-            var vec = Vector(h) / Length(h);
-            var crs = Vector3.Cross(n_ijk, n_jil);
-            var dot = Vector3.Dot(n_ijk, n_jil);
-            return Mathf.Atan2(Vector3.Dot(vec, crs), dot);
+            FaceNormal(h.face, out float3 n_ijk);
+            FaceNormal(h.twin.face, out float3 n_jil);
+            var v = Vector(h) / Length(h);
+            var c = cross(n_ijk, n_jil);
+            var d = dot(n_ijk, n_jil);
+            return atan2(dot(v, c), d);
         }
 
         public float AngleDefect(Vert v) {
-            var o = Mathf.PI * 2;
-            foreach (var c in v.GetAdjacentConers(halfedges)) o -= Angle(c);
+            var o = PI * 2;
+            foreach (var c in GetAdjacentConers(v)) o -= Angle(c);
             return o;
         }
 
         public float BarycentricDualArea(Vert v) {
             var o = 0f;
-            foreach (var f in v.GetAdjacentFaces(halfedges)) { o += Area(f); }
+            foreach (var f in GetAdjacentFaces(v)) { o += Area(f); }
             return o / 3;
         } 
 
         public float CircumcentricDualArea(Vert v) {
             var sum = 0f;
-            foreach (var h in v.GetAdjacentHalfedges(halfedges)) {
+            foreach (var h in GetAdjacentHalfedges(v)) {
                 var v0 = Cotan(h);
                 var v1 = Cotan(h.prev);
-                var l0 = Vector(h).sqrMagnitude;
-                var l1 = Vector(h.prev).sqrMagnitude;
+                var l0 = lengthsq(Vector(h));
+                var l1 = lengthsq( Vector(h.prev));
                 sum += v0 * l0 + v1 * l1;
             }
             return sum * 0.125f;
@@ -83,17 +84,59 @@ namespace ddg {
 
         public float ScalarMeanCurvature(Vert v) {
             var o = 0f;
-            foreach (var h in v.GetAdjacentHalfedges(halfedges))
+            foreach (var h in GetAdjacentHalfedges(v))
                 o += DihedralAngle(h) * Length(h);
             return o * 0.5f;
         }
         
-        public Vector2 PrincipalCurvature(Vert v) {
+        public float2 PrincipalCurvature(Vert v) {
             var A = CircumcentricDualArea(v);
             var H = ScalarMeanCurvature(v) / A;
             var K = ScalarGaussCurvature(v) / A;
-            var D = Mathf.Sqrt(H * H - K);
-            return new Vector2(H - D, H + D);
+            var D = sqrt(H * H - K);
+            return new float2(H - D, H + D);
         } 
+
+        public IEnumerable<Face> GetAdjacentFaces(Vert v) {
+            var tgt = halfedges[v.hid];
+            while(tgt.onBoundary){ tgt = tgt.twin.next; }
+            var curr = tgt;
+            var endId = tgt.id;
+            var once = false;
+            while (true) {
+                while (curr.onBoundary) { curr = curr.twin.next; }
+                if (once && curr.id == tgt.id) break;
+                once = true;
+                yield return curr.next.face;
+                curr = curr.twin.next;
+            };
+        }
+
+        public IEnumerable<Corner> GetAdjacentConers(Vert v) {
+            var tgt = halfedges[v.hid];
+            while(tgt.onBoundary){ tgt = tgt.twin.next; }
+            var curr = tgt;
+            var endId = tgt.id;
+            var once = false;
+            while (true) {
+                while (curr.onBoundary) { curr = curr.twin.next; }
+                if (once && curr.id == tgt.id) break;
+                once = true;
+                yield return curr.next.corner;
+                curr = curr.twin.next;
+            };
+        }
+
+        public IEnumerable<HalfEdge> GetAdjacentHalfedges(Vert v) {
+            var curr = halfedges[v.hid];
+            var endId = curr.id;
+            var once = false;
+            while (true) {
+                if (once && curr.id == endId) break;
+                yield return curr;
+                curr = curr.twin.next;
+                once = true;
+            };
+        }
     }
 }

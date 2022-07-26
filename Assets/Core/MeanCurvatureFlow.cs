@@ -17,9 +17,10 @@ namespace ddg {
         int l => geom.nVerts;
         bool native = false;
         
-        public MeanCurvatureFlow(HalfEdgeGeom geom, Type type) {
+        public MeanCurvatureFlow(HalfEdgeGeom geom, Type type, bool native) {
             this.geom = geom;
             this.type = type;
+            this.native = native;
             if (type == Type.Modified) L = GenLaplaceMtx();
         }
 
@@ -41,7 +42,7 @@ namespace ddg {
             for (var i = 0; i < l; i++) {
                 var v = geom.Verts[i];
                 var s = 0f;
-                foreach (var h in v.GetAdjacentHalfedges(geom.halfedges)) {
+                foreach (var h in geom.GetAdjacentHalfedges(v)) {
                     var a = geom.Cotan(h);
                     var b = geom.Cotan(h.twin);
                     var c = (a + b) * 0.5f;

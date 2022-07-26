@@ -25,16 +25,18 @@ namespace ddg {
                 count = (count + 1) % mesh.halfedges.Length;
                 curr = mesh.halfedges[count];
                 p = (pos[curr.vid] + pos[curr.next.vid]) / 2;
+                cube1.transform.position = p;
             }
             if(Input.GetKeyDown(KeyCode.N)){
                 curr = curr.next;
                 p = (pos[curr.vid] + pos[curr.next.vid]) / 2;
+                cube1.transform.position = p;
             }
             if(Input.GetKeyDown(KeyCode.T)){
                 curr = curr.twin;
                 p = (pos[curr.vid] + pos[curr.next.vid]) / 2;
+                cube1.transform.position = p;
             }
-            cube1.transform.position = p;
             cube2.transform.position = pos[curr.vid];
         }
     }

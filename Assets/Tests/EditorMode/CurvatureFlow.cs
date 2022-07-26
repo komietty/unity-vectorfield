@@ -10,7 +10,7 @@ namespace ddg {
         public void CurvatureFlowSimplePasses() {
             var m = TestAssets.Primitive();
             var g = new HalfEdgeGeom(m);
-            var f = new MeanCurvatureFlow(g, MeanCurvatureFlow.Type.Simple);
+            var f = new MeanCurvatureFlow(g, MeanCurvatureFlow.Type.Simple, false);
             var h = 0.1;
             var result_1 = new Vector3[]{
                 new Vector3(0.000000f, -0.445251f, -0.841730f),

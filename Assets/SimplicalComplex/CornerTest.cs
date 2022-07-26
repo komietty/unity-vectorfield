@@ -9,6 +9,7 @@ namespace ddg {
         GameObject cube1;
         int count = 0;
 
+        /*
         void Start() {
             var m = GetComponentInChildren<MeshFilter>().sharedMesh;
             mesh = new HalfEdgeMesh(m);
@@ -26,6 +27,7 @@ namespace ddg {
                 yield return new WaitForSeconds(0.5f);
             }
         }
+        */
     }
 }
 

@@ -42,5 +42,7 @@ namespace ddg {
                 for (int i = 0; i < n; i++) { ps[i] /= rad; }
             }
         }
+
+        //public static int EulerCharactaristics(Vector3[] vrts, int[] idcs){ }
     }
 }
