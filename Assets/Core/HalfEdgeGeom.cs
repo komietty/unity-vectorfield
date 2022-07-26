@@ -1,18 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace ddg {
-    public class HalfEdgeGeom {
-        public HalfEdgeMesh mesh;
-        public HalfEdge[] halfedges => mesh.halfedges;
+    public class HalfEdgeGeom: HalfEdgeMesh {
 
-        public HalfEdgeGeom(Mesh mesh) {
-            this.mesh = new HalfEdgeMesh(mesh);
-        }
+        public HalfEdgeGeom(Mesh mesh) : base(mesh) { }
 
         public Vector3 Vector(HalfEdge h) {
-            return mesh.verts[h.next.vid].pos - mesh.verts[h.vid].pos;
+            return Pos[h.next.vid] - Pos[h.vid];
         }
 
         public float Length(HalfEdge h) {

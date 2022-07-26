@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/SimplicalComplex/CurvatureFlow.unity
+    guid: 5ab6d5305496b4236878c5059b0a2eeb
   m_configObjects: {}

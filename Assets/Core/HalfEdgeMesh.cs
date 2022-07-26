@@ -6,40 +6,48 @@ using System;
 namespace ddg {
     public class HalfEdgeMesh {
         public HalfEdge[] halfedges     { get; protected set; }
-        public Corner[] corners         { get; protected set; }
-        public Vert[] verts             { get; protected set; }
-        public Face[] faces             { get; protected set; }
-        public Face[] boundaries        { get; protected set; }
         public int eulerCharactaristics { get; protected set; }
+        public ReadOnlySpan<Vert> Verts => verts.AsSpan();
+        public ReadOnlySpan<Face> Faces => faces.AsSpan();
+        public Span<Vector3> Pos => pos.AsSpan();
+        public int nVerts { get; protected set; }
+        public int nFaces { get; protected set; }
+        Vert[] verts;
+        Face[] faces;
+        Face[] bunds;
+        Corner[] corners;
+        Vector3[] pos;
 
         public HalfEdgeMesh(Mesh mesh) {
-            var vrts = mesh.vertices;
-            var idxs = mesh.GetIndices(0);
-            var keys = (Span<Key>)(stackalloc Key[idxs.Length]);
-            PreallocateElements(vrts, idxs);
+            pos = mesh.vertices;
+            var idxs = new ReadOnlySpan<int>(mesh.triangles);
+            Span<Key> keys = stackalloc Key[idxs.Length];
+            Preallocate(new ReadOnlySpan<Vector3>(pos), idxs);
 
             for (var i = 0; i < idxs.Length; i += 3) {
                 var i0 = i + 0;
                 var i1 = i + 1;
                 var i2 = i + 2;
+                var v0 = idxs[i0];
+                var v1 = idxs[i1];
+                var v2 = idxs[i2];
                 var h0 = new HalfEdge(i0);
                 var h1 = new HalfEdge(i1);
                 var h2 = new HalfEdge(i2);
-                h0.vid = idxs[i0];
-                h1.vid = idxs[i1];
-                h2.vid = idxs[i2];
+                h0.vid = v0;
+                h1.vid = v1;
+                h2.vid = v2;
 
-                var f = new Face();
-                f.hid = i2;
+                var f = new Face(i2);
                 faces[i / 3] = f;
 
                 h0.next = h1; h0.prev = h2; h0.face = f;
                 h1.next = h2; h1.prev = h0; h1.face = f;
                 h2.next = h0; h2.prev = h1; h2.face = f;
 
-                keys[i0] = new Key(idxs[i0], idxs[i1]);
-                keys[i1] = new Key(idxs[i1], idxs[i2]);
-                keys[i2] = new Key(idxs[i2], idxs[i0]);
+                keys[i0] = new Key(v0, v1);
+                keys[i1] = new Key(v1, v2);
+                keys[i2] = new Key(v2, v0);
                 bool f0 = false;
                 bool f1 = false;
                 bool f2 = false;
@@ -54,9 +62,9 @@ namespace ddg {
                 halfedges[i0] = h0;
                 halfedges[i1] = h1;
                 halfedges[i2] = h2;
-                verts[idxs[i0]] = new Vert(i0, idxs[i0], vrts[idxs[i0]]);
-                verts[idxs[i1]] = new Vert(i1, idxs[i1], vrts[idxs[i1]]);
-                verts[idxs[i2]] = new Vert(i2, idxs[i2], vrts[idxs[i2]]);
+                verts[v0] = new Vert(i0, v0);
+                verts[v1] = new Vert(i1, v1);
+                verts[v2] = new Vert(i2, v2);
             }
 
             var hasTwinHes = new List<int>();
@@ -83,7 +91,7 @@ namespace ddg {
                             var twin = next.twin;
                             next = twin.next;
                         }
-                        f.hid = i;
+                        f = new Face(i);
                         bh.vid = next.vid;
                         bh.face = f;
                         bh.onBoundary = true;
@@ -101,19 +109,18 @@ namespace ddg {
                         h.next = cycl[(j + n - 1) % n];
                         h.prev = cycl[(j + 1) % n];
                     }
-                    this.boundaries[itr++] = f; 
+                    this.bunds[itr++] = f; 
                 }
 
                 if (!tgt.onBoundary) {
-                    var c = new Corner();
-                    c.hid = i;
+                    var c = new Corner(i);
                     halfedges[i].corner = c;
                     this.corners[cid++] = c;
                 }
             }
         }
 
-        void PreallocateElements(Vector3[] vrts, int[] idcs){
+        void Preallocate(ReadOnlySpan<Vector3> vrts, ReadOnlySpan<int> idcs){
             var sortedEdges = new HashSet<Key>();
             var nBoundaryHe = 0;
             for (var I = 0; I < idcs.Length; I += 3) {
@@ -127,15 +134,18 @@ namespace ddg {
                     else { sortedEdges.Add(key); nBoundaryHe++; }
                 }
             }
+
+            nVerts = vrts.Length;
+            nFaces = idcs.Length / 3;
             var nEdges = sortedEdges.Count;
             var nHalfedges = 2 * nEdges;
             var nInteriorHalfedges = nHalfedges - nBoundaryHe;
             this.halfedges = new HalfEdge[nHalfedges];
             this.corners = new Corner[nInteriorHalfedges];
-            this.boundaries = new Face[nBoundaryHe];
-            this.verts = new Vert[vrts.Length];
-            this.faces = new Face[idcs.Length / 3];
-            eulerCharactaristics = faces.Length - nEdges + verts.Length;
+            this.verts = new Vert[nVerts];
+            this.bunds = new Face[nBoundaryHe];
+            this.faces = new Face[nFaces];
+            eulerCharactaristics = nFaces - nEdges + nVerts;
         }
 
         public struct Key {

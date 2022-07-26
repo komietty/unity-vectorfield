@@ -27,17 +27,17 @@ namespace ddg {
 
             f.Integrate(h);
 
-            for (var i = 0; i < g.mesh.verts.Length; i++) {
-                var v = g.mesh.verts[i];
-                var d = Vector3.Distance(v.pos, result_1[i]);
+            for (var i = 0; i < g.Verts.Length; i++) {
+                var p = g.Pos[i];
+                var d = Vector3.Distance(p, result_1[i]);
                 Assert.IsTrue(d < 1e-3f);
             }
 
             f.Integrate(h);
 
-            for (var i = 0; i < g.mesh.verts.Length; i++) {
-                var v = g.mesh.verts[i];
-                var d = Vector3.Distance(v.pos, result_2[i]);
+            for (var i = 0; i < g.Verts.Length; i++) {
+                var p = g.Pos[i];
+                var d = Vector3.Distance(p, result_2[i]);
                 Assert.IsTrue(d < 1e-3f);
             }
             /*

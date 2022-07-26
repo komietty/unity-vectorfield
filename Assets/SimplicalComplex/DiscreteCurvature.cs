@@ -21,13 +21,13 @@ namespace ddg {
             rend.material = mat;
             geom = new HalfEdgeGeom(mesh);
             SetCurvature(type);
-            Debug.Log(geom.mesh.eulerCharactaristics);
+            Debug.Log(geom.eulerCharactaristics);
             started = true;
         }
 
 
         void SetCurvature(CurvatureType t) {
-            var n = geom.mesh.verts.Length;
+            var n = geom.nVerts;
             var k = new Vector3[n];
             var max = 0f;
             var arr = new float[n];
@@ -35,7 +35,7 @@ namespace ddg {
             curvature = new GraphicsBuffer(Target.Structured, n, sizeof(float) * 3);
 
             for (var i = 0; i < n; i++) {
-                var v = geom.mesh.verts[i];
+                var v = geom.Verts[i];
                 var g = 0f;
                 if (t == CurvatureType.ScalarGaussCurvature) g = geom.ScalarGaussCurvature(v);
                 if (t == CurvatureType.ScalarMeanCurvature)  g = geom.ScalarMeanCurvature(v);

@@ -16,15 +16,13 @@ namespace ddg {
         public HalfEdge(int id) { this.id = id; }
     }
 
-    public struct Vert {
-        public int hid;
-        public int vid;
-        public Vector3 pos;
+    public readonly struct Vert {
+        public readonly int hid;
+        public readonly int vid;
 
-        public Vert(int hid, int vid, Vector3 pos) {
+        public Vert(int hid, int vid) {
             this.hid = hid;
             this.vid = vid;
-            this.pos = pos;
         }
 
         public IEnumerable<Face> GetAdjacentFaces(HalfEdge[] hes) {
@@ -71,17 +69,13 @@ namespace ddg {
         }
     }
 
-    public struct Face {
-        public int hid;
-        public Face(int hid) {
-            this.hid = hid;
-        }
+    public readonly struct Face {
+        public readonly int hid;
+        public Face(int hid) { this.hid = hid; }
     }
 
-    public struct Corner {
-        public int hid;
-        public Corner(int hid) {
-            this.hid = hid;
-        }
+    public readonly struct Corner {
+        public readonly int hid;
+        public Corner(int hid) { this.hid = hid; }
     }
 }

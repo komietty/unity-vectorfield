@@ -1,4 +1,3 @@
-using System.Linq;
 using UnityEngine;
 
 namespace ddg {
@@ -17,12 +16,16 @@ namespace ddg {
             filt.sharedMesh = mesh;
             geom = new HalfEdgeGeom(mesh);
             flow = new MeanCurvatureFlow(geom, type);
+            mesh.RecalculateNormals();
         }
 
         void Update() {
             if(Input.GetKeyDown(KeyCode.Space)){
+                var l = geom.nVerts;
+                var a = new Vector3[l];
                 flow.Integrate(delta);
-                mesh.SetVertices(geom.mesh.verts.Select(v => v.pos).ToArray());
+                for (var i = 0; i < l; i++) { a[i] = geom.Pos[i]; }
+                mesh.SetVertices(a);
                 mesh.RecalculateNormals();
             }
         }
