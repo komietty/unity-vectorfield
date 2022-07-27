@@ -1,9 +1,11 @@
-# unity-curvature-gems
+# unity-halfedges
 
-## Gausian Curvature
-![img](Imgs/curvature.png)
+## Curvature Culc
+### Gausian / Mean / Principal / Normal
+<img src="Imgs/gauss.png" width="400px"/>
 
-## Todo
-- [ ] Avarage curvature
-- [ ] Geodesic lines
-- [ ] Smoothing
+<img src="Imgs/mean.png" width="400px"/>
+
+<img src="Imgs/principal.png" width="400px"/>
+
+<img src="Imgs/norm.png" width="400px"/>

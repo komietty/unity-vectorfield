@@ -5,6 +5,7 @@ using MathNet.Numerics.LinearAlgebra.Double;
 using MathNet.Numerics.LinearAlgebra.Storage;
 using System.Runtime.InteropServices;
 using System.Linq;
+using System;
 
 namespace ddg {
     public class MeanCurvatureFlow {
@@ -13,34 +14,35 @@ namespace ddg {
         Type type = Type.Simple;
         HalfEdgeGeom geom;
         SparseMatrix L;
-        int l => geom.mesh.verts.Length;
-        bool native = true;
+        bool native = false;
+        int nv => geom.nVerts;
         
-        public MeanCurvatureFlow(HalfEdgeGeom geom, Type type) {
+        public MeanCurvatureFlow(HalfEdgeGeom geom, Type type, bool native) {
             this.geom = geom;
             this.type = type;
+            this.native = native;
             if (type == Type.Modified) L = GenLaplaceMtx();
         }
 
         public SparseMatrix GenFlowMtx(double h){
             if (type == Type.Simple) L = GenLaplaceMtx();
-            var I = SparseMatrix.CreateIdentity(l);
+            var I = SparseMatrix.CreateIdentity(nv);
             var M = GenInversedMassMtx();
             return I + (M * L) * h;
         }
 
         public SparseMatrix GenInversedMassMtx(){
-            var a = new double[l];
-            for (var i = 0; i < l; i++) { a[i] = 1 / geom.BarycentricDualArea(geom.mesh.verts[i]); }
-            return SparseMatrix.OfDiagonalArray(a);
+            Span<double> a = stackalloc double[nv];
+            for (int i = 0; i < nv; i++) a[i] = 1 / geom.BarycentricDualArea(geom.Verts[i]);
+            return SparseMatrix.OfDiagonalArray(a.ToArray());
         }
 
         public SparseMatrix GenLaplaceMtx(){
             var t = new List<(int, int, double)>();
-            for (var i = 0; i < l; i++) {
-                var v = geom.mesh.verts[i];
+            for (var i = 0; i < nv; i++) {
+                var v = geom.Verts[i];
                 var s = 0f;
-                foreach (var h in v.GetAdjacentHalfedges(geom.halfedges)) {
+                foreach (var h in geom.GetAdjacentHalfedges(v)) {
                     var a = geom.Cotan(h);
                     var b = geom.Cotan(h.twin);
                     var c = (a + b) * 0.5f;
@@ -49,8 +51,8 @@ namespace ddg {
                 }
                 t.Add((i, i, s));
             }
-            var M = SparseMatrix.OfIndexed(l, l, t);
-            var C = SparseMatrix.CreateDiagonal(l, l, 1e-8d);
+            var M = SparseMatrix.OfIndexed(nv, nv, t);
+            var C = SparseMatrix.CreateDiagonal(nv, nv, 1e-8d);
             return M + C;
         }
 
@@ -58,33 +60,24 @@ namespace ddg {
             var fm = GenFlowMtx(h);
 
             if (native) {
-                var storage = SparseCompressedRowMatrixStorage<double>.OfMatrix(fm.Storage);
-                var itrator = storage.EnumerateNonZeroIndexed();
-                var c = itrator.Count();
-                var trps = new Trp[c];
-                var itr = 0;
-                var vrts = new Vector3[l];
-                var outs = new Vector3[l];
-                foreach (var v in itrator) { trps[itr] = new Trp(v.Item3, v.Item1, v.Item2); itr++; }
-                for (var i = 0; i < l; i++) { vrts[i] = geom.mesh.verts[i].pos; }
-
-                SolveLU(c, l, trps, vrts, outs);
-
-                MeshUtils.Normalize(outs, true);
-                for (var i = 0; i < l; i++) { geom.mesh.verts[i].pos = outs[i]; }
-            }else {
-                var f0 = new DenseMatrix(l, 3);
-                foreach (var v in geom.mesh.verts) {
-                    var p = v.pos;
+                var data = SparseCompressedRowMatrixStorage<double>.OfMatrix(fm.Storage);
+                var iter = data.EnumerateNonZeroIndexed();
+                var outs = new Vector3[nv];
+                var trps = iter.Select(i => new Trp(i.Item3, i.Item1, i.Item2)).ToArray();
+                SolveLU(iter.Count(), nv, trps, geom.pos, outs);
+                geom.pos = outs;
+            } else {
+                var f0 = new DenseMatrix(nv, 3);
+                foreach (var v in geom.Verts) {
+                    var p = geom.Pos[v.vid];
                     f0.SetRow(v.vid, new double[3] { p.x, p.y, p.z });
                 }
                 var lu = fm.LU();
                 var fh = lu.Solve(f0);
-
-                for (var i = 0; i < l; i++) {
+                for (var i = 0; i < nv; i++) {
                     var r = fh.Row(i);
                     var p = new Vector3((float)r[0], (float)r[1], (float)r[2]);
-                    geom.mesh.verts[i].pos = p;
+                    geom.Pos[i] = p;
                 }
             }
         }

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 2a5c9e66342ef42a99e2ab20ff6e452d
+guid: adc213260f80b4cc49f1f8bbad1387fc
 ModelImporter:
   serializedVersion: 22102
   internalIDToNameTable: []
@@ -50,14 +50,14 @@ ModelImporter:
     generateSecondaryUV: 0
     useFileUnits: 1
     keepQuads: 0
-    weldVertices: 0
+    weldVertices: 1
     bakeAxisConversion: 0
     preserveHierarchy: 0
     skinWeightsMode: 0
     maxBonesPerVertex: 4
     minBoneWeight: 0.001
     optimizeBones: 1
-    meshOptimizationFlags: 0
+    meshOptimizationFlags: -1
     indexFormat: 0
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
@@ -70,12 +70,12 @@ ModelImporter:
     strictVertexDataChecks: 0
   tangentSpace:
     normalSmoothAngle: 60
-    normalImportMode: 2
+    normalImportMode: 1
     tangentImportMode: 2
-    normalCalculationMode: 4
+    normalCalculationMode: 1
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
-    blendShapeNormalImportMode: 2
-    normalSmoothingSource: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 3
   referencedClips: []
   importAnimation: 0
   humanDescription:

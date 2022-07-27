@@ -262,7 +262,7 @@ PrefabInstance:
     - target: {fileID: -6400281290468069383, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: -2432090755550338912, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
+      objectReference: {fileID: -2432090755550338912, guid: 08ab51d88dfb94553a3a6b25bb0d1883, type: 3}
     - target: {fileID: 919132149155446097, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
       propertyPath: m_Name
       value: bunny
@@ -275,7 +275,7 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
   m_PrefabInstance: {fileID: 420277169}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &420277171
+--- !u!114 &420277174
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -284,11 +284,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 420277170}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d151157a463f4f4692bc77f9ae9d516, type: 3}
+  m_Script: {fileID: 11500000, guid: 014018363d9e14b249c8dc773d95061d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  delta: 0.02
-  type: 1
 --- !u!1 &745660130
 GameObject:
   m_ObjectHideFlags: 0
@@ -375,11 +373,11 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 745660130}
-  m_LocalRotation: {x: 0.7725368, y: 0.2274588, z: -0.4177091, w: 0.42067626}
+  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 122.86, y: 56.8, z: 0}
+  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
