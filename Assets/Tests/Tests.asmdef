@@ -4,7 +4,7 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "Geom.Core"
+        "HalfEdge.Core"
     ],
     "includePlatforms": [
         "Editor"

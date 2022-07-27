@@ -15,7 +15,7 @@ namespace ddg {
         Face[] faces;
         Face[] bunds;
         Corner[] corners;
-        Vector3[] pos;
+        public Vector3[] pos;
 
         public HalfEdgeMesh(Mesh mesh) {
             pos = mesh.vertices;
@@ -57,10 +57,10 @@ namespace ddg {
                 for (int j = i; j < n; j++) { verts[idxs[j]] = new Vert(j, idxs[j]); }
             }
 
-            var hasTwinHes = new List<int>();
+            var hasTwins = new List<int>();
             for (var i = 0; i < idxs.Length; i++) {
                 var h = halfedges[i];
-                if (h.twin != null) hasTwinHes.Add(h.id);
+                if (h.twin != null) hasTwins.Add(h.id);
             }
 
             var itr = 0;
@@ -77,10 +77,7 @@ namespace ddg {
                     do {
                         var bh = new HalfEdge(len);
                         var next = curr.next;
-                        while(hasTwinHes.Contains(next.id)) {
-                            var twin = next.twin;
-                            next = twin.next;
-                        }
+                        while (hasTwins.Contains(next.id)) { next = next.twin.next; }
                         f = new Face(i);
                         bh.vid = next.vid;
                         bh.face = f;
