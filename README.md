@@ -1,4 +1,4 @@
-# unity-halfedges
+# unity-halfedge
 
 Unity halfedge handler and some applications based on it. 
 
@@ -6,8 +6,10 @@ Unity halfedge handler and some applications based on it.
 ### Curvature Culclation
 
 Each of meshes below shows Gausian / Mean / Principal / Normal curvatures respectively.
-<img src="Imgs/curvatures.jpg"/>
+
+<img src="Imgs/curvature.gif"/>
 
 ### Smoothing Culclation
 By solving the Poisson's equation on a halfedges it enables mesh smoothing.
-<img src="Imgs/smoothing_1.gif"/>
+
+<img src="Imgs/smoothing.gif"/>
