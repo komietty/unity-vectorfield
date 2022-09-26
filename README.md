@@ -10,7 +10,7 @@ Each of meshes below shows Gausian / Mean / Principal / Normal curvatures respec
 <img src="Imgs/curvature.gif"/>
 
 ### Smoothing Culclation
-By solving the Poisson's equation on halfedges it enables mesh smoothing. (This lib contains C#/C++ linear algebra solver, but C# solver is quite slow so I strongly recommend using C++ solver. If the C++ solver(dylib) could not be found, go `[ProjectRoot]/Cpp` folder and include Eigen and build on your machine.)
+By solving the Poisson's equation on halfedges it enables mesh smoothing. (This lib contains C#/C++ linear algebra solver, but C# solver is quite slow so I strongly recommend using C++ solver. If unity says the C++ solver(dylib) could not be found, go `[ProjectRoot]/Cpp` folder, include Eigen and build on your machine.)
 
 <img src="Imgs/smoothing.gif"/>
 
