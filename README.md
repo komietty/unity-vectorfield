@@ -14,5 +14,5 @@ By solving the Poisson's equation on halfedges it enables mesh smoothing. (This 
 
 <img src="Imgs/smoothing.gif"/>
 
-### References
+## References
 [Discrete Differential Geometry: An Applied Introduction - Keenan Crane](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/)
