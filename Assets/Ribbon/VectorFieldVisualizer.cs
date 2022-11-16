@@ -9,17 +9,22 @@ public class VectorFieldVisualizer : MonoBehaviour {
     Mesh mesh;
     GraphicsBuffer vrtsBuff;
     GraphicsBuffer nrmsBuff;
+    GraphicsBuffer tngsBuff;
 
     void Start() {
         var m = GetComponentInChildren<MeshFilter>().sharedMesh;
         mesh = MeshUtils.Weld(m);
+        mesh.RecalculateTangents();
         mesh.RecalculateNormals();
         var vrts = mesh.vertices;
         var nrms = mesh.normals;
+        var tngs = mesh.tangents;
         vrtsBuff = new GraphicsBuffer(Target.Structured, vrts.Length, sizeof(float) * 3);
         nrmsBuff = new GraphicsBuffer(Target.Structured, nrms.Length, sizeof(float) * 3);
+        tngsBuff = new GraphicsBuffer(Target.Structured, tngs.Length, sizeof(float) * 4);
         vrtsBuff.SetData(vrts);
         nrmsBuff.SetData(nrms);
+        tngsBuff.SetData(tngs);
     }
 
     void Update() {
@@ -28,6 +33,7 @@ public class VectorFieldVisualizer : MonoBehaviour {
     void OnRenderObject() {
         mat.SetBuffer("_VrtsBuff", vrtsBuff);
         mat.SetBuffer("_NrmsBuff", nrmsBuff);
+        mat.SetBuffer("_TngsBuff", tngsBuff);
         mat.SetPass(0);
         Graphics.DrawProceduralNow(MeshTopology.Quads, 4, mesh.vertexCount);
     }
