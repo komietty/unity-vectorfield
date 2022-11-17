@@ -10,17 +10,20 @@ namespace ddg {
         [SerializeField] protected bool native = true;
         [SerializeField, Range(0.001f, 0.1f)] protected float delta = 0.001f;
 
-        void Start() { Init(); StartCoroutine(Smooth()); }
+        protected override void Start() {
+            base.Start();
+            StartCoroutine(Smooth());
+            }
 
         IEnumerator Smooth() {
             var flow = new MeanCurvatureFlow(geom);
-            SetCurvature(curvType);
+            UpdateColor();
             while(true){
                 yield return new WaitForSeconds(1);
                 if(native) flow.IntegrateNative(delta);
                 else       flow.IntegrateCSharp(delta);
                 mesh.SetVertices(geom.Pos.ToArray());
-                SetCurvature(curvType);
+                UpdateColor();
             }
         }
     }

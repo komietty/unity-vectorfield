@@ -5,9 +5,13 @@ using MathNet.Numerics.LinearAlgebra.Double;
 using UnityEngine;
 using ddg;
 
-public class ScalarPoissonProblem : MonoBehaviour {
-    void Start() {
-        
+public class ScalarPoissonProblem : MonoMfdViewer {
+    protected Matrix<double> phi;
+
+    protected override void Start() {
+        base.Start();
+        SolveScalarPoissonProblem(geom, 0);
+        UpdateColor();
     }
 
     /*
@@ -24,16 +28,20 @@ public class ScalarPoissonProblem : MonoBehaviour {
         var rhoBar = DenseMatrix.Create(M.RowCount, 1, rhoSum / T);
         var rhoDif = rho - rhoBar;
         var B = - M * rhoDif;
-        var LLT = A.Cholesky();
+        //var LLT = A.Cholesky();
+        //return LLT.Solve(B);
+        var LLT = A.LU();
         return LLT.Solve(B);
     }
 
-    void SoveScalarPoissonProblem(HalfEdgeGeom geom, int vertexIds) {
+    void SolveScalarPoissonProblem(HalfEdgeGeom geom, int vertexIds) {
         var rho = DenseMatrix.Create(geom.nVerts, 1, 0);
         rho[vertexIds, 0] = 1;
-        var phi = Solve(geom, rho);
+        phi = Solve(geom, rho);
     }
 
-    void UpdateColor(Matrix<double> phi) {
+    protected override float GetValueOnSurface(Vert v) {
+        return (float)phi[v.vid, 0];
     }
+
 }
