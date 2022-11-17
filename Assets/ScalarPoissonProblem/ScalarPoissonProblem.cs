@@ -27,4 +27,12 @@ public class ScalarPoissonProblem : MonoBehaviour {
         var LLT = A.Cholesky();
         return LLT.Solve(B);
     }
+
+    void SoveScalarPoissonProblem(HalfEdgeGeom geom, int vertexIds) {
+        var rho = DenseMatrix.Create(geom.nVerts, 1, 0);
+        var phi = Solve(geom, );
+    }
+
+    void UpdateColor(Matrix<double> phi) {
+    }
 }

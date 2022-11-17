@@ -52,7 +52,8 @@ namespace ddg {
 
         public void IntegrateCSharp(double h){
             var fm = GenFlowMtx(h);
-            var f0 = new DenseMatrix(geom.nVerts, 3); foreach (var v in geom.Verts) {
+            var f0 = new DenseMatrix(geom.nVerts, 3);
+            foreach (var v in geom.Verts) {
                 var p = geom.Pos[v.vid];
                 f0.SetRow(v.vid, new double[3] { p.x, p.y, p.z });
             }
