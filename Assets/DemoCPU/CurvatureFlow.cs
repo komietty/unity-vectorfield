@@ -28,7 +28,7 @@ namespace ddg {
     }
 
     public class MeanCurvatureFlow {
-        [DllImport("libEigenDll")] static extern void SolveLU(int ntrps, int nvrts, [In] Trp[] trps, [In] Vector3[] vrts, [Out] Vector3[] outs);
+        [DllImport("EigenSolver.bundle")] static extern void SolveLU(int ntrps, int nvrts, [In] Trp[] trps, [In] Vector3[] vrts, [Out] Vector3[] outs);
         HalfEdgeGeom geom;
         SparseMatrix L;
         bool native = false;
