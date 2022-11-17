@@ -1,14 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
-using MathNet.Numerics.LinearAlgebra.Storage;
 using UnityEngine;
 using ddg;
 
-public class ScalarPoissonProblem : MonoBehaviour
-{
-    void Start()
-    {
+public class ScalarPoissonProblem : MonoBehaviour {
+    void Start() {
         
     }
 
@@ -17,16 +15,16 @@ public class ScalarPoissonProblem : MonoBehaviour
      * where A is the positive definite laplace matrix and M is the mass matrix.
 	 * rho: A scalar density of vertices of the input mesh.
     */
-    DenseMatrix Solve(HalfEdgeGeom geom, DenseMatrix rho){
+    Matrix<double> Solve(HalfEdgeGeom geom, DenseMatrix rho){
         var M = Operator.Mass(geom);
         var A = Operator.Laplace(geom);
         var T = geom.TotalArea();
 
-        var rhoSum = (M * rho);//sum();
-        var rhoBar = DenseMatrix.CreateIdentity(1);
-        var rhoDif = M - rhoBar;
-        var B = -M * rhoDif;
-        var LLT = DenseMatrix.CreateIdentity(1);
-        return LLT;
+        var rhoSum = (M * rho).RowSums().Sum();
+        var rhoBar = DenseMatrix.Create(M.RowCount, 1, rhoSum / T);
+        var rhoDif = rho - rhoBar;
+        var B = - M * rhoDif;
+        var LLT = A.Cholesky();
+        return LLT.Solve(B);
     }
 }
