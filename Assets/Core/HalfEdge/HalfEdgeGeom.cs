@@ -28,6 +28,12 @@ namespace ddg {
             var v = Vector(h.prev) * -1;
             return length(cross(u, v)) * 0.5f;
         }
+        
+        public float TotalArea(){
+            var sum = 0f;
+            foreach (var f in this.Faces) sum += Area(f);
+            return sum;
+        }
 
         public bool FaceNormal(Face f, out float3 o){
             o = new float3();
