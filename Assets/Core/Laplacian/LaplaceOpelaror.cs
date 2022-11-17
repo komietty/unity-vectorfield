@@ -4,6 +4,8 @@ using MathNet.Numerics.LinearAlgebra.Double;
 namespace ddg {
     public static class Operator {
 
+        /*
+        */
         public static SparseMatrix Mass(HalfEdgeGeom g){
             var n = g.nVerts;
             System.Span<double> a = stackalloc double[n];

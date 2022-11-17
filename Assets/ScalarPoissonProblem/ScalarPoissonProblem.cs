@@ -30,7 +30,8 @@ public class ScalarPoissonProblem : MonoBehaviour {
 
     void SoveScalarPoissonProblem(HalfEdgeGeom geom, int vertexIds) {
         var rho = DenseMatrix.Create(geom.nVerts, 1, 0);
-        var phi = Solve(geom, );
+        rho[vertexIds, 0] = 1;
+        var phi = Solve(geom, rho);
     }
 
     void UpdateColor(Matrix<double> phi) {
