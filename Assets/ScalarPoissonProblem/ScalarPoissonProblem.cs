@@ -10,7 +10,7 @@ public class ScalarPoissonProblem : MonoMfdViewer {
 
     protected override void Start() {
         base.Start();
-        SolveScalarPoissonProblem(geom, 0);
+        SolveScalarPoissonProblem(geom, new int[] { 0, 5 });
         UpdateColor();
     }
 
@@ -23,20 +23,19 @@ public class ScalarPoissonProblem : MonoMfdViewer {
         var M = Operator.Mass(geom);
         var A = Operator.Laplace(geom);
         var T = geom.TotalArea();
-
         var rhoSum = (M * rho).RowSums().Sum();
         var rhoBar = DenseMatrix.Create(M.RowCount, 1, rhoSum / T);
         var rhoDif = rho - rhoBar;
         var B = - M * rhoDif;
-        //var LLT = A.Cholesky();
+        //var LLT = A.Cholesky(); // must be very naive chol decomp
         //return LLT.Solve(B);
         var LLT = A.LU();
         return LLT.Solve(B);
     }
 
-    void SolveScalarPoissonProblem(HalfEdgeGeom geom, int vertexIds) {
+    void SolveScalarPoissonProblem(HalfEdgeGeom geom, int[] vertexIds) {
         var rho = DenseMatrix.Create(geom.nVerts, 1, 0);
-        rho[vertexIds, 0] = 1;
+        foreach(var i in vertexIds) rho[i, 0] = 1;
         phi = Solve(geom, rho);
     }
 
