@@ -6,7 +6,7 @@ using System.Linq;
 using System;
 
 namespace ddg {
-    public class CurvatureFlow : CurvatureView {
+    public class CurvatureFlow : MonoMfdViewer {
         [SerializeField] protected bool native = true;
         [SerializeField, Range(0.001f, 0.1f)] protected float delta = 0.001f;
 
@@ -25,6 +25,10 @@ namespace ddg {
                 mesh.SetVertices(geom.Pos.ToArray());
                 UpdateColor();
             }
+        }
+
+        protected override float GetValueOnSurface(Vert v) {
+            return 1;
         }
     }
 
