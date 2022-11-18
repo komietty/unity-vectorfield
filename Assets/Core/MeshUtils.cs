@@ -5,6 +5,10 @@ using System.Buffers;
 
 namespace ddg {
     public class MeshUtils {
+
+        /**
+         * Weld vertices which are apparently same but structualy disconnected.
+        */
         public static Mesh Weld(Mesh original) {
             var ogl_vrts = original.vertices;
             var ogl_idcs = original.triangles;
@@ -28,6 +32,9 @@ namespace ddg {
             return alt_mesh;
         }
 
+        /**
+         * Normalize position of the vertices.
+        */
         public static void Normalize(Vector3[] ps, bool rescale = true) {
             var n = ps.Length;
             var c = new Vector3();

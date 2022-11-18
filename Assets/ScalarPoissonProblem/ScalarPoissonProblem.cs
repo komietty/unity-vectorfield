@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
+using MathNet.Numerics.LinearAlgebra.Storage;
 using UnityEngine;
 using ddg;
 
@@ -10,7 +12,7 @@ public class ScalarPoissonProblem : MonoMfdViewer {
 
     protected override void Start() {
         base.Start();
-        SolveScalarPoissonProblem(geom, new int[] { 0, 5 });
+        SolveScalarPoissonProblem(geom, new List<int> { 0, 5 });
         UpdateColor();
     }
 
@@ -27,20 +29,27 @@ public class ScalarPoissonProblem : MonoMfdViewer {
         var rhoBar = DenseMatrix.Create(M.RowCount, 1, rhoSum / T);
         var rhoDif = rho - rhoBar;
         var B = - M * rhoDif;
-        //var LLT = A.Cholesky(); // must be very naive chol decomp
-        //return LLT.Solve(B);
+        var evd = A.Evd();
+        var ev = evd.EigenValues;
         var LLT = A.LU();
         return LLT.Solve(B);
+        //var LLT = A.Cholesky(); // must be very naive chol decomp
+        //var data = SparseCompressedRowMatrixStorage<double>.OfMatrix(A.Storage);
+        //var iter = data.EnumerateNonZeroIndexed();
+        //var outs = new Vector3[geom.nVerts];
+        //var trps = iter.Select(i => new Triplet(i.Item3, i.Item1, i.Item2)).ToArray();
+        //Solver.SolveLU(iter.Count(), geom.nVerts, trps, geom.pos, outs);
     }
 
-    void SolveScalarPoissonProblem(HalfEdgeGeom geom, int[] vertexIds) {
+    void SolveScalarPoissonProblem(HalfEdgeGeom geom, List<int> vertexIds) {
         var rho = DenseMatrix.Create(geom.nVerts, 1, 0);
         foreach(var i in vertexIds) rho[i, 0] = 1;
         phi = Solve(geom, rho);
     }
 
-    protected override float GetValueOnSurface(Vert v) {
-        return (float)phi[v.vid, 0];
-    }
+    protected override float GetValueOnSurface(Vert v) => (float)phi[v.vid, 0]; 
 
+    void GenRandomOneForm() {
+
+    }
 }

@@ -142,7 +142,7 @@
     },
     "com.unity.timeline": {
       "version": "1.7.1",
-      "depth": 0,
+      "depth": 1,
       "source": "registry",
       "dependencies": {
         "com.unity.modules.director": "1.0.0",
