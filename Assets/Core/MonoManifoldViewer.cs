@@ -6,10 +6,14 @@ using static UnityEngine.GraphicsBuffer;
 namespace ddg {
     public abstract class MonoMfdViewer : MonoBehaviour {
         [SerializeField] protected Shader shader;
+        [SerializeField] protected bool showNormal;
+        [SerializeField] protected bool showTangent;
         protected Mesh mesh;
         protected Material mat;
         protected HalfEdgeGeom geom;
-        protected GraphicsBuffer colorBuffer;
+        protected GraphicsBuffer colBuffer;
+        protected GraphicsBuffer nrmBuffer;
+        protected GraphicsBuffer tngBuffer;
 
         protected virtual void Start() {
             mat = new Material(shader);
@@ -19,7 +23,9 @@ namespace ddg {
             filt.sharedMesh = mesh;
             rend.material = mat;
             geom = new HalfEdgeGeom(mesh);
-            colorBuffer = new GraphicsBuffer(Target.Structured, geom.nVerts, sizeof(float) * 3);
+            colBuffer = new GraphicsBuffer(Target.Structured, geom.nVerts, sizeof(float) * 3);
+            nrmBuffer = new GraphicsBuffer(Target.Structured, geom.nVerts, sizeof(float) * 3);
+            tngBuffer = new GraphicsBuffer(Target.Structured, geom.nVerts, sizeof(float) * 3);
         }
 
         protected void UpdateColor() {
@@ -35,14 +41,24 @@ namespace ddg {
             }
             max = Mathf.Min(Mathf.PI / 8, max);
             for (var i = 0; i < n; i++) { lrps[i] = ColorMap.Color(vals[i], -max, max); }
-            colorBuffer.SetData(lrps);
-            mat.SetBuffer("_Color", colorBuffer);
+            colBuffer.SetData(lrps);
+            mat.SetBuffer("_Color", colBuffer);
         }
+
+        void OnRenderObject() {
+            if (showNormal) {
+                mat.SetPass(1);
+                //Graphics.DrawProceduralNow(MeshTopology.Lines);
+            }
+        }
+
         protected abstract float GetValueOnSurface(Vert v);
 
         void OnDestroy() {
             Destroy(mat);
-            colorBuffer?.Dispose();
+            colBuffer?.Dispose();
+            nrmBuffer?.Dispose();
+            tngBuffer?.Dispose();
         }
     }
 }

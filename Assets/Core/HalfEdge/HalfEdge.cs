@@ -2,6 +2,7 @@ namespace ddg {
     public class HalfEdge {
         public int id;
         public int vid;
+        public Edge edge;
         public Face face;
         public Corner corner;
         public HalfEdge next;
@@ -17,6 +18,15 @@ namespace ddg {
         public Vert(int hid, int vid) {
             this.hid = hid;
             this.vid = vid;
+        }
+    }
+
+    public readonly struct Edge {
+        public readonly int hid;
+        public readonly int eid;
+        public Edge(int hid, int eid) {
+            this.hid = hid;
+            this.eid = eid;
         }
     }
 

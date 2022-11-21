@@ -1,5 +1,6 @@
 using Unity.Mathematics;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace ddg {
     using static Unity.Mathematics.math;
@@ -21,7 +22,16 @@ namespace ddg {
             return dot(p, n) / length(cross(p, n));
         }
 
-        float Area(Face f) {
+        public Vector3 Centroid(Face f){
+            var h = halfedges[f.hid];
+            var a = Pos[h.vid];
+            var b = Pos[h.next.vid];
+            var c = Pos[h.prev.vid];
+            if(h.onBoundary) return (a + b) / 2;
+            return (a + b + c) / 3;
+        }
+
+        public float Area(Face f) {
             var h = halfedges[f.hid];
             if (h.onBoundary) return 0f;
             var u = Vector(h);
@@ -135,6 +145,18 @@ namespace ddg {
 
         public IEnumerable<HalfEdge> GetAdjacentHalfedges(Vert v) {
             var curr = halfedges[v.hid];
+            var endId = curr.id;
+            var once = false;
+            while (true) {
+                if (once && curr.id == endId) break;
+                yield return curr;
+                curr = curr.twin.next;
+                once = true;
+            };
+        }
+
+        public IEnumerable<HalfEdge> GetAdjacentHalfedges(Face f) {
+            var curr = halfedges[f.hid];
             var endId = curr.id;
             var once = false;
             while (true) {

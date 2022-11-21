@@ -7,11 +7,14 @@ namespace ddg {
         public HalfEdge[] halfedges     { get; private set; }
         public int eulerCharactaristics { get; private set; }
         public ReadOnlySpan<Vert> Verts => verts.AsSpan();
+        public ReadOnlySpan<Edge> Edges => edges.AsSpan();
         public ReadOnlySpan<Face> Faces => faces.AsSpan();
         public Span<Vector3> Pos => pos.AsSpan();
         public int nVerts { get; private set; }
+        public int nEdges { get; private set; }
         public int nFaces { get; private set; }
         Vert[] verts;
+        Edge[] edges;
         Face[] faces;
         Face[] bunds;
         Corner[] corners;
@@ -24,6 +27,7 @@ namespace ddg {
 
             var alones = new List<HalfEdge>(3);
             var tripls = new List<HalfEdge>(3);
+            var ecount = 0;
 
             for (var i = 0; i < idxs.Length; i += 3) {
                 tripls.Clear();
@@ -45,12 +49,19 @@ namespace ddg {
                         if (ha.vid == hb.next.vid && ha.next.vid == hb.vid) {
                             ha.twin = hb;
                             hb.twin = ha;
+                            hb.edge = ha.edge;
                             alones.Remove(ha);
                             fg = true;
                             break;
                         }
                     }
-                    if(!fg) alones.Add(hb);
+                    if(!fg){
+                        alones.Add(hb);
+                        var e = new Edge(hb.id, ecount);
+                        edges[ecount] = e;
+                        hb.edge = e;
+                        ecount++;
+                    }
                 }
 
                 for (int j = 0; j < 3; j++) { halfedges[i + j] = tripls[j]; }
@@ -123,14 +134,15 @@ namespace ddg {
 
             nVerts = vrts.Length;
             nFaces = idcs.Length / 3;
-            var nEdges = sortedEdges.Count;
+            nEdges = sortedEdges.Count;
             var nHalfedges = 2 * nEdges;
             var nInteriorHalfedges = nHalfedges - nBoundaryHe;
             this.halfedges = new HalfEdge[nHalfedges];
             this.corners = new Corner[nInteriorHalfedges];
             this.verts = new Vert[nVerts];
-            this.bunds = new Face[nBoundaryHe];
+            this.edges = new Edge[nEdges];
             this.faces = new Face[nFaces];
+            this.bunds = new Face[nBoundaryHe];
             eulerCharactaristics = nFaces - nEdges + nVerts;
         }
     }
