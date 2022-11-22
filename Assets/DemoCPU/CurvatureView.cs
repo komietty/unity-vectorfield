@@ -20,7 +20,8 @@ namespace ddg {
             n.textColor = Color.white;
             style.normal = n;
             style.fontSize = 25;
-            StartCoroutine(ChangeCurvature());
+            UpdateColor();
+            //StartCoroutine(ChangeCurvature());
         }
 
         void OnGUI() {

@@ -10,6 +10,7 @@ namespace ddg {
         public ReadOnlySpan<Edge> Edges => edges.AsSpan();
         public ReadOnlySpan<Face> Faces => faces.AsSpan();
         public Span<Vector3> Pos => pos.AsSpan();
+        public Span<Vector3> Nrm => nrm.AsSpan();
         public int nVerts { get; private set; }
         public int nEdges { get; private set; }
         public int nFaces { get; private set; }
@@ -19,9 +20,13 @@ namespace ddg {
         Face[] bunds;
         Corner[] corners;
         public Vector3[] pos;
+        public Vector3[] nrm;
 
         public HalfEdgeMesh(Mesh mesh) {
             pos = mesh.vertices;
+            nrm = mesh.normals;
+            Debug.Log(pos.Length);
+            Debug.Log(nrm.Length);
             var idxs = new ReadOnlySpan<int>(mesh.triangles);
             Preallocate(new ReadOnlySpan<Vector3>(pos), idxs);
 

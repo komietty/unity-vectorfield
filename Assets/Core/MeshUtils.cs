@@ -29,6 +29,8 @@ namespace ddg {
             }
             alt_mesh.SetVertices(alt_vrts);
             alt_mesh.SetTriangles(alt_idcs, 0);
+            alt_mesh.RecalculateNormals();
+            alt_mesh.RecalculateBounds();
             return alt_mesh;
         }
 

@@ -1,7 +1,5 @@
 Shader "Unlit/CurvatureView" {
-    Properties {
-        _MainTex ("Texture", 2D) = "white" {}
-    }
+    Properties { }
     SubShader {
         Tags { "RenderType"="Opaque" }
 
@@ -10,7 +8,7 @@ Shader "Unlit/CurvatureView" {
             #pragma vertex vert
             #pragma fragment frag
             #include "UnityCG.cginc"
-            StructuredBuffer<float3> _Color;
+            StructuredBuffer<float3> _Col;
 
             struct appdata {
                 float4 vertex : POSITION;
@@ -20,13 +18,9 @@ Shader "Unlit/CurvatureView" {
                 float4 color: COLOR;
             };
 
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
-            float _ColorScale;
-
             v2f vert (uint vid: SV_VertexID, appdata val) {
                 v2f o;
-                float3 k = _Color[vid];
+                float3 k = _Col[vid];
                 o.color = float4(k, 1);
                 o.vertex = UnityObjectToClipPos(val.vertex);
                 return o;
