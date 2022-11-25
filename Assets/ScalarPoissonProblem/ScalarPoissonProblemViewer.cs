@@ -25,13 +25,13 @@ public class ScalarPoissonProblemViewer : MonoMfdViewer {
         for(var i = 0; i < n; i++){
             var face = geom.Faces[i];
             var field = omegaField[face] * mlen;
-            var C = geom.Centroid(face);
+            var C = (float3)geom.Centroid(face);
             geom.FaceNormal(face, out float3 N);
             field = ClampFieldLength(field, mlen);
-            var fc1 = C - (Vector3)field;
-            var fc2 = C + (Vector3)field;
+            var fc1 = C - field + N * 0.005f;
+            var fc2 = C + field + N * 0.005f;
             var v = fc2 - fc1;
-            var vT = Vector3.Cross(N, v);
+            var vT = cross(N, v);
             tngs[i * 6 + 0] = fc1;
             tngs[i * 6 + 1] = fc2;
             tngs[i * 6 + 2] = fc2;
@@ -58,14 +58,15 @@ public class ScalarPoissonProblemViewer : MonoMfdViewer {
 
     void GenRandomOneForm(HalfEdgeGeom geom) { 
         var n = geom.nVerts;
-        var r = max(2, (int)(n / 1000));
+        //var r = max(2, (int)(n / 1000.0f));
+        var r = 2;
         var rho1 = DenseMatrix.Create(n, 1, 0);
         var rho2 = DenseMatrix.Create(n, 1, 0);
         for (var i = 0; i < r; i++) {
-            var j = (int)(UnityEngine.Random.value * 5000);
-            rho1[i, 0] = UnityEngine.Random.Range(-2500f, 2500f);
-            rho2[i, 0] = UnityEngine.Random.Range(-2500f, 2500f);
-            i++;
+            var j1 = (int)(UnityEngine.Random.value * r);
+            var j2 = (int)(UnityEngine.Random.value * r);
+            rho1[j1, 0] = UnityEngine.Random.Range(-2500f, 2500f);
+            rho2[j2, 0] = UnityEngine.Random.Range(-2500f, 2500f);
         }
         var scalarPotential = ScalerPoissonProblem.SolveOnSurface(geom, rho1);
         var vectorPotential = ScalerPoissonProblem.SolveOnSurface(geom, rho2);
@@ -80,16 +81,14 @@ public class ScalarPoissonProblemViewer : MonoMfdViewer {
             var C = geom.Centroid(f);
             foreach(var h in geom.GetAdjacentHalfedges(f)) {
                 var j = h.prev.vid;
-                var e1 = geom.Vector(h);
-                var e2 = cross(N, e1);
-                v += (e2 * (float)scalarPotential[j, 0]
-                    + e1 * (float)vectorPotential[j, 0]
-                    ) / (2 * A);
+                var e = geom.Vector(h);
+                var eT = cross(N, e);
+                v += (eT * (float)scalarPotential[j, 0] + e * (float)vectorPotential[j, 0]) / (2 * A);
             }
             var u = new float3(-C.z, 0, C.x);
             u -= N * dot(u, N);
             u = normalize(u);
-            v += u * 0.5f;
+            v += u * 0.3f;
             field[f] = v;
         }
         for (var i = 0; i < geom.nEdges; i++) {
@@ -98,6 +97,7 @@ public class ScalarPoissonProblemViewer : MonoMfdViewer {
             var f1 = h.onBoundary ?      new float3() : field[h.face]; 
             var f2 = h.twin.onBoundary ? new float3() : field[h.twin.face]; 
             omega[i, 0] = dot(f1 + f2, geom.Vector(h));
+            Debug.Log(omega[i, 0]);
         }
     }
 
@@ -124,7 +124,7 @@ public class ScalarPoissonProblemViewer : MonoMfdViewer {
             var a = (eki - ejk) * (float)cij;
             var b = (eij - eki) * (float)cjk;
             var c = (ejk - eij) * (float)cki;
-            field[f] = cross(N, (a + b + c) / (6 * A));
+            field[f] = cross(N, (a + b + c)) / (6 * A);
         }
         return field;
     }
