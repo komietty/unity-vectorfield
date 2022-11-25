@@ -28,7 +28,7 @@ namespace ddg {
             geom = new HalfEdgeGeom(mesh);
             colBuffer = new GraphicsBuffer(Target.Structured, geom.nVerts, sizeof(float) * 3);
             nrmBuffer = new GraphicsBuffer(Target.Structured, geom.nVerts * 2, sizeof(float) * 3);
-            tngBuffer = new GraphicsBuffer(Target.Structured, geom.nFaces * 2, sizeof(float) * 3);
+            tngBuffer = new GraphicsBuffer(Target.Structured, geom.nFaces * 6, sizeof(float) * 3);
         }
 
         protected void UpdateColor() {

@@ -178,7 +178,7 @@ PrefabInstance:
     - target: {fileID: -6400281290468069383, guid: 9de563dd831354eb18c8b2447ffc87c6, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+      objectReference: {fileID: -2432090755550338912, guid: 9c834146806864a93aa1c0256e85adc3, type: 3}
     - target: {fileID: 919132149155446097, guid: 9de563dd831354eb18c8b2447ffc87c6, type: 3}
       propertyPath: m_Name
       value: spot
@@ -351,10 +351,10 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 100
   field of view: 60
-  orthographic: 0
-  orthographic size: 5
+  orthographic: 1
+  orthographic size: 2
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2

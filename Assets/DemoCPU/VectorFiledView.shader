@@ -47,7 +47,7 @@ Shader "Unlit/VectorFiledView" {
                 v2f o;
                 float3 p = _Tng[vid];
                 o.vertex = UnityObjectToClipPos(float4(p, 1));
-                o.color = vid % 2 == 0? (1).xxxx : float4(1, 0, 0, 1);
+                o.color = vid % 2 == 0? float4(0, 0.7, 1, 1) : float4(0, 0.7, 1, 1);
                 return o;
             }
 

@@ -19,14 +19,25 @@ public class ScalarPoissonProblemViewer : MonoMfdViewer {
         //UpdateColor();
 
         var n = geom.nFaces;
-        var tngs = new Vector3[n * 2];
-        var map = InterpolateWhitney(omega);
+        var tngs = new Vector3[n * 6];
+        var mlen = 0.3f * geom.MeanEdgeLength();
+        var omegaField = InterpolateWhitney(omega);
         for(var i = 0; i < n; i++){
-            var f = geom.Faces[i];
-            var v = map[f];
-            var c = geom.Centroid(f);
-            tngs[i * 2 + 0] = c;
-            tngs[i * 2 + 1] = c + (Vector3)normalize(v) * 0.03f;
+            var face = geom.Faces[i];
+            var field = omegaField[face] * mlen;
+            var C = geom.Centroid(face);
+            geom.FaceNormal(face, out float3 N);
+            field = ClampFieldLength(field, mlen);
+            var fc1 = C - (Vector3)field;
+            var fc2 = C + (Vector3)field;
+            var v = fc2 - fc1;
+            var vT = Vector3.Cross(N, v);
+            tngs[i * 6 + 0] = fc1;
+            tngs[i * 6 + 1] = fc2;
+            tngs[i * 6 + 2] = fc2;
+            tngs[i * 6 + 3] = fc2 - v * 0.2f + vT * 0.1f;
+            tngs[i * 6 + 4] = fc2;
+            tngs[i * 6 + 5] = fc2 - v * 0.2f - vT * 0.1f;
         }
         tngBuffer.SetData(tngs);
         nrmMat.SetBuffer("_Tng", tngBuffer);
@@ -34,7 +45,7 @@ public class ScalarPoissonProblemViewer : MonoMfdViewer {
 
     protected override void OnRenderObject() {
         nrmMat.SetPass(1);
-        Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nFaces * 2);
+        Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nFaces * 6);
     }
 
     protected override float GetValueOnSurface(Vert v) => (float)phi[v.vid, 0]; 
@@ -116,5 +127,10 @@ public class ScalarPoissonProblemViewer : MonoMfdViewer {
             field[f] = cross(N, (a + b + c) / (6 * A));
         }
         return field;
+    }
+
+    Vector3 ClampFieldLength(Vector3 field, float length) {
+        var norm = field.magnitude;
+        return norm > length ? field * length / norm : field;
     }
 }
