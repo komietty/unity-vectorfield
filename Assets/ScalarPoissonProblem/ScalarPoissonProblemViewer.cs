@@ -3,6 +3,7 @@ using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using Unity.Mathematics;
 using ddg;
+using UnityEngine;
 using static Unity.Mathematics.math;
 
 public class ScalarPoissonProblemViewer : MonoMfdViewer {
@@ -11,11 +12,29 @@ public class ScalarPoissonProblemViewer : MonoMfdViewer {
 
     protected override void Start() {
         base.Start();
-        Solve(geom, new List<int> { 0, 5 });
+        //Solve(geom, new List<int> { 0, 5 });
 
         omega = DenseMatrix.Create(geom.nEdges, 1, 0.0);
+        GenRandomOneForm(geom);
+        //UpdateColor();
 
-        UpdateColor();
+        var n = geom.nFaces;
+        var tngs = new Vector3[n * 2];
+        var map = InterpolateWhitney(omega);
+        for(var i = 0; i < n; i++){
+            var f = geom.Faces[i];
+            var v = map[f];
+            var c = geom.Centroid(f);
+            tngs[i * 2 + 0] = c;
+            tngs[i * 2 + 1] = c + (Vector3)normalize(v) * 0.03f;
+        }
+        tngBuffer.SetData(tngs);
+        nrmMat.SetBuffer("_Tng", tngBuffer);
+    }
+
+    protected override void OnRenderObject() {
+        nrmMat.SetPass(1);
+        Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nFaces * 2);
     }
 
     protected override float GetValueOnSurface(Vert v) => (float)phi[v.vid, 0]; 
@@ -59,7 +78,7 @@ public class ScalarPoissonProblemViewer : MonoMfdViewer {
             var u = new float3(-C.z, 0, C.x);
             u -= N * dot(u, N);
             u = normalize(u);
-            v += u * 0.3f;
+            v += u * 0.5f;
             field[f] = v;
         }
         for (var i = 0; i < geom.nEdges; i++) {

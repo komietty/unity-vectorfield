@@ -8,12 +8,12 @@ namespace ddg {
 
         public HalfEdgeGeom(UnityEngine.Mesh mesh) : base(mesh) { }
 
-        public float3 Vector(HalfEdge h) {
-            return Pos[h.next.vid] - Pos[h.vid];
-        }
+        public float3 Vector(HalfEdge h) { return Pos[h.next.vid] - Pos[h.vid]; }
 
-        public float Length(HalfEdge h) {
-            return length(Vector(h));
+        public float Length(HalfEdge h) { return length(Vector(h)); }
+
+        public float Length(Edge e) {
+            return length(Vector(halfedges[e.hid]));
         }
 
         public float Cotan(HalfEdge h){
@@ -43,6 +43,12 @@ namespace ddg {
             var sum = 0f;
             foreach (var f in this.Faces) sum += Area(f);
             return sum;
+        }
+
+        public float MeanEdgeLength(){
+            var sum = 0f;
+            foreach (var e in this.Edges) sum += Length(e);
+            return sum / this.nEdges;
         }
 
         public bool FaceNormal(Face f, out float3 o){

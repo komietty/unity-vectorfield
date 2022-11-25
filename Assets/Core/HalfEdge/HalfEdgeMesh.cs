@@ -25,8 +25,6 @@ namespace ddg {
         public HalfEdgeMesh(Mesh mesh) {
             pos = mesh.vertices;
             nrm = mesh.normals;
-            Debug.Log(pos.Length);
-            Debug.Log(nrm.Length);
             var idxs = new ReadOnlySpan<int>(mesh.triangles);
             Preallocate(new ReadOnlySpan<Vector3>(pos), idxs);
 

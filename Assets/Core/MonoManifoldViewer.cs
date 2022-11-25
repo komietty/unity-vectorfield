@@ -28,7 +28,7 @@ namespace ddg {
             geom = new HalfEdgeGeom(mesh);
             colBuffer = new GraphicsBuffer(Target.Structured, geom.nVerts, sizeof(float) * 3);
             nrmBuffer = new GraphicsBuffer(Target.Structured, geom.nVerts * 2, sizeof(float) * 3);
-            tngBuffer = new GraphicsBuffer(Target.Structured, geom.nVerts * 2, sizeof(float) * 3);
+            tngBuffer = new GraphicsBuffer(Target.Structured, geom.nFaces * 2, sizeof(float) * 3);
         }
 
         protected void UpdateColor() {
@@ -56,13 +56,13 @@ namespace ddg {
 
             colBuffer.SetData(lrps);
             nrmBuffer.SetData(nrms);
-            tngBuffer.SetData(lrps);
+            tngBuffer.SetData(tngs);
             mat.SetBuffer("_Col", colBuffer);
             nrmMat.SetBuffer("_Nrm", nrmBuffer);
             nrmMat.SetBuffer("_Tng", tngBuffer);
         }
 
-        void OnRenderObject() {
+        protected virtual void OnRenderObject() {
             if (showNormal) {
                 nrmMat.SetPass(0);
                 Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nVerts * 2);

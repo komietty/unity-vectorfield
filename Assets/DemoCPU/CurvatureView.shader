@@ -20,8 +20,9 @@ Shader "Unlit/CurvatureView" {
 
             v2f vert (uint vid: SV_VertexID, appdata val) {
                 v2f o;
-                float3 k = _Col[vid];
-                o.color = float4(k, 1);
+                //float3 k = _Col[vid];
+                //o.color = float4(k, 1);
+                o.color = float4((0.5).xxx, 1);
                 o.vertex = UnityObjectToClipPos(val.vertex);
                 return o;
             }
