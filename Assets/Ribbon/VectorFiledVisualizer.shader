@@ -1,4 +1,4 @@
-Shader "Unlit/VectorFiledView" {
+Shader "Unlit/VectorFiledVisualizer" {
     Properties { }
     SubShader
     {

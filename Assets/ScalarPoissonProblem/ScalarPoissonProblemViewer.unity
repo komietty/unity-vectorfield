@@ -178,7 +178,7 @@ PrefabInstance:
     - target: {fileID: -6400281290468069383, guid: 9de563dd831354eb18c8b2447ffc87c6, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: -2432090755550338912, guid: 9c834146806864a93aa1c0256e85adc3, type: 3}
+      objectReference: {fileID: -2432090755550338912, guid: 51f81cedd0e3347568a6b06335a3373c, type: 3}
     - target: {fileID: 919132149155446097, guid: 9de563dd831354eb18c8b2447ffc87c6, type: 3}
       propertyPath: m_Name
       value: spot
@@ -205,7 +205,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shader: {fileID: 4800000, guid: 519bcf0a8f60a4ff1a69bb5bfb8be11c, type: 3}
   lineShader: {fileID: 4800000, guid: 81c10e8f978584a898c5ff93a9337c93, type: 3}
-  showNormal: 1
+  showNormal: 0
   showTangent: 0
 --- !u!1 &691971452
 GameObject:

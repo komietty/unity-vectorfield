@@ -31,16 +31,16 @@ namespace ddg {
             return (a + b + c) / 3;
         }
 
-        public float Area(Face f) {
+        public double Area(Face f) {
             var h = halfedges[f.hid];
-            if (h.onBoundary) return 0f;
+            if (h.onBoundary) return 0;
             var u = Vector(h);
             var v = Vector(h.prev) * -1;
-            return length(cross(u, v)) * 0.5f;
+            return length(cross(u, v)) * 0.5;
         }
         
-        public float TotalArea(){
-            var sum = 0f;
+        public double TotalArea(){
+            var sum = 0.0;
             foreach (var f in this.Faces) sum += Area(f);
             return sum;
         }
@@ -77,15 +77,15 @@ namespace ddg {
         }
 
         public float AngleDefect(Vert v) {
-            var o = PI * 2;
-            foreach (var c in GetAdjacentConers(v)) o -= Angle(c);
-            return o;
+            var sum = PI * 2;
+            foreach (var c in GetAdjacentConers(v)) sum -= Angle(c);
+            return sum;
         }
 
-        public float BarycentricDualArea(Vert v) {
-            var o = 0f;
-            foreach (var f in GetAdjacentFaces(v)) { o += Area(f); }
-            return o / 3;
+        public double BarycentricDualArea(Vert v) {
+            var sum = 0.0;
+            foreach (var f in GetAdjacentFaces(v)) sum += Area(f);
+            return sum / 3.0;
         } 
 
         public float CircumcentricDualArea(Vert v) {

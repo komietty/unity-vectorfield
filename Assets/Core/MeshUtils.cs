@@ -9,10 +9,11 @@ namespace ddg {
         /**
          * Weld vertices which are apparently same but structualy disconnected.
         */
-        public static Mesh Weld(Mesh original) {
+        public static Mesh Weld(Mesh original, bool normalize = true) {
             var ogl_vrts = original.vertices;
             var ogl_idcs = original.triangles;
             var alt_mesh = new Mesh();
+            //Normalize(ogl_vrts, true);
             var alt_vrts = ogl_vrts.Distinct().ToArray();
             var alt_idcs = new int[ogl_idcs.Length];
             var vrt_rplc = new int[ogl_vrts.Length];

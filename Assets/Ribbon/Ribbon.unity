@@ -272,7 +272,7 @@ PrefabInstance:
     - target: {fileID: -6400281290468069383, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+      objectReference: {fileID: -2432090755550338912, guid: 51f81cedd0e3347568a6b06335a3373c, type: 3}
     - target: {fileID: 919132149155446097, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
       propertyPath: m_Name
       value: bunny
@@ -301,7 +301,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99b0154ea2e904b7c9d4794106014c1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mat: {fileID: 2100000, guid: 392a7f105b254454485cd09357fb2347, type: 2}
+  shader: {fileID: 4800000, guid: aef963e86547448ffaa5126c25a5942b, type: 3}
+  lineShader: {fileID: 4800000, guid: 81c10e8f978584a898c5ff93a9337c93, type: 3}
+  showNormal: 0
+  showTangent: 1
 --- !u!1 &924420045
 GameObject:
   m_ObjectHideFlags: 0

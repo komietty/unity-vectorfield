@@ -45,8 +45,8 @@ namespace ddg {
             else {
                 var area = geom.BarycentricDualArea(v);
                 var ks = geom.PrincipalCurvature(v);
-                if (t == CurvType.PrincipalCurvature) g = ks.y * area;
-                if (t == CurvType.NormalCurvature)    g = ks.x * area;
+                if (t == CurvType.PrincipalCurvature) g = ks.y * (float)area;
+                if (t == CurvType.NormalCurvature)    g = ks.x * (float)area;
             }
             return g;
         }

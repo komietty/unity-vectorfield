@@ -53,7 +53,7 @@ namespace ddg {
             var iter = data.EnumerateNonZeroIndexed();
             var outs = new Vector3[geom.nVerts];
             var trps = iter.Select(i => new Triplet(i.Item3, i.Item1, i.Item2)).ToArray();
-            Solver.SolveLU(iter.Count(), geom.nVerts, trps, geom.pos, outs);
+            Solver.DecompAndSolveLU(iter.Count(), geom.nVerts, trps, geom.pos, outs);
             geom.pos = outs;
         }
 

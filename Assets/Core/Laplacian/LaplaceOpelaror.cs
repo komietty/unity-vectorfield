@@ -9,7 +9,9 @@ namespace ddg {
         public static SparseMatrix Mass(HalfEdgeGeom g){
             var n = g.nVerts;
             System.Span<double> a = stackalloc double[n];
-            for (int i = 0; i < n; i++) a[i] = g.BarycentricDualArea(g.Verts[i]);
+            for (int i = 0; i < n; i++) {
+                a[i] = g.BarycentricDualArea(g.Verts[i]);
+            }
             return SparseMatrix.OfDiagonalArray(a.ToArray());
         }
 

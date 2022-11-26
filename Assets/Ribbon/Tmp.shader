@@ -1,4 +1,4 @@
-Shader "Unlit/CurvatureView" {
+Shader "Unlit/Tmp" {
     Properties { }
     SubShader {
         Tags { "RenderType"="Opaque" }
@@ -20,8 +20,7 @@ Shader "Unlit/CurvatureView" {
 
             v2f vert (uint vid: SV_VertexID, appdata val) {
                 v2f o;
-                float3 k = _Col[vid];
-                o.color = float4(k, 1);
+                o.color = float4(0.5,0.5,0.5, 1);
                 o.vertex = UnityObjectToClipPos(val.vertex);
                 return o;
             }
