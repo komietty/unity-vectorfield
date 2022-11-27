@@ -23,7 +23,7 @@ public class VectorFieldVisualizer : MonoMfdViewer {
         var omegaField = InterpolateWhitney(omega);
         for(var i = 0; i < n; i++){
             var face = geom.Faces[i];
-            var field = omegaField[face] * mlen;
+            var field = omegaField[i] * mlen;
             var C = (float3)geom.Centroid(face);
             geom.FaceNormal(face, out float3 N);
             field = ClampFieldLength(field, mlen);
@@ -34,9 +34,9 @@ public class VectorFieldVisualizer : MonoMfdViewer {
             tngs[i * 6 + 0] = fc1;
             tngs[i * 6 + 1] = fc2;
             tngs[i * 6 + 2] = fc2;
-            tngs[i * 6 + 3] = fc2 - v * 0.2f + vT * 0.1f;
+            tngs[i * 6 + 3] = fc2 - v * 0.2f + vT * 0.2f;
             tngs[i * 6 + 4] = fc2;
-            tngs[i * 6 + 5] = fc2 - v * 0.2f - vT * 0.1f;
+            tngs[i * 6 + 5] = fc2 - v * 0.2f - vT * 0.2f;
         }
         tngBuffer.SetData(tngs);
         nrmMat.SetBuffer("_Tng", tngBuffer);
@@ -58,12 +58,11 @@ public class VectorFieldVisualizer : MonoMfdViewer {
     void GenRandomOneForm(HalfEdgeGeom geom) { 
         var n = geom.nVerts;
         var r = max(2, (int)(n / 1000.0f));
-        //var r = 2;
         var rho1 = DenseMatrix.Create(n, 1, 0);
         var rho2 = DenseMatrix.Create(n, 1, 0);
         for (var i = 0; i < r; i++) {
-            var j1 = (int)(UnityEngine.Random.value * r);
-            var j2 = (int)(UnityEngine.Random.value * r);
+            var j1 = (int)(UnityEngine.Random.value * n);
+            var j2 = (int)(UnityEngine.Random.value * n);
             rho1[j1, 0] = UnityEngine.Random.Range(-2500f, 2500f);
             rho2[j2, 0] = UnityEngine.Random.Range(-2500f, 2500f);
         }
@@ -86,10 +85,8 @@ public class VectorFieldVisualizer : MonoMfdViewer {
                 var e = geom.Vector(h);
                 var eT = cross(N, e);
                 //v += (eT * (float)scalarPotential[j, 0] + e * (float)vectorPotential[j, 0]) / (2 * A);
-                //v += eT * (float)(scalarPotential[j, 0] / (2 * A));
-                //v += e * (float)(vectorPotential[j, 0] / (2 * A));
-                //v += eT * (float)(scalarPotential[j] / (2 * A));
-                //v += e * (float)(vectorPotential[j] / (2 * A));
+                v += eT * (float)(scalarPotential[j] / (2 * A));
+                v += e * (float)(vectorPotential[j] / (2 * A));
             }
             var u = new float3(-C.z, 0, C.x);
             u -= N * dot(u, N);
@@ -103,12 +100,11 @@ public class VectorFieldVisualizer : MonoMfdViewer {
             var f1 = h.onBoundary ?      new float3() : field[h.face]; 
             var f2 = h.twin.onBoundary ? new float3() : field[h.twin.face]; 
             omega[i, 0] = dot(f1 + f2, geom.Vector(h));
-            //Debug.Log(omega[i, 0]);
         }
     }
 
-    Dictionary<Face, float3> InterpolateWhitney(DenseMatrix oneForm) {
-        var field = new Dictionary<Face, float3>();
+    float3[] InterpolateWhitney(DenseMatrix oneForm) {
+        var field = new float3[geom.nFaces];
         for (var i = 0; i < geom.nFaces; i++) {
             var f = geom.Faces[i];
             var h = geom.halfedges[f.hid];
@@ -130,7 +126,7 @@ public class VectorFieldVisualizer : MonoMfdViewer {
             var a = (eki - ejk) * (float)cij;
             var b = (eij - eki) * (float)cjk;
             var c = (ejk - eij) * (float)cki;
-            field[f] = cross(N, (a + b + c)) / (float)(6 * A);
+            field[i] = cross(N, (a + b + c)) / (float)(6 * A);
         }
         return field;
     }

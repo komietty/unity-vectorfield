@@ -168,7 +168,8 @@ namespace ddg {
             while (true) {
                 if (once && curr.id == endId) break;
                 yield return curr;
-                curr = curr.twin.next;
+                //curr = curr.twin.next;
+                curr = curr.next;
                 once = true;
             };
         }

@@ -32,6 +32,7 @@ namespace ddg {
             alt_mesh.SetTriangles(alt_idcs, 0);
             alt_mesh.RecalculateNormals();
             alt_mesh.RecalculateBounds();
+            //return original;
             return alt_mesh;
         }
 
