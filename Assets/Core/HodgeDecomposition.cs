@@ -24,7 +24,7 @@ namespace ddg {
             d0 = ExteriorDerivatives.BuildExteriorDerivative0Form(geom);
             d1 = ExteriorDerivatives.BuildExteriorDerivative1Form(geom);
             var ne = hodge1.RowCount;
-            var nf = hodge1.RowCount;
+            var nf = hodge2.RowCount;
             var stgHodge1 = hodge1.Storage;
             var stgHodge2 = hodge2.Storage;
             var hodge1InvArr = new double[ne];
@@ -41,7 +41,7 @@ namespace ddg {
             A = oA + cA;
 
             var oB = d1 * hodge1Inv * d1T;
-            var cB = SparseMatrix.CreateDiagonal(oA.RowCount, oB.RowCount, 1e-8);
+            var cB = SparseMatrix.CreateDiagonal(oB.RowCount, oB.RowCount, 1e-8);
             B = oB + cB;
         }
 
@@ -53,18 +53,28 @@ namespace ddg {
             var outs = new float[n];
             for (var i = 0; i < n; i++) { rsltArr[i] = (float)rslt[i, 0]; }
             Solver.DecompAndSolveChol(trps.Length, n, trps, rsltArr, outs);
-            return outs;
+            var tmp1 = DenseMatrix.OfColumnMajor(outs.Length, 1, outs.Select(v => (double)v).ToArray());
+            var tmp2 = this.d0 * tmp1;
+            var l = omega.RowCount;
+            var rsltArr2 = new float[l];
+            for (var i = 0; i < l; i++) { rsltArr2[i] = (float)tmp2[i, 0]; }
+            return rsltArr2;
         }
 
         public float[] ComputeCoExactComponent(DenseMatrix omega) {
             var rslt = d0T * hodge1 * omega;
             var n = rslt.RowCount;
             var rsltArr = new float[n];
-            var trps = A.Storage.EnumerateNonZeroIndexed().Select(t => new Triplet(t.Item3, t.Item1, t.Item2)).ToArray();
+            var trps = B.Storage.EnumerateNonZeroIndexed().Select(t => new Triplet(t.Item3, t.Item1, t.Item2)).ToArray();
             var outs = new float[n];
             for (var i = 0; i < n; i++) { rsltArr[i] = (float)rslt[i, 0]; }
-            Solver.DecompAndSolveChol(trps.Length, n, trps, rsltArr, outs);
-            return outs;
+            Solver.DecompAndSolveLU(trps.Length, n, trps, rsltArr, outs);
+            var tmp1 = DenseMatrix.OfColumnMajor(outs.Length, 1, outs.Select(v => (double)v).ToArray());
+            var tmp2 = this.hodge1Inv * this.d1T * tmp1;
+            var l = omega.RowCount;
+            var rsltArr2 = new float[l];
+            for (var i = 0; i < l; i++) { rsltArr2[i] = (float)tmp2[i, 0]; }
+            return rsltArr2;
         }
 
         public float[] ComputeHarmonicComponent(DenseMatrix omega) {

@@ -6,8 +6,10 @@ using Unity.Mathematics;
 using ddg;
 using UnityEngine;
 using static Unity.Mathematics.math;
+using System.Linq;
 
 public class VectorFieldVisualizer : MonoMfdViewer {
+    protected HodgeDecomposition hodge;
     protected Matrix<double> phi;
     protected float[] omega; 
     protected float[] dAlpha; 
@@ -18,11 +20,17 @@ public class VectorFieldVisualizer : MonoMfdViewer {
 
         //omega = DenseMatrix.Create(geom.nEdges, 1, 0.0);
         omega = GenRandomOneForm(geom);
+        hodge = new HodgeDecomposition(geom);
+        var omegaM = DenseMatrix.OfColumnMajor(omega.Length, 1, omega.Select(v => (double)v).ToArray());
+        dAlpha = hodge.ComputeExactComponent(omegaM);
+        deltaBeta = hodge.ComputeCoExactComponent(omegaM);
 
         var n = geom.nFaces;
         var tngs = new Vector3[n * 6];
         var mlen = 0.3f * geom.MeanEdgeLength();
-        var omegaField = InterpolateWhitney(omega);
+        //var omegaField = InterpolateWhitney(omega);
+        //var omegaField = InterpolateWhitney(dAlpha);
+        var omegaField = InterpolateWhitney(deltaBeta);
         for(var i = 0; i < n; i++){
             var face = geom.Faces[i];
             var field = omegaField[i] * mlen;
@@ -83,7 +91,7 @@ public class VectorFieldVisualizer : MonoMfdViewer {
                 var j = h.prev.vid;
                 var e = geom.Vector(h);
                 var eT = cross(N, e);
-                v += eT * (float)(scalarPotential[j] / (2 * A));
+                //v += eT * (float)(scalarPotential[j] / (2 * A));
                 v += e * (float)(vectorPotential[j] / (2 * A));
             }
             var u = new float3(-C.z, 0, C.x);
