@@ -16,8 +16,6 @@ namespace ddg {
             var A = Operator.Laplace(geom);
             var T = geom.TotalArea();
             var rhoSum = (M * rho).RowSums().Sum();
-            //UnityEngine.Debug.Log(rhoSum);
-            //UnityEngine.Debug.Log(T);
             var rhoBar = DenseMatrix.Create(M.RowCount, 1, rhoSum / T);
             var rhoDif = rho - rhoBar;
             var B = - M * rhoDif;
@@ -38,9 +36,7 @@ namespace ddg {
             var outs = new float[geom.nVerts];
             var trps = iter.Select(i => new Triplet(i.Item3, i.Item1, i.Item2)).ToArray();
             var rslt = new float[B.RowCount];
-            for(var i = 0; i < rslt.Length; i++) {
-                rslt[i] = (float)B[i, 0];
-            }
+            for (var i = 0; i < rslt.Length; i++) { rslt[i] = (float)B[i, 0]; }
             Solver.DecompAndSolveChol(iter.Count(), geom.nVerts, trps, rslt, outs);
             return outs;
         }

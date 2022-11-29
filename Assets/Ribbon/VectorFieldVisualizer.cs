@@ -9,13 +9,15 @@ using static Unity.Mathematics.math;
 
 public class VectorFieldVisualizer : MonoMfdViewer {
     protected Matrix<double> phi;
-    protected DenseMatrix omega; 
+    protected float[] omega; 
+    protected float[] dAlpha; 
+    protected float[] deltaBeta; 
 
     protected override void Start() {
         base.Start();
 
-        omega = DenseMatrix.Create(geom.nEdges, 1, 0.0);
-        GenRandomOneForm(geom);
+        //omega = DenseMatrix.Create(geom.nEdges, 1, 0.0);
+        omega = GenRandomOneForm(geom);
 
         var n = geom.nFaces;
         var tngs = new Vector3[n * 6];
@@ -55,7 +57,7 @@ public class VectorFieldVisualizer : MonoMfdViewer {
         phi = ScalerPoissonProblem.SolveOnSurface(geom, rho);
     }
 
-    void GenRandomOneForm(HalfEdgeGeom geom) { 
+    float[] GenRandomOneForm(HalfEdgeGeom geom) { 
         var n = geom.nVerts;
         var r = max(2, (int)(n / 1000.0f));
         var rho1 = DenseMatrix.Create(n, 1, 0);
@@ -66,9 +68,6 @@ public class VectorFieldVisualizer : MonoMfdViewer {
             rho1[j1, 0] = UnityEngine.Random.Range(-2500f, 2500f);
             rho2[j2, 0] = UnityEngine.Random.Range(-2500f, 2500f);
         }
-//        var scalarPotential = ScalerPoissonProblem.SolveOnSurface(geom, rho1);
-//        var vectorPotential = ScalerPoissonProblem.SolveOnSurface(geom, rho2);
-
         var scalarPotential = ScalerPoissonProblem.SolveOnSurfaceNative(geom, rho1);
         var vectorPotential = ScalerPoissonProblem.SolveOnSurfaceNative(geom, rho2);
 
@@ -84,7 +83,6 @@ public class VectorFieldVisualizer : MonoMfdViewer {
                 var j = h.prev.vid;
                 var e = geom.Vector(h);
                 var eT = cross(N, e);
-                //v += (eT * (float)scalarPotential[j, 0] + e * (float)vectorPotential[j, 0]) / (2 * A);
                 v += eT * (float)(scalarPotential[j] / (2 * A));
                 v += e * (float)(vectorPotential[j] / (2 * A));
             }
@@ -94,16 +92,19 @@ public class VectorFieldVisualizer : MonoMfdViewer {
             v += u * 0.3f;
             field[f] = v;
         }
+
+        var w = new float[geom.nEdges];
         for (var i = 0; i < geom.nEdges; i++) {
             var e = geom.Edges[i];
             var h = geom.halfedges[e.hid];
             var f1 = h.onBoundary ?      new float3() : field[h.face]; 
             var f2 = h.twin.onBoundary ? new float3() : field[h.twin.face]; 
-            omega[i, 0] = dot(f1 + f2, geom.Vector(h));
+            w[i] = dot(f1 + f2, geom.Vector(h));
         }
+        return w;
     }
 
-    float3[] InterpolateWhitney(DenseMatrix oneForm) {
+    float3[] InterpolateWhitney(float[] oneForm) {
         var field = new float3[geom.nFaces];
         for (var i = 0; i < geom.nFaces; i++) {
             var f = geom.Faces[i];
@@ -114,9 +115,9 @@ public class VectorFieldVisualizer : MonoMfdViewer {
             var eij = pj - pi;
             var ejk = pk - pj;
             var eki = pi - pk;
-            var cij = oneForm[h.edge.eid, 0];
-            var cjk = oneForm[h.next.edge.eid, 0];
-            var cki = oneForm[h.prev.edge.eid, 0];
+            var cij = oneForm[h.edge.eid];
+            var cjk = oneForm[h.next.edge.eid];
+            var cki = oneForm[h.prev.edge.eid];
             if (h.edge.hid != h.id) cij *= -1;
             if (h.next.edge.hid != h.next.id) cjk *= -1;
             if (h.prev.edge.hid != h.prev.id) cki *= -1;

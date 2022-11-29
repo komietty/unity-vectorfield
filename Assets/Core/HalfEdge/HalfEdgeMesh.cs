@@ -34,9 +34,10 @@ namespace ddg {
 
             for (var i = 0; i < idxs.Length; i += 3) {
                 tripls.Clear();
-                var n = i + 3;
-                var f = new Face(i + 2);
-                faces[i / 3] = f;
+                var n  = i + 3;
+                var ii = i / 3;
+                var f = new Face(i + 2, ii);
+                faces[ii] = f;
 
                 for (int j = i; j < n; j++) { tripls.Add(new HalfEdge(j, idxs[j])); }
                 for (int j = 0; j < 3; j++) {
@@ -92,7 +93,7 @@ namespace ddg {
                         var bh = new HalfEdge(len);
                         var next = curr.next;
                         while (hasTwins.Contains(next.id)) { next = next.twin.next; }
-                        f = new Face(i);
+                        f = new Face(i, -1);
                         bh.vid = next.vid;
                         bh.face = f;
                         bh.onBoundary = true;

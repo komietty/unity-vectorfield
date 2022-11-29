@@ -32,7 +32,11 @@ namespace ddg {
 
     public readonly struct Face {
         public readonly int hid;
-        public Face(int hid) { this.hid = hid; }
+        public readonly int fid;
+        public Face(int hid, int fid) {
+            this.hid = hid;
+            this.fid = fid; // if -1, it is boundary face
+        }
     }
 
     public readonly struct Corner {
