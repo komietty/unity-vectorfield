@@ -28,9 +28,9 @@ public class VectorFieldVisualizer : MonoMfdViewer {
         var n = geom.nFaces;
         var tngs = new Vector3[n * 6];
         var mlen = 0.3f * geom.MeanEdgeLength();
-        //var omegaField = InterpolateWhitney(omega);
+        var omegaField = InterpolateWhitney(omega);
         //var omegaField = InterpolateWhitney(dAlpha);
-        var omegaField = InterpolateWhitney(deltaBeta);
+        //var omegaField = InterpolateWhitney(deltaBeta);
         for(var i = 0; i < n; i++){
             var face = geom.Faces[i];
             var field = omegaField[i] * mlen;
