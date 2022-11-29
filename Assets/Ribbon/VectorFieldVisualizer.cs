@@ -11,9 +11,9 @@ using System.Linq;
 public class VectorFieldVisualizer : MonoMfdViewer {
     protected HodgeDecomposition hodge;
     protected Matrix<double> phi;
-    protected float[] omega; 
-    protected float[] dAlpha; 
-    protected float[] deltaBeta; 
+    protected double[] omega; 
+    protected double[] dAlpha; 
+    protected double[] deltaBeta; 
 
     protected override void Start() {
         base.Start();
@@ -65,7 +65,7 @@ public class VectorFieldVisualizer : MonoMfdViewer {
         phi = ScalerPoissonProblem.SolveOnSurface(geom, rho);
     }
 
-    float[] GenRandomOneForm(HalfEdgeGeom geom) { 
+    double[] GenRandomOneForm(HalfEdgeGeom geom) { 
         var n = geom.nVerts;
         var r = max(2, (int)(n / 1000f));
         var rho1 = DenseMatrix.Create(n, 1, 0);
@@ -91,17 +91,17 @@ public class VectorFieldVisualizer : MonoMfdViewer {
                 var j = h.prev.vid;
                 var e = geom.Vector(h);
                 var eT = cross(N, e);
-                //v += eT * (float)(scalarPotential[j] / (2 * A));
+                v += eT * (float)(scalarPotential[j] / (2 * A));
                 v += e * (float)(vectorPotential[j] / (2 * A));
             }
             var u = new float3(-C.z, 0, C.x);
             u -= N * dot(u, N);
             u = normalize(u);
-            //v += u * 0.3f;
+            v += u * 0.3f;
             field[f] = v;
         }
 
-        var w = new float[geom.nEdges];
+        var w = new double[geom.nEdges];
         for (var i = 0; i < geom.nEdges; i++) {
             var e = geom.Edges[i];
             var h = geom.halfedges[e.hid];
@@ -112,7 +112,7 @@ public class VectorFieldVisualizer : MonoMfdViewer {
         return w;
     }
 
-    float3[] InterpolateWhitney(float[] oneForm) {
+    float3[] InterpolateWhitney(double[] oneForm) {
         var field = new float3[geom.nFaces];
         for (var i = 0; i < geom.nFaces; i++) {
             var f = geom.Faces[i];
