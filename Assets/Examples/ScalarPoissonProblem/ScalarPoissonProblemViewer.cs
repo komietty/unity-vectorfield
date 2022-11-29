@@ -14,7 +14,7 @@ public class ScalarPoissonProblemViewer : MonoMfdViewer {
         UpdateColor();
     }
 
-    void Solve(HalfEdgeGeom geom, List<int> vids) {
+    void Solve(HeGeom geom, List<int> vids) {
         var rho = DenseMatrix.Create(geom.nVerts, 1, 0);
         foreach (var i in vids) rho[i, 0] = 1;
         phi = ScalerPoissonProblem.SolveOnSurfaceNative(geom, rho);

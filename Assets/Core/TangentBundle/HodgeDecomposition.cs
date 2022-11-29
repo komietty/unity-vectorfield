@@ -14,11 +14,11 @@ namespace ddg {
         SparseMatrix A;
         SparseMatrix B;
 
-        public HodgeDecomposition(HalfEdgeGeom geom) {
-            h1 = ExteriorDerivatives.BuildHodgeStar1Form(geom);
-            h2 = ExteriorDerivatives.BuildHodgeStar2Form(geom);
-            d0 = ExteriorDerivatives.BuildExteriorDerivative0Form(geom);
-            d1 = ExteriorDerivatives.BuildExteriorDerivative1Form(geom);
+        public HodgeDecomposition(HeGeom g) {
+            h1 = ExteriorDerivatives.BuildHodgeStar1Form(g);
+            h2 = ExteriorDerivatives.BuildHodgeStar2Form(g);
+            d0 = ExteriorDerivatives.BuildExteriorDerivative0Form(g);
+            d1 = ExteriorDerivatives.BuildExteriorDerivative1Form(g);
             h1i = SparseMatrix.OfDiagonalVector(h1.Diagonal().Map(v => 1 / v));
             h2i = SparseMatrix.OfDiagonalVector(h2.Diagonal().Map(v => 1 / v));
             d0t = SparseMatrix.OfMatrix(d0.Transpose());

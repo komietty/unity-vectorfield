@@ -18,10 +18,9 @@ public class VectorFieldVisualizer : MonoMfdViewer {
     protected override void Start() {
         base.Start();
 
-        //omega = DenseMatrix.Create(geom.nEdges, 1, 0.0);
         omega = GenRandomOneForm(geom);
         hodge = new HodgeDecomposition(geom);
-        var omegaM = DenseMatrix.OfColumnMajor(omega.Length, 1, omega.Select(v => (double)v).ToArray());
+        var omegaM = DenseMatrix.OfColumnMajor(omega.Length, 1, omega.Select(v => (double)v));
         dAlpha = hodge.ComputeExactComponent(omegaM);
         deltaBeta = hodge.ComputeCoExactComponent(omegaM);
 
@@ -35,7 +34,7 @@ public class VectorFieldVisualizer : MonoMfdViewer {
             var face = geom.Faces[i];
             var field = omegaField[i] * mlen;
             var C = (float3)geom.Centroid(face);
-            geom.FaceNormal(face, out float3 N);
+            var (_, N) = geom.FaceNormal(face);
             field = ClampFieldLength(field, mlen);
             var fc1 = C - field + N * 0.005f;
             var fc2 = C + field + N * 0.005f;
@@ -59,13 +58,7 @@ public class VectorFieldVisualizer : MonoMfdViewer {
 
     protected override float GetValueOnSurface(Vert v) => (float)phi[v.vid, 0]; 
 
-    void Solve(HalfEdgeGeom geom, List<int> vids) {
-        var rho = DenseMatrix.Create(geom.nVerts, 1, 0);
-        foreach (var i in vids) rho[i, 0] = 1;
-        phi = ScalerPoissonProblem.SolveOnSurface(geom, rho);
-    }
-
-    double[] GenRandomOneForm(HalfEdgeGeom geom) { 
+    double[] GenRandomOneForm(HeGeom geom) { 
         var n = geom.nVerts;
         var r = max(2, (int)(n / 1000f));
         var rho1 = DenseMatrix.Create(n, 1, 0);
@@ -83,9 +76,8 @@ public class VectorFieldVisualizer : MonoMfdViewer {
         for (var i = 0; i < geom.nFaces; i++) {
             var f = geom.Faces[i];
             var v = new float3();
-            var N = new float3();
             var A = geom.Area(f);
-            var b = geom.FaceNormal(f, out N);
+            var (_, N) = geom.FaceNormal(f);
             var C = geom.Centroid(f);
             foreach(var h in geom.GetAdjacentHalfedges(f)) {
                 var j = h.prev.vid;
@@ -130,8 +122,7 @@ public class VectorFieldVisualizer : MonoMfdViewer {
             if (h.next.edge.hid != h.next.id) cjk *= -1;
             if (h.prev.edge.hid != h.prev.id) cki *= -1;
             var A = geom.Area(f);
-            var N = new float3();
-            var _ = geom.FaceNormal(f, out N);
+            var (_, N) = geom.FaceNormal(f);
             var a = (eki - ejk) * (float)cij;
             var b = (eij - eki) * (float)cjk;
             var c = (ejk - eij) * (float)cki;

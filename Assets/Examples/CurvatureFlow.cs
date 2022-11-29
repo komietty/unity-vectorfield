@@ -33,10 +33,10 @@ namespace ddg {
     }
 
     public class MeanCurvatureFlow {
-        HalfEdgeGeom geom;
+        HeGeom geom;
         SparseMatrix L;
         
-        public MeanCurvatureFlow(HalfEdgeGeom g) {
+        public MeanCurvatureFlow(HeGeom g) {
             this.geom = g;
             L = Operator.Laplace(g);
         }

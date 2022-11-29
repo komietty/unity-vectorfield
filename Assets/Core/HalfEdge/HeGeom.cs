@@ -1,16 +1,28 @@
 using Unity.Mathematics;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using static Unity.Mathematics.math;
 
 namespace ddg {
-    using static Unity.Mathematics.math;
-    public class HalfEdgeGeom: HalfEdgeMesh {
+    public class HeGeom: HeComp {
+        public System.Span<Vector3> Pos => pos.AsSpan();
+        public System.Span<Vector3> Nrm => nrm.AsSpan();
+        public Vector3[] pos;
+        public Vector3[] nrm;
 
-        public HalfEdgeGeom(UnityEngine.Mesh mesh) : base(mesh) { }
+        public HeGeom(UnityEngine.Mesh mesh) : base(mesh) {
+            pos = mesh.vertices;
+            nrm = mesh.normals;
+        }
 
-        public float3 Vector(HalfEdge h) { return Pos[h.next.vid] - Pos[h.vid]; }
+        public float3 Vector(HalfEdge h) {
+            return Pos[h.next.vid] - Pos[h.vid];
+        }
 
-        public float Length(HalfEdge h) { return length(Vector(h)); }
+        public float Length(HalfEdge h) {
+            return length(Vector(h));
+        }
 
         public float Length(Edge e) {
             return length(Vector(halfedges[e.hid]));
@@ -51,14 +63,14 @@ namespace ddg {
             return sum / this.nEdges;
         }
 
-        public bool FaceNormal(Face f, out float3 o){
-            o = new float3();
+        public (bool b, float3 n) FaceNormal(Face f){
+            var n = new float3();
             var h = halfedges[f.hid];
-            if(h.onBoundary) return false;
+            if(h.onBoundary) return (false, n);
             var u = Vector(h);
             var v = Vector(h.prev) * -1;
-            o = normalize(cross(u, v));
-            return true;
+            n = normalize(cross(u, v));
+            return (true, n);
         }
 
         public float Angle(Corner c) {
@@ -68,8 +80,8 @@ namespace ddg {
         }
 
         public float DihedralAngle(HalfEdge h) {
-            FaceNormal(h.face, out float3 n_ijk);
-            FaceNormal(h.twin.face, out float3 n_jil);
+            var (_, n_ijk) = FaceNormal(h.face);
+            var (_, n_jil) = FaceNormal(h.twin.face);
             var v = Vector(h) / Length(h);
             var c = cross(n_ijk, n_jil);
             var d = dot(n_ijk, n_jil);
@@ -121,7 +133,7 @@ namespace ddg {
 
         public IEnumerable<Face> GetAdjacentFaces(Vert v) {
             var tgt = halfedges[v.hid];
-            while(tgt.onBoundary){ tgt = tgt.twin.next; }
+            while (tgt.onBoundary) { tgt = tgt.twin.next; }
             var curr = tgt;
             var endId = tgt.id;
             var once = false;
@@ -136,7 +148,7 @@ namespace ddg {
 
         public IEnumerable<Corner> GetAdjacentConers(Vert v) {
             var tgt = halfedges[v.hid];
-            while(tgt.onBoundary){ tgt = tgt.twin.next; }
+            while (tgt.onBoundary) { tgt = tgt.twin.next; }
             var curr = tgt;
             var endId = tgt.id;
             var once = false;
@@ -168,7 +180,6 @@ namespace ddg {
             while (true) {
                 if (once && curr.id == endId) break;
                 yield return curr;
-                //curr = curr.twin.next;
                 curr = curr.next;
                 once = true;
             };

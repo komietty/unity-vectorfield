@@ -3,14 +3,12 @@ using UnityEngine;
 using System;
 
 namespace ddg {
-    public class HalfEdgeMesh {
+    public class HeComp {
         public HalfEdge[] halfedges     { get; private set; }
         public int eulerCharactaristics { get; private set; }
         public ReadOnlySpan<Vert> Verts => verts.AsSpan();
         public ReadOnlySpan<Edge> Edges => edges.AsSpan();
         public ReadOnlySpan<Face> Faces => faces.AsSpan();
-        public Span<Vector3> Pos => pos.AsSpan();
-        public Span<Vector3> Nrm => nrm.AsSpan();
         public int nVerts { get; private set; }
         public int nEdges { get; private set; }
         public int nFaces { get; private set; }
@@ -19,14 +17,10 @@ namespace ddg {
         Face[] faces;
         Face[] bunds;
         Corner[] corners;
-        public Vector3[] pos;
-        public Vector3[] nrm;
 
-        public HalfEdgeMesh(Mesh mesh) {
-            pos = mesh.vertices;
-            nrm = mesh.normals;
+        public HeComp(Mesh mesh) {
             var idxs = new ReadOnlySpan<int>(mesh.triangles);
-            Preallocate(new ReadOnlySpan<Vector3>(pos), idxs);
+            Preallocate(idxs, mesh.vertexCount);
 
             var alones = new List<HalfEdge>(3);
             var tripls = new List<HalfEdge>(3);
@@ -122,7 +116,7 @@ namespace ddg {
             }
         }
 
-        void Preallocate(ReadOnlySpan<Vector3> vrts, ReadOnlySpan<int> idcs){
+        void Preallocate(ReadOnlySpan<int> idcs, int nv){
             var sortedEdges = new HashSet<(int, int)>();
             var nBoundaryHe = 0;
             for (var I = 0; I < idcs.Length; I += 3) {
@@ -136,7 +130,7 @@ namespace ddg {
                 }
             }
 
-            nVerts = vrts.Length;
+            nVerts = nv;
             nFaces = idcs.Length / 3;
             nEdges = sortedEdges.Count;
             var nHalfedges = 2 * nEdges;

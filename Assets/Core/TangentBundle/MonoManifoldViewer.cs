@@ -12,7 +12,7 @@ namespace ddg {
         protected Mesh mesh;
         protected Material mat;
         protected Material nrmMat;
-        protected HalfEdgeGeom geom;
+        protected HeGeom geom;
         protected GraphicsBuffer colBuffer;
         protected GraphicsBuffer nrmBuffer;
         protected GraphicsBuffer tngBuffer;
@@ -25,7 +25,7 @@ namespace ddg {
             mesh = MeshUtils.Weld(filt.sharedMesh);
             filt.sharedMesh = mesh;
             rend.material = mat;
-            geom = new HalfEdgeGeom(mesh);
+            geom = new HeGeom(mesh);
             colBuffer = new GraphicsBuffer(Target.Structured, geom.nVerts, sizeof(float) * 3);
             nrmBuffer = new GraphicsBuffer(Target.Structured, geom.nVerts * 2, sizeof(float) * 3);
             tngBuffer = new GraphicsBuffer(Target.Structured, geom.nFaces * 6, sizeof(float) * 3);

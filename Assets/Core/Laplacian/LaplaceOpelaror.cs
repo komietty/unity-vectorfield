@@ -6,7 +6,7 @@ namespace ddg {
 
         /*
         */
-        public static SparseMatrix Mass(HalfEdgeGeom g){
+        public static SparseMatrix Mass(HeGeom g){
             var n = g.nVerts;
             System.Span<double> a = stackalloc double[n];
             for (int i = 0; i < n; i++) {
@@ -15,14 +15,14 @@ namespace ddg {
             return SparseMatrix.OfDiagonalArray(a.ToArray());
         }
 
-        public static SparseMatrix MassInv(HalfEdgeGeom g){
+        public static SparseMatrix MassInv(HeGeom g){
             var n = g.nVerts;
             System.Span<double> a = stackalloc double[n];
             for (int i = 0; i < n; i++) a[i] = 1 / g.BarycentricDualArea(g.Verts[i]);
             return SparseMatrix.OfDiagonalArray(a.ToArray());
         }
 
-        public static SparseMatrix Laplace(HalfEdgeGeom g){
+        public static SparseMatrix Laplace(HeGeom g){
             var t = new List<(int, int, double)>();
             var n = g.nVerts;
             for (var i = 0; i < n; i++) {

@@ -11,7 +11,7 @@ namespace ddg {
          * where A is the positive definite laplace matrix and M is the mass matrix.
          * rho: A scalar density of vertices of the input mesh.
         */
-        public static Matrix<double> SolveOnSurface(HalfEdgeGeom geom, DenseMatrix rho){
+        public static Matrix<double> SolveOnSurface(HeGeom geom, DenseMatrix rho){
             var M = Operator.Mass(geom);
             var A = Operator.Laplace(geom);
             var T = geom.TotalArea();
@@ -23,7 +23,7 @@ namespace ddg {
             return LLT.Solve(B);
         }
 
-        public static float[] SolveOnSurfaceNative(HalfEdgeGeom geom, DenseMatrix rho){
+        public static float[] SolveOnSurfaceNative(HeGeom geom, DenseMatrix rho){
             var M = Operator.Mass(geom);
             var A = Operator.Laplace(geom);
             var T = geom.TotalArea();

@@ -9,7 +9,10 @@ namespace ddg {
         public HalfEdge prev;
         public HalfEdge twin;
         public bool onBoundary;
-        public HalfEdge(int id, int vid = -1) { this.id = id; this.vid = vid; }
+        public HalfEdge(int id, int vid = -1) {
+            this.id = id;
+            this.vid = vid;
+        }
     }
 
     public readonly struct Vert {
