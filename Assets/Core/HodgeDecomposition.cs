@@ -62,13 +62,14 @@ namespace ddg {
         }
 
         public float[] ComputeCoExactComponent(DenseMatrix omega) {
-            var rslt = d0T * hodge1 * omega;
+            var rslt = d1 * omega;
             var n = rslt.RowCount;
             var rsltArr = new float[n];
             var trps = B.Storage.EnumerateNonZeroIndexed().Select(t => new Triplet(t.Item3, t.Item1, t.Item2)).ToArray();
             var outs = new float[n];
             for (var i = 0; i < n; i++) { rsltArr[i] = (float)rslt[i, 0]; }
-            Solver.DecompAndSolveLU(trps.Length, n, trps, rsltArr, outs);
+            Solver.DecompAndSolveChol(trps.Length, n, trps, rsltArr, outs);
+            //Solver.DecompAndSolveLU(trps.Length, n, trps, rsltArr, outs);
             var tmp1 = DenseMatrix.OfColumnMajor(outs.Length, 1, outs.Select(v => (double)v).ToArray());
             var tmp2 = this.hodge1Inv * this.d1T * tmp1;
             var l = omega.RowCount;
