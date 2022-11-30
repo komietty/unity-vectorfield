@@ -3,7 +3,7 @@ using System.Collections;
 using System;
 
 namespace ddg {
-    public class CurvatureView : MonoMfdViewer {
+    public class CurvatureViewer : TangentBundleBehaviour {
         public enum CurvType {
             ScalarGaussCurvature,
             ScalarMeanCurvature,
@@ -20,8 +20,7 @@ namespace ddg {
             n.textColor = Color.white;
             style.normal = n;
             style.fontSize = 25;
-            UpdateColor();
-            //StartCoroutine(ChangeCurvature());
+            StartCoroutine(ChangeCurvature());
         }
 
         void OnGUI() {
@@ -31,24 +30,28 @@ namespace ddg {
 
         IEnumerator ChangeCurvature() {
             while(true) {
-                UpdateColor();
+                UpdateCol(GenCurvatureCol());
                 yield return new WaitForSeconds(2);
                 curvType = (CurvType)(((int)curvType + 1) % Enum.GetNames(typeof(CurvType)).Length);
             }
         }
 
-        protected override float GetValueOnSurface(Vert v) {
+        float[] GenCurvatureCol() {
+            var g = bundle.Geom;
+            var c = new float[g.nVerts];
             var t = curvType;
-            var g = 0f;
-            if      (t == CurvType.ScalarGaussCurvature) g = geom.ScalarGaussCurvature(v);
-            else if (t == CurvType.ScalarMeanCurvature)  g = geom.ScalarMeanCurvature(v);
-            else {
-                var area = geom.BarycentricDualArea(v);
-                var ks = geom.PrincipalCurvature(v);
-                if (t == CurvType.PrincipalCurvature) g = ks.y * (float)area;
-                if (t == CurvType.NormalCurvature)    g = ks.x * (float)area;
+            for (var i = 0; i < g.nVerts; i++) {
+                var v = g.Verts[i];
+                if (t == CurvType.ScalarGaussCurvature) c[i] = g.ScalarGaussCurvature(v);
+                else if (t == CurvType.ScalarMeanCurvature) c[i] = g.ScalarMeanCurvature(v);
+                else {
+                    var area = g.BarycentricDualArea(v);
+                    var ks = g.PrincipalCurvature(v);
+                    if (t == CurvType.PrincipalCurvature) c[i] = ks.y * (float)area;
+                    if (t == CurvType.NormalCurvature) c[i] = ks.x * (float)area;
+                }
             }
-            return g;
+            return c;
         }
     }
 }

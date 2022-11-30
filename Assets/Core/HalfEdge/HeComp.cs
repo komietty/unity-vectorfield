@@ -3,6 +3,9 @@ using UnityEngine;
 using System;
 
 namespace ddg {
+    /*
+     * HalfEdge Complex
+    */
     public class HeComp {
         public HalfEdge[] halfedges     { get; private set; }
         public int eulerCharactaristics { get; private set; }

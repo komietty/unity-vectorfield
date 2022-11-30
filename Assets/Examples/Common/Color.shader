@@ -1,4 +1,4 @@
-Shader "Unlit/CurvatureView" {
+Shader "Unlit/Color" {
     Properties { }
     SubShader {
         Tags { "RenderType"="Opaque" }

@@ -1,16 +1,19 @@
-# unity-halfedge
+# MonoManifold 
 
-Unity halfedge handler library and some applications based on it. 
+Geometory processing library on Unity. 
 
-## Applications 
-### Curvature Culclation
-
-Each of meshes below shows Gausian / Mean / Principal / Normal curvatures respectively. It also contains GPU Gaussian curvature demo.
-
+### Curvature Culclation (Gausian / Mean / Principal / Normal)
 <img src="Imgs/curvature.gif"/>
 
-### Smoothing Culclation
-By solving the Poisson's equation on halfedges it enables mesh smoothing. <img src="Imgs/smoothing.gif"/>
+### Poisson Equation Culclation and Smooothing
+<img src="Imgs/smoothing.gif"/>
+
+### Tangent Field Decomposition (Hodge Decomposition)
+ <img src="Imgs/field_random.png"/>
+ <img src="Imgs/field_exact.png"/>
+ <img src="Imgs/field_coexact.png"/>
 
 ## References
-[Discrete Differential Geometry: An Applied Introduction - Keenan Crane](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/)
+- [Discrete Differential Geometry: An Applied Introduction - Keenan Crane](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/)
+
+- 森田茂之, 微分形式の幾何学

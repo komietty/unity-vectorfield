@@ -6,29 +6,24 @@ using System.Linq;
 using System;
 
 namespace ddg {
-    public class CurvatureFlow : MonoMfdViewer {
+    public class MeshSmoothingDemo : TangentBundleBehaviour {
         [SerializeField] protected bool native = true;
         [SerializeField, Range(0.001f, 0.1f)] protected float delta = 0.001f;
 
         protected override void Start() {
             base.Start();
             StartCoroutine(Smooth());
-            }
-
-        IEnumerator Smooth() {
-            var flow = new MeanCurvatureFlow(geom);
-            UpdateColor();
-            while(true){
-                yield return new WaitForSeconds(1);
-                if(native) flow.IntegrateNative(delta);
-                else       flow.IntegrateCSharp(delta);
-                mesh.SetVertices(geom.Pos.ToArray());
-                UpdateColor();
-            }
         }
 
-        protected override float GetValueOnSurface(Vert v) {
-            return 1;
+        IEnumerator Smooth() {
+            var flow = new MeanCurvatureFlow(bundle.Geom);
+            while(true){
+                yield return new WaitForSeconds(0.5f);
+                if(native) flow.IntegrateNative(delta);
+                else       flow.IntegrateCSharp(delta);
+                mesh.SetVertices(bundle.Geom.Pos.ToArray());
+                mesh.RecalculateNormals();
+            }
         }
     }
 

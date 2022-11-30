@@ -1,8 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
-using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using static Unity.Mathematics.math;
 
@@ -10,6 +8,8 @@ namespace ddg {
     public class TangentBundle {
         protected float3[] tangentField;
         protected HeGeom geom;
+        public HeGeom Geom => geom;
+        public float3[] TangentField => tangentField;
 
         public TangentBundle(Mesh mesh){
             geom = new HeGeom(mesh);
