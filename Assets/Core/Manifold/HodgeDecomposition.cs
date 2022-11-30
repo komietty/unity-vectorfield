@@ -30,28 +30,20 @@ namespace ddg {
 
         public double[] ComputeExactComponent(DenseMatrix omega) {
             var m = d0t * h1 * omega;
-            var n = m.RowCount;
-            var l = omega.RowCount;
-            var outs = new float[n];
+            var outs = new double[m.RowCount];
             var trps = A.Storage.EnumerateNonZeroIndexed().Select(t => new Triplet(t.Item3, t.Item1, t.Item2)).ToArray();
-            var marr = m.Column(0).Map(v => (float)v).ToArray();
-            Solver.DecompAndSolveChol(trps.Length, n, trps, marr, outs);
-            var mm = DenseMatrix.OfColumnMajor(outs.Length, 1, outs.Select(v => (double)v));
+            Solver.DecompAndSolveChol(trps.Length, m.RowCount, trps, m.Column(0).ToArray(), outs);
+            var mm = DenseMatrix.OfColumnMajor(outs.Length, 1, outs);
             return (this.d0 * mm).Column(0).ToArray();
         }
 
         public double[] ComputeCoExactComponent(DenseMatrix omega) {
             var m = d1 * omega;
-            var n = m.RowCount;
-            var outs = new float[n];
+            var outs = new double[m.RowCount];
             var trps = B.Storage.EnumerateNonZeroIndexed().Select(t => new Triplet(t.Item3, t.Item1, t.Item2)).ToArray();
-            var marr = m.Column(0).Map(v => (float)v).ToArray();
-            Solver.DecompAndSolveLU(trps.Length, n, trps, marr, outs);
-            var mm = DenseMatrix.OfColumnMajor(outs.Length, 1, outs.Select(v => (double)v));
+            Solver.DecompAndSolveLU(trps.Length, m.RowCount, trps, m.Column(0).ToArray(), outs);
+            var mm = DenseMatrix.OfColumnMajor(outs.Length, 1, outs);
             return (h1i * d1t * mm).Column(0).ToArray();
-            //var lu = B.LU();
-            //var ans1 = lu.Solve(m);
-            //return (h1i * d1t * ans1).Column(0).ToArray();
         }
 
         public float[] ComputeHarmonicComponent(DenseMatrix omega) {

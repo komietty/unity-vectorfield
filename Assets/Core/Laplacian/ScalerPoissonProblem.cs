@@ -23,7 +23,7 @@ namespace ddg {
             return LLT.Solve(B);
         }
 
-        public static float[] SolveOnSurfaceNative(HeGeom geom, DenseMatrix rho){
+        public static double[] SolveOnSurfaceNative(HeGeom geom, DenseMatrix rho){
             var M = Operator.Mass(geom);
             var A = Operator.Laplace(geom);
             var T = geom.TotalArea();
@@ -33,10 +33,10 @@ namespace ddg {
             var B = - M * rhoDif;
             var data = SparseCompressedRowMatrixStorage<double>.OfMatrix(A.Storage);
             var iter = data.EnumerateNonZeroIndexed();
-            var outs = new float[geom.nVerts];
+            var outs = new double[geom.nVerts];
             var trps = iter.Select(i => new Triplet(i.Item3, i.Item1, i.Item2)).ToArray();
-            var rslt = new float[B.RowCount];
-            for (var i = 0; i < rslt.Length; i++) { rslt[i] = (float)B[i, 0]; }
+            var rslt = new double[B.RowCount];
+            for (var i = 0; i < rslt.Length; i++) { rslt[i] = B[i, 0]; }
             Solver.DecompAndSolveChol(iter.Count(), geom.nVerts, trps, rslt, outs);
             return outs;
         }

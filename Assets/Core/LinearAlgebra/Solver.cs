@@ -18,18 +18,18 @@ namespace ddg {
         [DllImport("EigenSolver.bundle")]
             public static extern void DecompAndSolveChol(
                 int ntrps,
-                int nvrts,
+                int nresult,
                 [In]  Triplet[] trps,
-                [In]  float[] vrts,
-                [Out] float[] outs
+                [In]  double[] result,
+                [Out] double[] answer
             );
         [DllImport("EigenSolver.bundle")]
             public static extern void DecompAndSolveLU(
                 int ntrps,
-                int nvrts,
+                int nresult,
                 [In]  Triplet[] trps,
-                [In]  float[] vrts,
-                [Out] float[] outs
+                [In]  double[] result,
+                [Out] double[] answer
             );
     }
 

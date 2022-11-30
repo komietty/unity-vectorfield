@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using MathNet.Numerics.LinearAlgebra.Double;
 using UnityEngine;
+using System.Linq;
 
 namespace ddg {
     public class ScalarPoissonProblemViewer : TangentBundleBehaviour {
@@ -10,10 +11,10 @@ namespace ddg {
                 new int[] {
                     Random.Range(0, bundle.Geom.nVerts),
                     Random.Range(0, bundle.Geom.nVerts),
-                }));
+                }).Select(v => (float)v).ToArray());
         }
 
-        float[] Solve(int[] vids) {
+        double[] Solve(int[] vids) {
             var g = bundle.Geom;
             var r = DenseMatrix.Create(g.nVerts, 1, 0);
             foreach (var i in vids) r[i, 0] = 1;
