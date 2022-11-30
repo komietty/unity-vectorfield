@@ -48,10 +48,10 @@ namespace ddg {
             var marr = m.Column(0).Map(v => (float)v).ToArray();
             Solver.DecompAndSolveLU(trps.Length, n, trps, marr, outs);
             var mm = DenseMatrix.OfColumnMajor(outs.Length, 1, outs.Select(v => (double)v));
-            //return (h1i * d1t * mm).Column(0).ToArray();
-            var lu = B.LU();
-            var ans1 = lu.Solve(m);
-            return (h1i * d1t * ans1).Column(0).ToArray();
+            return (h1i * d1t * mm).Column(0).ToArray();
+            //var lu = B.LU();
+            //var ans1 = lu.Solve(m);
+            //return (h1i * d1t * ans1).Column(0).ToArray();
         }
 
         public float[] ComputeHarmonicComponent(DenseMatrix omega) {

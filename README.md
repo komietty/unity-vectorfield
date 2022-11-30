@@ -1,17 +1,14 @@
-# MonoManifold 
+# MonoManifold
+Geometry processing library on Unity, specially focusing on differencial geometry.
 
-Geometory processing library on Unity. 
+ <img src="Imgs/bunny.png"/>
 
-### Curvature Culclation (Gausian / Mean / Principal / Normal)
-<img src="Imgs/curvature.gif"/>
-
-### Poisson Equation Culclation and Smooothing
-<img src="Imgs/smoothing.gif"/>
-
-### Tangent Field Decomposition (Hodge Decomposition)
- <img src="Imgs/field_random.png"/>
- <img src="Imgs/field_exact.png"/>
- <img src="Imgs/field_coexact.png"/>
+## Features
+- Halfedge structure module included
+- Curvature culclation (Gausian / Mean / Principal / Normal)
+- Poisson equation solver on mesh
+- Mesh smoothing based on Poisson eq. 
+- Tangent Field Decomposition (Hodge Decomposition)
 
 ## References
 - [Discrete Differential Geometry: An Applied Introduction - Keenan Crane](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/)
