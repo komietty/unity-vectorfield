@@ -6,27 +6,27 @@ using static UnityEngine.GraphicsBuffer;
 
 namespace ddg {
     public abstract class TangentBundleBehaviour : MonoBehaviour {
-        [SerializeField] protected Shader meshShader;
+        [SerializeField] protected Material surfaceMat;
         [SerializeField] protected Shader lineShader;
         [SerializeField] protected bool showNormal;
         [SerializeField] protected bool showTangent;
         protected Mesh mesh;
         protected TangentBundle bundle;
-        protected Material colMat, nrmMat, tngMat;
+        protected Material nrmMat, tngMat;
         protected GraphicsBuffer colBuf, nrmBuf, tngBuf;
 
         protected virtual void Start() {
             var filt = GetComponentInChildren<MeshFilter>();
             var rend = GetComponentInChildren<MeshRenderer>();
             mesh = MeshUtils.Weld(filt.sharedMesh);
-            colMat = new Material(meshShader);
             nrmMat = new Material(lineShader);
             tngMat = new Material(lineShader);
             filt.sharedMesh = mesh;
-            rend.material = colMat;
+            rend.material = surfaceMat;
             bundle = new TangentBundle(mesh);
             colBuf = new GraphicsBuffer(Target.Structured, bundle.Geom.nVerts,     sizeof(float) * 3);
             nrmBuf = new GraphicsBuffer(Target.Structured, bundle.Geom.nVerts * 2, sizeof(float) * 3);
+            //tngBuf = new GraphicsBuffer(Target.Structured, bundle.Geom.nFaces * 4, sizeof(float) * 3);
             tngBuf = new GraphicsBuffer(Target.Structured, bundle.Geom.nFaces * 6, sizeof(float) * 3);
             UpdateNrm();
         }
@@ -47,7 +47,7 @@ namespace ddg {
             for (var i = 0; i < n; i++) 
                 lrps[i] = ColorMap.Color(vals[i], -max, max);
             colBuf.SetData(lrps);
-            colMat.SetBuffer("_Col", colBuf);
+            surfaceMat.SetBuffer("_Col", colBuf);
         }
 
         protected void UpdateNrm() {
@@ -66,8 +66,9 @@ namespace ddg {
         protected void UpdateTng(double[] omega) {
             var g = bundle.Geom;
             var n = g.nFaces;
+            //var tngs = new Vector3[n * 4];
             var tngs = new Vector3[n * 6];
-            var mlen = 0.4f * g.MeanEdgeLength();
+            var mlen = 0.3f * g.MeanEdgeLength();
             var omegaField = TangentBundle.InterpolateWhitney(omega, g);
             for(var i = 0; i < n; i++){
                 var face = g.Faces[i];
@@ -79,15 +80,16 @@ namespace ddg {
                 var fc2 = C + field + N * 0.005f;
                 var v = fc2 - fc1;
                 var vT = math.cross(N, v);
+                //tngs[i * 4 + 0] = fc1 - vT * 0.05f;
+                //tngs[i * 4 + 1] = fc2 - vT * 0.05f;
+                //tngs[i * 4 + 2] = fc2 + vT * 0.05f;
+                //tngs[i * 4 + 3] = fc1 + vT * 0.05f;
                 tngs[i * 6 + 0] = fc1;
                 tngs[i * 6 + 1] = fc2;
                 tngs[i * 6 + 2] = fc2;
-                //tngs[i * 6 + 3] = fc2 - v * 0.2f + vT * 0.2f;
-                //tngs[i * 6 + 4] = fc2;
-                //tngs[i * 6 + 5] = fc2 - v * 0.2f - vT * 0.2f;
-                tngs[i * 6 + 3] = fc2 - v * 0 + vT * 0;
+                tngs[i * 6 + 3] = fc2 - v * 0.2f + vT * 0.2f;
                 tngs[i * 6 + 4] = fc2;
-                tngs[i * 6 + 5] = fc2 - v * 0 - vT * 0;
+                tngs[i * 6 + 5] = fc2 - v * 0.2f - vT * 0.2f;
             }
             tngBuf.SetData(tngs);
             tngMat.SetBuffer("_Line", tngBuf);
@@ -106,13 +108,14 @@ namespace ddg {
             }
             if (showTangent) {
                 var n = bundle.Geom.nFaces * 6;
+                //var n = bundle.Geom.nFaces * 4;
                 tngMat.SetPass(0);
                 Graphics.DrawProceduralNow(MeshTopology.Lines, n);
+                //Graphics.DrawProceduralNow(MeshTopology.Quads, n);
             }
         }
 
-        void OnDestroy() {
-            Destroy(colMat);
+        protected virtual void OnDestroy() {
             Destroy(nrmMat);
             Destroy(tngMat);
             colBuf?.Dispose();

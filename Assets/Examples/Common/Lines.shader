@@ -1,10 +1,12 @@
-Shader "Unlit/Lines" {
+Shader "ddg/Lines" {
     Properties { }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags { "Queue" = "Transparent" "RenderType"="Transparent" }
         LOD 100
+        Blend SrcAlpha OneMinusSrcAlpha 
         Pass {
+            //Cull Off
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -23,15 +25,18 @@ Shader "Unlit/Lines" {
                 v2f o;
                 float3 p = _Line[vid];
                 uint iid = vid / 6;
+                uint uid = vid % 6; 
                 o.vertex = UnityObjectToClipPos(float4(p, 1));
-                o.uv = float2(vid % 2 == 0 ? 1 : 0, (float)iid);
+                o.uv = float2(
+                    uid == 0 ? 1 : 0,
+                    (float)iid);
                 return o;
             }
 
             float4 frag (v2f i) : SV_Target {
-                //float  v = pow(sin(_T * 5 + i.uv.x * PI + i.uv.y) * 0.5 + 0.5, 2);
                 float  v = pow(sin(_T * 5 + i.uv.x * PI + i.uv.y) * 0.5 + 0.5, 2);
-                return float4(v, 0.6 + v * 0.4, 1, 1);
+                //return float4(v, 0.6 + v * 0.4, 1, v);
+                return float4(0.1, 0.7, 1, 1 - v * 0.8);
             }
             ENDCG
         }
