@@ -67,7 +67,7 @@ namespace ddg {
             var g = bundle.Geom;
             var n = g.nFaces;
             var tngs = new Vector3[n * 6];
-            var mlen = 0.3f * g.MeanEdgeLength();
+            var mlen = 0.4f * g.MeanEdgeLength();
             var omegaField = TangentBundle.InterpolateWhitney(omega, g);
             for(var i = 0; i < n; i++){
                 var face = g.Faces[i];
@@ -82,9 +82,12 @@ namespace ddg {
                 tngs[i * 6 + 0] = fc1;
                 tngs[i * 6 + 1] = fc2;
                 tngs[i * 6 + 2] = fc2;
-                tngs[i * 6 + 3] = fc2 - v * 0.2f + vT * 0.2f;
+                //tngs[i * 6 + 3] = fc2 - v * 0.2f + vT * 0.2f;
+                //tngs[i * 6 + 4] = fc2;
+                //tngs[i * 6 + 5] = fc2 - v * 0.2f - vT * 0.2f;
+                tngs[i * 6 + 3] = fc2 - v * 0 + vT * 0;
                 tngs[i * 6 + 4] = fc2;
-                tngs[i * 6 + 5] = fc2 - v * 0.2f - vT * 0.2f;
+                tngs[i * 6 + 5] = fc2 - v * 0 - vT * 0;
             }
             tngBuf.SetData(tngs);
             tngMat.SetBuffer("_Line", tngBuf);

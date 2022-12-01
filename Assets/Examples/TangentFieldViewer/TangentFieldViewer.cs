@@ -31,5 +31,9 @@ namespace ddg {
             coexact = h.ComputeCoExactComponent(m);
             UpdateTng(random);
         }
+
+        void Update() {
+            tngMat.SetFloat("_T", Time.time);
+        }
     }
 }
