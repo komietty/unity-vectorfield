@@ -302,10 +302,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   surfaceMat: {fileID: 2100000, guid: 29d24685523474f149b6d05e68b78acb, type: 2}
-  lineShader: {fileID: 4800000, guid: 81c10e8f978584a898c5ff93a9337c93, type: 3}
+  lineShader: {fileID: 4800000, guid: 7a7e528bfe4af4f02ad5430fc92bee32, type: 3}
   showNormal: 0
   showTangent: 1
   field: 0
+  point: {fileID: 6656469689329903998, guid: a9a0b1a78d24b4053aff7e0550903ed9, type: 3}
+  cs: {fileID: 7200000, guid: 37db18243e83a4d44afcf6fb30cc2fa3, type: 3}
+  potentialColor: 0
 --- !u!1 &924420045
 GameObject:
   m_ObjectHideFlags: 0
