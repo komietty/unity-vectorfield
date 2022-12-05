@@ -15,14 +15,22 @@ namespace ddg {
             geom = new HeGeom(mesh);
         }
 
-        public static double[] GenRandomOneForm(HeGeom geom) {
+        public static (
+            double[] oneForm,
+            int[] scalarPotentialIds,
+            int[] vectorPotentialIds
+            ) GenRandomOneForm(HeGeom geom) {
             var nv = geom.nVerts;
             var r = max(2, (int)(nv / 1000f));
             var rho1 = DenseMatrix.Create(nv, 1, 0);
             var rho2 = DenseMatrix.Create(nv, 1, 0);
+            var exactIds   = new int[r];
+            var coexactIds = new int[r];
             for (var i = 0; i < r; i++) {
                 var j1 = (int)(UnityEngine.Random.value * nv);
                 var j2 = (int)(UnityEngine.Random.value * nv);
+                exactIds[i] = j1;
+                coexactIds[i] = j2;
                 rho1[j1, 0] = UnityEngine.Random.Range(-2500f, 2500f);
                 rho2[j2, 0] = UnityEngine.Random.Range(-2500f, 2500f);
             }
@@ -57,7 +65,7 @@ namespace ddg {
                 var f2 = h.twin.onBoundary ? new float3() : field[h.twin.face];
                 omega[i] = dot(f1 + f2, geom.Vector(h));
             }
-            return omega;
+            return (omega, exactIds, coexactIds);
         }
 
         public static float3[] InterpolateWhitney(double[] oneForm, HeGeom geom) {

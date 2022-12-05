@@ -1,4 +1,4 @@
-Shader "Unlit/Color" {
+Shader "ddg/Color" {
     Properties { }
     SubShader {
         Tags { "RenderType"="Opaque" }
