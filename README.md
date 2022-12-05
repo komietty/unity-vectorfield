@@ -1,7 +1,7 @@
 # MonoManifold
 Geometry processing library on Unity, specially focusing on differencial geometry.
 
- <img src="Imgs/flow.png"/>
+ <img src="Imgs/flow.mov"/>
 
 ## Features
 - Halfedge structure module included
