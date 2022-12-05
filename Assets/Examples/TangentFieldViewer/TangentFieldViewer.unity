@@ -309,6 +309,9 @@ MonoBehaviour:
   point: {fileID: 6656469689329903998, guid: a9a0b1a78d24b4053aff7e0550903ed9, type: 3}
   cs: {fileID: 7200000, guid: 37db18243e83a4d44afcf6fb30cc2fa3, type: 3}
   potentialColor: 0
+  baseColor: {r: 1, g: 0.995283, b: 0.995283, a: 1}
+  scalarColor: {r: 1, g: 0.4448824, b: 0, a: 1}
+  vectorColor: {r: 0, g: 0.5804844, b: 1, a: 1}
 --- !u!1 &924420045
 GameObject:
   m_ObjectHideFlags: 0
@@ -362,7 +365,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 1.3
+  orthographic size: 1.2
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -385,11 +388,11 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 924420045}
-  m_LocalRotation: {x: -0.04415483, y: 0.9556659, z: -0.21510565, w: -0.19616993}
-  m_LocalPosition: {x: 2.1, y: 2.5, z: 5}
+  m_LocalRotation: {x: -0.058599092, y: 0.9370556, z: -0.28547263, w: -0.19234976}
+  m_LocalPosition: {x: 2.14, y: 3.35, z: 4.73}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 25.37, y: 203.2, z: 0}
+  m_LocalEulerAnglesHint: {x: 33.887, y: 203.2, z: 0}

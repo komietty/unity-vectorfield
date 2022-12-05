@@ -17,6 +17,9 @@ Shader "ddg/TangentFieldViewer" {
             float _T;
             float _C;
             int   _M;
+            float4 _C0;
+            float4 _C1;
+            float4 _C2;
 
             struct appdata { float4 vertex : POSITION; };
             struct v2f {
@@ -38,10 +41,11 @@ Shader "ddg/TangentFieldViewer" {
 
             float4 frag (v2f i) : SV_Target {
                 float  v = pow(sin(_T * 5 + i.uv.x * PI + i.uv.y) * 0.5 + 0.5, 2);
-                float4 o = float4(0.1, 0.5, 1, 1 - v * 0.8);
-                o += _M != 2 ? float4( 0, i.dist.x * _C, 0, 0) : (0).xxxx;
-                o += _M != 1 ? float4( 0, i.dist.y * _C, 0, 0) : (0).xxxx;
-                return o;
+                float4 o = _C0;
+                o = _M != 2 ? lerp(o, _C1, i.dist.x * _C) : o;
+                o = _M != 1 ? lerp(o, _C2, i.dist.y * _C) : o;
+                o.w =  1 - v * 0.8;
+                return clamp(o, 0, 1);
             }
             ENDCG
         }

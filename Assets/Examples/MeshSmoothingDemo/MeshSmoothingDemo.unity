@@ -491,7 +491,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d151157a463f4f4692bc77f9ae9d516, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  meshShader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  surfaceMat: {fileID: 2100000, guid: 9adca2a10a1374c999524dd2b54b027e, type: 2}
   lineShader: {fileID: 4800000, guid: 81c10e8f978584a898c5ff93a9337c93, type: 3}
   showNormal: 0
   showTangent: 0

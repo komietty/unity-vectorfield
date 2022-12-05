@@ -15,7 +15,11 @@ namespace ddg {
             geom = new HeGeom(mesh);
         }
 
-        public static (double[] oneForm, int[] exactIds, int[] coexactIds) GenRandomOneForm(HeGeom geom) {
+        public static (
+            double[] oneForm,
+            int[] scalarPotentialIds,
+            int[] vectorPotentialIds
+            ) GenRandomOneForm(HeGeom geom) {
             var nv = geom.nVerts;
             var r = max(2, (int)(nv / 1000f));
             var rho1 = DenseMatrix.Create(nv, 1, 0);
