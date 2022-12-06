@@ -1,0 +1,16 @@
+{
+  "name": "com.komietty.monomanifold",
+  "displayName": "MonoManifold",
+  "version": "0.0.1",
+  "unity": "2022.2",
+  "keywords": [
+    "Manifold",
+    "Geometry"
+  ],
+  "author": {
+    "name": "komietty",
+    "email": "komietty@gmail.com",
+    "url": "https://sakikomikado.com"
+  },
+  "type": "library"
+}
