@@ -7,10 +7,13 @@
     "Manifold",
     "Geometry"
   ],
+  "dependencies": {
+    "com.unity.mathematics": "1.2.6"
+  },
   "author": {
     "name": "komietty",
     "email": "komietty@gmail.com",
-    "url": "https://sakikomikado.com"
+    "url": "https://github.com/komietty"
   },
   "type": "library"
 }
