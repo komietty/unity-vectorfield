@@ -10,21 +10,31 @@ namespace ddg {
             
 
         void Start() {
-            var m = GetComponentInChildren<MeshFilter>().sharedMesh;
-            geom = new HeGeom(m);
+            var filt = GetComponentInChildren<MeshFilter>();
+            var mesh = MeshUtils.Weld(filt.sharedMesh);
+            geom = new HeGeom(mesh);
             var h = new Homology(geom);
             h.BuildPrimalSpanningTree();
+            h.BuildDualSpanningCotree();
             var tree = h.vertParentList;
-            //var cotr = hmlg.faceParentList;
-            //gens = hmlg.BuildGenerators();
+            var cotr = h.faceParentList;
+            var tarr = new List<Vector3>(tree.Count * 2);
+            var carr = new List<Vector3>(cotr.Count * 2);
+            //treeBuf = new GraphicsBuffer();
+
             foreach(var item in tree) {
                 var v1 = item.Key;
                 var v2 = item.Value;
-                var p1 = geom.Pos[v1.vid];
-                var p2 = geom.Pos[v2.vid];
-                Debug.Log(p1);
-                Debug.Log(p1);
-                Debug.Log("----");
+                tarr.Add(geom.Pos[v1]);
+                tarr.Add(geom.Pos[v2]);
+            }
+
+            foreach(var item in cotr) {
+                var fid1 = item.Key;
+                var fid2 = item.Value;
+                Debug.Log(fid1);
+                Debug.Log(fid2);
+                Debug.Log("-----");
             }
         }
     }
