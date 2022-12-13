@@ -26,7 +26,6 @@ namespace ddg {
             bundle = new TangentBundle(mesh);
             colBuf = new GraphicsBuffer(Target.Structured, bundle.Geom.nVerts,     sizeof(float) * 3);
             nrmBuf = new GraphicsBuffer(Target.Structured, bundle.Geom.nVerts * 2, sizeof(float) * 3);
-            //tngBuf = new GraphicsBuffer(Target.Structured, bundle.Geom.nFaces * 4, sizeof(float) * 3);
             tngBuf = new GraphicsBuffer(Target.Structured, bundle.Geom.nFaces * 6, sizeof(float) * 3);
             UpdateNrm();
         }
@@ -44,8 +43,7 @@ namespace ddg {
                 max = Mathf.Max(Mathf.Abs(val), max);
             }
             max = Mathf.Min(Mathf.PI / 8, max);
-            for (var i = 0; i < n; i++) 
-                lrps[i] = ColorMap.Color(vals[i], -max, max);
+            for (var i = 0; i < n; i++) lrps[i] = ColorMap.Color(vals[i], -max, max);
             colBuf.SetData(lrps);
             surfaceMat.SetBuffer("_Col", colBuf);
         }
@@ -66,7 +64,6 @@ namespace ddg {
         protected void UpdateTng(double[] omega) {
             var g = bundle.Geom;
             var n = g.nFaces;
-            //var tngs = new Vector3[n * 4];
             var tngs = new Vector3[n * 6];
             var mlen = 0.3f * g.MeanEdgeLength();
             var omegaField = TangentBundle.InterpolateWhitney(omega, g);
@@ -80,10 +77,6 @@ namespace ddg {
                 var fc2 = C + field + N * 0.005f;
                 var v = fc2 - fc1;
                 var vT = math.cross(N, v);
-                //tngs[i * 4 + 0] = fc1 - vT * 0.05f;
-                //tngs[i * 4 + 1] = fc2 - vT * 0.05f;
-                //tngs[i * 4 + 2] = fc2 + vT * 0.05f;
-                //tngs[i * 4 + 3] = fc1 + vT * 0.05f;
                 tngs[i * 6 + 0] = fc1;
                 tngs[i * 6 + 1] = fc2;
                 tngs[i * 6 + 2] = fc2;
@@ -108,10 +101,8 @@ namespace ddg {
             }
             if (showTangent) {
                 var n = bundle.Geom.nFaces * 6;
-                //var n = bundle.Geom.nFaces * 4;
                 tngMat.SetPass(0);
                 Graphics.DrawProceduralNow(MeshTopology.Lines, n);
-                //Graphics.DrawProceduralNow(MeshTopology.Quads, n);
             }
         }
 

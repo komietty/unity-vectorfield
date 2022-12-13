@@ -131,6 +131,18 @@ namespace ddg {
             return new float2(H - D, H + D);
         } 
 
+        public IEnumerable<Vert> GetAdjacentVerts(Vert v) {
+            var curr = halfedges[v.hid];
+            var endId = curr.id;
+            var once = false;
+            while (true) {
+                if (once && curr.id == endId) break;
+                yield return Verts[curr.next.vid];
+                curr = curr.twin.next;
+                once = true;
+            };
+        }
+
         public IEnumerable<Face> GetAdjacentFaces(Vert v) {
             var tgt = halfedges[v.hid];
             while (tgt.onBoundary) { tgt = tgt.twin.next; }

@@ -1,11 +1,5 @@
 {
   "dependencies": {
-    "com.komietty.monomanifold": {
-      "version": "file:MonoManifold",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {}
-    },
     "com.unity.collab-proxy": {
       "version": "1.17.1",
       "depth": 0,
