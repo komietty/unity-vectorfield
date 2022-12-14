@@ -32,20 +32,18 @@ namespace ddg {
         }
 
         public void BuildDualSpanningCotree() {
+            foreach (var f in geom.Faces) faceParentList.Add(f.fid, f.fid);
             var queue = new Queue<int>();
-            var visit = new Dictionary<int, bool>();
             var f0 = geom.Faces[0];
-            foreach (var f in geom.Faces) visit.Add(f.fid, false);
             queue.Enqueue(f0.fid);
             while (queue.Count > 0) {
-                var tid = queue.Dequeue();
-                visit[tid] = true;
-                foreach (var h in geom.GetAdjacentHalfedges(geom.Faces[tid])) {
+                var fid = queue.Dequeue();
+                foreach (var h in geom.GetAdjacentHalfedges(geom.Faces[fid])) {
                     if (!InPrimalSpanningTree(h)) {
-                        var fid = h.twin.face.fid;
-                        if (!visit[fid]) {
-                            faceParentList[fid] = tid;
-                            queue.Enqueue(fid);
+                        var gid = h.twin.face.fid;
+                        if (faceParentList[gid] == gid && gid != f0.fid) {
+                            faceParentList[gid] = fid;
+                            queue.Enqueue(gid);
                         }
                     }
                 }
@@ -58,11 +56,10 @@ namespace ddg {
             return vertParentList[uid] == vid || vertParentList[vid] == uid;
         }
 
-/*
         bool InDualSpanningTree(HalfEdge h) {
-            var f = h.face;
-            var g = h.twin.face;
-            return faceParentList[f].fid == g.fid || faceParentList[g].fid == f.fid;
+            var fid = h.face.fid;
+            var gid = h.twin.face.fid;
+            return faceParentList[fid] == gid || faceParentList[gid] == fid;
         }
 
         HalfEdge SharedHalfEdge(Face f, Face g) {
@@ -72,9 +69,11 @@ namespace ddg {
             throw new System.Exception("no halfedge shared");
         }
 
-        public HalfEdge[] BuildGenerators() {
+        public List<HalfEdge> BuildGenerators() {
             BuildPrimalSpanningTree();
             BuildDualSpanningCotree();
+            //Debug.Log(vertParentList.Count);
+            //Debug.Log(faceParentList.Count);
             var gens = new List<HalfEdge>();
 
             foreach (var e in this.geom.Edges) {
@@ -83,28 +82,37 @@ namespace ddg {
                     var tmp1 = new List<HalfEdge>();
                     var tmp2 = new List<HalfEdge>();
                     var f = h.face;
-                    while(faceParentList[f].fid != f.fid){
-                        var p = faceParentList[f];
+                    var c1 = 0;
+                    var c2 = 0;
+                    while(faceParentList[f.fid] != f.fid){
+                        c1++;
+                        var p = geom.Faces[faceParentList[f.fid]];
                         tmp1.Add(SharedHalfEdge(f, p));
                         f = p;
                     }
+
                     f = h.twin.face;
-                    while(faceParentList[f].fid != f.fid){
-                        var p = faceParentList[f];
+                    while(faceParentList[f.fid] != f.fid){
+                        c2++;
+                        var p = geom.Faces[faceParentList[f.fid]];
                         tmp2.Add(SharedHalfEdge(f, p));
                         f = p;
                     }
+                    //Debug.Log("c1: " + c1);
+                    //Debug.Log("c2: " + c2);
                     var m = tmp1.Count - 1;
 				    var n = tmp2.Count - 1;
                     while (tmp1[m] == tmp2[n]) { m--; n--; }
+                    //Debug.Log(m);
+                    //Debug.Log(n);
                     var generator = new List<HalfEdge>() { h };
                     for (var i = 0; i <= m; i++) generator.Add(tmp1[i].twin);
                     for (var i = n; i >= 0; i--) generator.Add(tmp2[i]);
                     gens.AddRange(generator);
+                    Debug.Log("gen: " + generator.Count);
                 }
             }
-            return gens.ToArray();
+            return gens;
         }
-*/
     }
 }

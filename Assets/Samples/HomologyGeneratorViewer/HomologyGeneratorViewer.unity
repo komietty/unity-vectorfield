@@ -556,7 +556,7 @@ PrefabInstance:
     - target: {fileID: -6400281290468069383, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: -2432090755550338912, guid: 9c834146806864a93aa1c0256e85adc3, type: 3}
+      objectReference: {fileID: -2432090755550338912, guid: e074345eaedaa4e2fbbdfcb77e125f52, type: 3}
     - target: {fileID: 919132149155446097, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
       propertyPath: m_Name
       value: bunny
@@ -585,4 +585,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bf9b72e9a9914eefaa25981fe7a0cf0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lineMat: {fileID: 2100000, guid: 2ed1cb3708abb44a397d78189fb30598, type: 2}
+  treeMat: {fileID: 2100000, guid: 25850dda579cd44839e6724a0f1f1eb4, type: 2}
+  cotrMat: {fileID: 2100000, guid: 2ed1cb3708abb44a397d78189fb30598, type: 2}
+  gensMat: {fileID: 2100000, guid: 78cb956b2afda4a0d8dd7db4ffe57ca4, type: 2}

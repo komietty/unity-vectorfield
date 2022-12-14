@@ -1,5 +1,7 @@
 Shader "ddg/Lines" {
-    Properties { }
+    Properties {
+        _Color ("Color", Color) = (1,1,1,1)
+     }
     SubShader
     {
         Tags { "Queue" = "Transparent" "RenderType"="Transparent" }
@@ -14,6 +16,7 @@ Shader "ddg/Lines" {
             #define PI 3.14159265
             StructuredBuffer<float3> _Line;
             float _T;
+            float4 _Color;
 
             struct appdata { float4 vertex : POSITION; };
             struct v2f {
@@ -36,7 +39,7 @@ Shader "ddg/Lines" {
             float4 frag (v2f i) : SV_Target {
                 float  v = pow(sin(_T * 5 + i.uv.x * PI + i.uv.y) * 0.5 + 0.5, 2);
                 //return float4(v, 0.6 + v * 0.4, 1, v);
-                return float4(2, 0, 0, 1);
+                return _Color;
             }
             ENDCG
         }
