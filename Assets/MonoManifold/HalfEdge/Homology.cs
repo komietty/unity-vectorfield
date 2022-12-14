@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace ddg {
@@ -69,12 +70,10 @@ namespace ddg {
             throw new System.Exception("no halfedge shared");
         }
 
-        public List<HalfEdge> BuildGenerators() {
+        public List<List<HalfEdge>> BuildGenerators() {
             BuildPrimalSpanningTree();
             BuildDualSpanningCotree();
-            //Debug.Log(vertParentList.Count);
-            //Debug.Log(faceParentList.Count);
-            var gens = new List<HalfEdge>();
+            var gens = new List<List<HalfEdge>>();
 
             foreach (var e in this.geom.Edges) {
                 var h = geom.halfedges[e.hid]; 
@@ -98,18 +97,13 @@ namespace ddg {
                         tmp2.Add(SharedHalfEdge(f, p));
                         f = p;
                     }
-                    //Debug.Log("c1: " + c1);
-                    //Debug.Log("c2: " + c2);
                     var m = tmp1.Count - 1;
 				    var n = tmp2.Count - 1;
                     while (tmp1[m] == tmp2[n]) { m--; n--; }
-                    //Debug.Log(m);
-                    //Debug.Log(n);
                     var generator = new List<HalfEdge>() { h };
                     for (var i = 0; i <= m; i++) generator.Add(tmp1[i].twin);
                     for (var i = n; i >= 0; i--) generator.Add(tmp2[i]);
-                    gens.AddRange(generator);
-                    Debug.Log("gen: " + generator.Count);
+                    gens.Add(generator);
                 }
             }
             return gens;

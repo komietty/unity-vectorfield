@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
+using System.Linq;
 
 namespace ddg {
     public class HomologyGeneratorViewer : MonoBehaviour {
@@ -24,9 +25,10 @@ namespace ddg {
             var gens = h.BuildGenerators();
             var tree = h.vertParentList;
             var cotr = h.faceParentList;
+            var gnum = gens.Select(g => g.Count).ToArray();
             tarr = new List<Vector3>(tree.Count * 2);
             carr = new List<Vector3>(cotr.Count * 2);
-            garr = new List<Vector3>(gens.Count * 4);
+            garr = new List<Vector3>(gnum.Sum() * 4);
 
             foreach(var item in tree) {
                 var v1 = item.Key;
@@ -42,7 +44,8 @@ namespace ddg {
                 carr.Add(geom.Centroid(geom.Faces[fid2]) + (Vector3)geom.FaceNormal(geom.Faces[fid2]).n * 0.02f);
             }
 
-            foreach(var he in gens) {
+            foreach(var g in gens) {
+            foreach(var he in g) {
                 var c1 = geom.Centroid(he.face);
                 var c2 = geom.Centroid(he.twin.face);
                 var p1 = geom.Pos[he.vid];
@@ -53,10 +56,11 @@ namespace ddg {
                 garr.Add(m);
                 garr.Add(c2);
             }
+            }
 
             treeBuf = new GraphicsBuffer(Target.Structured, tree.Count * 2, sizeof(float) * 3);
             cotrBuf = new GraphicsBuffer(Target.Structured, cotr.Count * 2, sizeof(float) * 3);
-            gensBuf = new GraphicsBuffer(Target.Structured, gens.Count * 4, sizeof(float) * 3);
+            gensBuf = new GraphicsBuffer(Target.Structured, gnum.Sum() * 4, sizeof(float) * 3);
             treeBuf.SetData(tarr);
             cotrBuf.SetData(carr);
             gensBuf.SetData(garr);
