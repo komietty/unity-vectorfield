@@ -46,7 +46,7 @@ namespace ddg {
             return (h1i * d1t * mm).Column(0).ToArray();
         }
 
-        public float[] ComputeHarmonicComponent(DenseMatrix omega) {
+        public float[] ComputeHarmonicComponent(DenseMatrix omega, DenseMatrix exact, DenseMatrix coexact) {
             throw new System.Exception();
         }
     }
