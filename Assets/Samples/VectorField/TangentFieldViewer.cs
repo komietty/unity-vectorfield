@@ -38,8 +38,8 @@ namespace ddg {
             var (omega, sids, vids) = TangentBundle.GenRandomOneForm(g);
             var m = DenseMatrix.OfColumnMajor(omega.Length, 1, omega);
             random  = omega;
-            exact   = h.ComputeExactComponent(m);
-            coexact = h.ComputeCoExactComponent(m);
+            exact   = h.ComputeExactComponent(m).Column(0).ToArray();
+            coexact = h.ComputeCoExactComponent(m).Column(0).ToArray();
             UpdateTng(random);
             
             var t = GraphicsBuffer.Target.Structured;

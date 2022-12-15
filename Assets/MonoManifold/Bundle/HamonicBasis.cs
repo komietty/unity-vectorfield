@@ -17,13 +17,13 @@ namespace ddg {
             return DenseMatrix.OfColumnMajor(n, 1, d);
         } 
 
-        public List<double[]> Compute(HodgeDecomposition hd, List<List<HalfEdge>> generators) {
-            var gammas = new List<double[]>();
+        public List<DenseMatrix> Compute(HodgeDecomposition hd, List<List<HalfEdge>> generators) {
+            var gammas = new List<DenseMatrix>();
             if (generators.Count > 0) {
                 foreach (var g in generators) {
                     var omega  = BuildClosedPrimalOneForm(g);
                     var dAlpha = hd.ComputeExactComponent(omega);
-                    gammas.Add(dAlpha);
+                    gammas.Add(omega - dAlpha);
                 }
             }
             return gammas;

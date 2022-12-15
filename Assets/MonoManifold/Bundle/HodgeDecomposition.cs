@@ -28,22 +28,21 @@ namespace ddg {
             B = d1 * h1i * d1t;
         }
 
-        public double[] ComputeExactComponent(DenseMatrix omega) {
+        public DenseMatrix ComputeExactComponent(DenseMatrix omega) {
             var m = d0t * h1 * omega;
             var outs = new double[m.RowCount];
             var trps = A.Storage.EnumerateNonZeroIndexed().Select(t => new Triplet(t.Item3, t.Item1, t.Item2)).ToArray();
             Solver.DecompAndSolveChol(trps.Length, m.RowCount, trps, m.Column(0).ToArray(), outs);
-            var mm = DenseMatrix.OfColumnMajor(outs.Length, 1, outs);
-            return (this.d0 * mm).Column(0).ToArray();
+            return (DenseMatrix)(this.d0 * DenseMatrix.OfColumnMajor(outs.Length, 1, outs));
         }
 
-        public double[] ComputeCoExactComponent(DenseMatrix omega) {
+        public DenseMatrix ComputeCoExactComponent(DenseMatrix omega) {
             var m = d1 * omega;
             var outs = new double[m.RowCount];
             var trps = B.Storage.EnumerateNonZeroIndexed().Select(t => new Triplet(t.Item3, t.Item1, t.Item2)).ToArray();
             Solver.DecompAndSolveLU(trps.Length, m.RowCount, trps, m.Column(0).ToArray(), outs);
-            var mm = DenseMatrix.OfColumnMajor(outs.Length, 1, outs);
-            return (h1i * d1t * mm).Column(0).ToArray();
+            //return (h1i * d1t * mm).Column(0).ToArray();
+            return (DenseMatrix)(h1i * d1t * DenseMatrix.OfColumnMajor(outs.Length, 1, outs));
         }
 
         public float[] ComputeHarmonicComponent(DenseMatrix omega, DenseMatrix exact, DenseMatrix coexact) {

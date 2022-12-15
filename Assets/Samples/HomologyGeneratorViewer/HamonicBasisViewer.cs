@@ -10,7 +10,7 @@ namespace ddg {
             var hd = new HodgeDecomposition(bundle.Geom);
             var hm = new Homology(bundle.Geom);
             var w  = hb.Compute(hd, hm.BuildGenerators());
-            UpdateTng(w[0]);
+            UpdateTng(w[1].Column(0).ToArray());
         }
     }
 }
