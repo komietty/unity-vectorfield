@@ -71,8 +71,48 @@ namespace ddg {
             throw new System.Exception();
         }
 
-        DenseMatrix ComputeHamonicComponent(DenseMatrix singularity) {
-            throw new System.Exception();
+        DenseMatrix ComputeHamonicComponent(DenseMatrix deltaBeta) {
+		var N = bases.Count;
+		var E = geom.nEdges;
+		var gamma = DenseMatrix.Create(E, 1, 0);
+
+		if (N > 0) {
+			// construct right hand side
+			var rhs = DenseMatrix.Create(N, 1, 0);
+			for (var i = 0; i < N; i++) {
+				var generator = generators[i];
+				var sum = 0.0;
+
+				foreach (var h in generator) {
+					var k = h.edge.eid;
+					var s = h.edge.hid == h.id ? 1 : -1;
+
+					sum += TransportNoRotation(h);
+					sum -= s * deltaBeta[k, 0];
+				}
+
+				// normalize sum between -π and π
+				while (sum < -Mathf.PI) sum += 2 * Mathf.PI;
+				while (sum >= Mathf.PI) sum -= 2 * Mathf.PI;
+
+				rhs[i, 0] = sum;
+			}
+
+            /*
+			// solve linear system
+			var lu = this.P.lu();
+			var z = lu.solveSquare(rhs);
+
+			// compute γ
+			for (var i = 0; i < N; i++) {
+				var basis = this.bases[i];
+				var zi = z[i, 0];
+
+				gamma += basis * zi;
+			}
+            */
+		}
+		return gamma;
         }
 
         public DenseMatrix ComputeConnections(float[] singularity) {
