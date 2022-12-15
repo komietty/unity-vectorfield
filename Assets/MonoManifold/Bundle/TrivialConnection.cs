@@ -1,10 +1,85 @@
-using System.Collections;
+using MathNet.Numerics.LinearAlgebra.Double;
+using Unity.Mathematics;
 using System.Collections.Generic;
 using UnityEngine;
+using static Unity.Mathematics.math;
 
 namespace ddg {
     public class TrivialConnection {
+        protected HeGeom geom;
+        protected SparseMatrix P;
+        protected SparseMatrix A;
+        protected SparseMatrix h1;
+        protected SparseMatrix d0;
+        protected List<DenseMatrix> bases;
+        protected List<List<HalfEdge>> generators;
 
-        //public DenseMatrix Compute() {}
+        public TrivialConnection(HeGeom g) {
+            geom = g;
+            var hd = new HodgeDecomposition(geom);
+            var tc = new Homology(geom);
+            var hb = new HamonicBasis(geom);
+            generators = tc.BuildGenerators();
+            bases = hb.Compute(hd, generators);
+            P = BuildPeriodMatrix();
+            A = hd.ZeroFromLaplaceMtx;
+            h1 = hd.h1;
+            d0 = hd.d0;
+        }
+
+        SparseMatrix BuildPeriodMatrix() {
+            var n = bases.Count;
+            var t = new List<(int, int, double)>();
+            for (var i = 0; i < n; i++) {
+                var g = generators[i];
+                for (var j = 0; j < n; j++) {
+                    var bases = this.bases[j];
+                    var sum = 0.0;
+                    foreach (var h in g) {
+                        var k = h.edge.eid;
+                        var s = h.edge.hid == h.id ? 1 : -1;
+                        sum += s * bases[k, 0];
+                    }
+                    t.Add((i, j, sum));
+                }
+            }
+            return SparseMatrix.OfIndexed(n, n, t);
+        }
+        
+        bool SatisfyGaussBonnet(float[] singularity){
+            var sum = 0f;
+            foreach (var v in geom.Verts) sum += singularity[v.vid];
+            return Mathf.Abs(geom.eulerCharactaristics - sum) < 1e-8;
+        }
+
+        double TransportNoRotation(HalfEdge h, double alphaI = 0) {
+            var u = geom.Vector(h);
+            var (e1, e2) = geom.OrthonormalBasis(h.face);
+            var (f1, f2) = geom.OrthonormalBasis(h.twin.face);
+            var thetaIJ = atan2(dot(u, e2), dot(u, e1));
+            var thetaJI = atan2(dot(u, f2), dot(u, f1));
+            return alphaI - thetaIJ + thetaJI;
+        }
+
+        DenseMatrix ComputeCoExactComponent(float[] singularity) {
+            var rhs = DenseMatrix.Create(geom.nVerts, 1, 0);
+            foreach (var v in geom.Verts) {
+                rhs[v.vid, 0] = -geom.AngleDefect(v) + 2 * Mathf.PI * singularity[v.vid];
+            }
+            //var betaTilde = Solver.DecompAndSolveChol();
+            //return h1 * d0 * betaTilde;
+            throw new System.Exception();
+        }
+
+        DenseMatrix ComputeHamonicComponent(DenseMatrix singularity) {
+            throw new System.Exception();
+        }
+
+        public DenseMatrix ComputeConnections(float[] singularity) {
+            if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
+            var deltaBeta = ComputeCoExactComponent(singularity);
+            var gamma = ComputeHamonicComponent(deltaBeta);
+            return deltaBeta + gamma;
+        }
     }
 }

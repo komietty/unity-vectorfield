@@ -43,6 +43,12 @@ namespace ddg {
             return (a + b + c) / 3;
         }
 
+        public (float3, float3) OrthonormalBasis(Face f) {
+            var e1 = normalize(Vector(halfedges[f.hid]));
+            var e2 = cross(FaceNormal(f).n, e1);
+            return (e1, e2);
+        }
+
         public double Area(Face f) {
             var h = halfedges[f.hid];
             if (h.onBoundary) return 0;

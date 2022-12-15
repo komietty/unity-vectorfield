@@ -3,16 +3,17 @@ using System.Linq;
 
 namespace ddg {
     public class HodgeDecomposition {
-        SparseMatrix h1;
-        SparseMatrix h2;
+        public SparseMatrix h1 {get; private set;}
+        public SparseMatrix h2 {get;  private set;}
+        public SparseMatrix d0 {get; private set;}
+        public SparseMatrix d1 {get; private set;}
         SparseMatrix h1i;
         SparseMatrix h2i;
-        SparseMatrix d0;
-        SparseMatrix d1;
         SparseMatrix d0t;
         SparseMatrix d1t;
         SparseMatrix A;
         SparseMatrix B;
+        public SparseMatrix ZeroFromLaplaceMtx => A;
 
         public HodgeDecomposition(HeGeom g) {
             h1 = ExteriorDerivatives.BuildHodgeStar1Form(g);
