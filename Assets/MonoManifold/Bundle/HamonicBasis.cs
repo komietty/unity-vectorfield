@@ -13,6 +13,7 @@ namespace ddg {
             var d = new double[n];
             foreach (var h in generator) 
                 d[h.edge.eid] = h.edge.hid == h.id ? 1 : -1;
+
             return DenseMatrix.OfColumnMajor(n, 1, d);
         } 
 

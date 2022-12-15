@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ddg;
 
-namespace monomfd {
+namespace ddg {
     public class TrivialConnection {
+
+        //public DenseMatrix Compute() {}
     }
 }
