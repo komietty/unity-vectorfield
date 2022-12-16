@@ -2,6 +2,7 @@ using MathNet.Numerics.LinearAlgebra.Double;
 using Unity.Mathematics;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 using static Unity.Mathematics.math;
 
 namespace ddg {
@@ -66,53 +67,45 @@ namespace ddg {
             foreach (var v in geom.Verts) {
                 rhs[v.vid, 0] = -geom.AngleDefect(v) + 2 * Mathf.PI * singularity[v.vid];
             }
-            //var betaTilde = Solver.DecompAndSolveChol();
-            //return h1 * d0 * betaTilde;
-            throw new System.Exception();
+            var outs = new double[rhs.RowCount];
+            var trps = A.Storage.EnumerateNonZeroIndexed().Select(t => new Triplet(t.Item3, t.Item1, t.Item2)).ToArray();
+            Solver.DecompAndSolveChol(trps.Length, rhs.RowCount, trps, rhs.Column(0).ToArray(), outs);
+            return (DenseMatrix)(h1 * d0 * DenseMatrix.OfColumnMajor(outs.Length, 1, outs));
         }
 
         DenseMatrix ComputeHamonicComponent(DenseMatrix deltaBeta) {
-		var N = bases.Count;
-		var E = geom.nEdges;
-		var gamma = DenseMatrix.Create(E, 1, 0);
+            var N = bases.Count;
+            var E = geom.nEdges;
+            var gamma = DenseMatrix.Create(E, 1, 0);
 
-		if (N > 0) {
-			// construct right hand side
-			var rhs = DenseMatrix.Create(N, 1, 0);
-			for (var i = 0; i < N; i++) {
-				var generator = generators[i];
-				var sum = 0.0;
+            if (N > 0) {
+                // construct right hand side
+                var rhs = DenseMatrix.Create(N, 1, 0);
+                for (var i = 0; i < N; i++) {
+                    var generator = generators[i];
+                    var sum = 0.0;
 
-				foreach (var h in generator) {
-					var k = h.edge.eid;
-					var s = h.edge.hid == h.id ? 1 : -1;
+                    foreach (var h in generator) {
+                        var k = h.edge.eid;
+                        var s = h.edge.hid == h.id ? 1 : -1;
+                        sum += TransportNoRotation(h);
+                        sum -= s * deltaBeta[k, 0];
+                    }
 
-					sum += TransportNoRotation(h);
-					sum -= s * deltaBeta[k, 0];
-				}
+                    // normalize sum between -π and π
+                    while (sum < -Mathf.PI) sum += 2 * Mathf.PI;
+                    while (sum >= Mathf.PI) sum -= 2 * Mathf.PI;
 
-				// normalize sum between -π and π
-				while (sum < -Mathf.PI) sum += 2 * Mathf.PI;
-				while (sum >= Mathf.PI) sum -= 2 * Mathf.PI;
+                    rhs[i, 0] = sum;
+                }
 
-				rhs[i, 0] = sum;
-			}
-
-            /*
-			// solve linear system
-			var lu = this.P.lu();
-			var z = lu.solveSquare(rhs);
-
-			// compute γ
-			for (var i = 0; i < N; i++) {
-				var basis = this.bases[i];
-				var zi = z[i, 0];
-
-				gamma += basis * zi;
-			}
-            */
-		}
-		return gamma;
+                var outs = new double[rhs.RowCount];
+                var trps = P.Storage.EnumerateNonZeroIndexed().Select(t => new Triplet(t.Item3, t.Item1, t.Item2)).ToArray();
+                Solver.DecompAndSolveLU(trps.Length, rhs.RowCount, trps, rhs.Column(0).ToArray(), outs);
+                // compute γ
+                for (var i = 0; i < N; i++) { gamma += this.bases[i] * outs[i]; }
+            }
+            return gamma;
         }
 
         public DenseMatrix ComputeConnections(float[] singularity) {
