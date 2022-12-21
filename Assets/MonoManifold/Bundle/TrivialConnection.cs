@@ -53,7 +53,7 @@ namespace ddg {
             return Mathf.Abs(geom.eulerCharactaristics - sum) < 1e-8;
         }
 
-        double TransportNoRotation(HalfEdge h, double alphaI = 0) {
+        public double TransportNoRotation(HalfEdge h, double alphaI = 0) {
             var u = geom.Vector(h);
             var (e1, e2) = geom.OrthonormalBasis(h.face);
             var (f1, f2) = geom.OrthonormalBasis(h.twin.face);
@@ -63,14 +63,23 @@ namespace ddg {
         }
 
         DenseMatrix ComputeCoExactComponent(float[] singularity) {
-            var rhs = DenseMatrix.Create(geom.nVerts, 1, 0);
+            var rhs = new double[geom.nVerts];
             foreach (var v in geom.Verts) {
-                rhs[v.vid, 0] = -geom.AngleDefect(v) + 2 * Mathf.PI * singularity[v.vid];
+                var i = v.vid;
+                //Debug.Log(i);
+                rhs[i] = -geom.AngleDefect(v) + 2 * Mathf.PI * singularity[i];
+                //Debug.Log(rhs[i]);
             }
-            var outs = new double[rhs.RowCount];
+            var outs = new double[rhs.Length];
             var trps = A.Storage.EnumerateNonZeroIndexed().Select(t => new Triplet(t.Item3, t.Item1, t.Item2)).ToArray();
-            Solver.DecompAndSolveChol(trps.Length, rhs.RowCount, trps, rhs.Column(0).ToArray(), outs);
+            //Debug.Log(A);
+            Solver.DecompAndSolveChol(trps.Length, rhs.Length, trps, rhs, outs);
+            Debug.Log(DenseMatrix.OfColumnMajor(outs.Length, 1, outs));
+            Debug.Log(h1);
+            Debug.Log(d0);
             return (DenseMatrix)(h1 * d0 * DenseMatrix.OfColumnMajor(outs.Length, 1, outs));
+            //var chol = A.LU();
+            //return (DenseMatrix)(h1 * d0 * chol.Solve(DenseMatrix.OfColumnMajor(rhs.Length, 1, rhs)));
         }
 
         DenseMatrix ComputeHamonicComponent(DenseMatrix deltaBeta) {
@@ -111,8 +120,9 @@ namespace ddg {
         public DenseMatrix ComputeConnections(float[] singularity) {
             if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
             var deltaBeta = ComputeCoExactComponent(singularity);
-            var gamma = ComputeHamonicComponent(deltaBeta);
-            return deltaBeta + gamma;
+            //var gamma = ComputeHamonicComponent(deltaBeta);
+            //return deltaBeta + gamma;
+            return deltaBeta;
         }
     }
 }

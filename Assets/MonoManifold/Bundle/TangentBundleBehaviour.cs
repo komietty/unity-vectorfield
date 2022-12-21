@@ -88,7 +88,7 @@ namespace ddg {
             tngMat.SetBuffer("_Line", tngBuf);
         }
     
-        Vector3 ClampFieldLength(Vector3 field, float len) {
+        protected Vector3 ClampFieldLength(Vector3 field, float len) {
             var m = field.magnitude;
             return m > len ? field * len / m : field;
         }
