@@ -146,5 +146,12 @@ namespace ddg {
             this.bunds = new Face[nBoundaryHe];
             eulerCharactaristics = nFaces - nEdges + nVerts;
         }
+
+/*
+        Mesh TestMesh() {
+            var m = new Mesh();
+            m.vertices = [];
+        }
+*/
     }
 }

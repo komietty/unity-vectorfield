@@ -12,6 +12,7 @@ namespace ddg {
         protected SparseMatrix A;
         protected SparseMatrix h1;
         protected SparseMatrix d0;
+        protected SparseMatrix d0t;
         protected List<DenseMatrix> bases;
         protected List<List<HalfEdge>> generators;
 
@@ -26,6 +27,7 @@ namespace ddg {
             A = hd.ZeroFromLaplaceMtx;
             h1 = hd.h1;
             d0 = hd.d0;
+            d0t = hd.d0t;
         }
 
         SparseMatrix BuildPeriodMatrix() {
@@ -66,20 +68,12 @@ namespace ddg {
             var rhs = new double[geom.nVerts];
             foreach (var v in geom.Verts) {
                 var i = v.vid;
-                //Debug.Log(i);
                 rhs[i] = -geom.AngleDefect(v) + 2 * Mathf.PI * singularity[i];
-                //Debug.Log(rhs[i]);
             }
             var outs = new double[rhs.Length];
             var trps = A.Storage.EnumerateNonZeroIndexed().Select(t => new Triplet(t.Item3, t.Item1, t.Item2)).ToArray();
-            //Debug.Log(A);
             Solver.DecompAndSolveChol(trps.Length, rhs.Length, trps, rhs, outs);
-            Debug.Log(DenseMatrix.OfColumnMajor(outs.Length, 1, outs));
-            Debug.Log(h1);
-            Debug.Log(d0);
             return (DenseMatrix)(h1 * d0 * DenseMatrix.OfColumnMajor(outs.Length, 1, outs));
-            //var chol = A.LU();
-            //return (DenseMatrix)(h1 * d0 * chol.Solve(DenseMatrix.OfColumnMajor(rhs.Length, 1, rhs)));
         }
 
         DenseMatrix ComputeHamonicComponent(DenseMatrix deltaBeta) {

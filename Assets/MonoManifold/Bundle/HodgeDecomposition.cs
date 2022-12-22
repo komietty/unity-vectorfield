@@ -4,12 +4,12 @@ using System.Linq;
 namespace ddg {
     public class HodgeDecomposition {
         public SparseMatrix h1 {get; private set;}
-        public SparseMatrix h2 {get;  private set;}
+        public SparseMatrix h2 {get; private set;}
         public SparseMatrix d0 {get; private set;}
         public SparseMatrix d1 {get; private set;}
         SparseMatrix h1i;
         SparseMatrix h2i;
-        SparseMatrix d0t;
+        public SparseMatrix d0t;
         SparseMatrix d1t;
         SparseMatrix A;
         SparseMatrix B;

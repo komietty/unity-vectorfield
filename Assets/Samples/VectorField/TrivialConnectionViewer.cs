@@ -13,15 +13,16 @@ namespace ddg {
             var g = bundle.Geom;
             t = new TrivialConnection(g);
             var singularites = new float[g.nVerts];
+//            Debug.Log("vpos: " + g.Pos[1]);
+//            Debug.Log("vpos: " + g.Pos[3]);
             for(var i = 0; i < g.nVerts; i++){
                 var v = 0f;
                 if (i == 1) v = 1f;
-                if (i == 5) v = 1f;
+                if (i == 3) v = 1f;
                 singularites[i] = v;
             }
             var m = t.ComputeConnections(singularites);
-            var b = BuildDirectionalField(g, m);
-            UpdateTng(b);
+            UpdateTng(BuildDirectionalField(g, m));
 
             tngMat.SetFloat("_C", 1);
         }
@@ -32,7 +33,7 @@ namespace ddg {
         float3[] BuildDirectionalField(HeGeom geom, DenseMatrix phi) {
             foreach (var f in geom.Faces) faceParentList.Add(f.fid, f.fid);
             var queue = new Queue<int>();
-            var f0 = geom.Faces[0];
+            var f0 = geom.Faces[UnityEngine.Random.Range(0, geom.nFaces)];
             queue.Enqueue(f0.fid);
             alpha[f0.fid] = 0;
             while (queue.Count > 0) {
@@ -42,7 +43,7 @@ namespace ddg {
                     if (faceParentList[gid] == gid && gid != f0.fid) {
                         var sign = h.edge.hid == h.id ? 1 : -1;
                         var conn = sign * phi[h.edge.eid, 0]; 
-                        alpha[gid] = t.TransportNoRotation(h, alpha[fid]) - conn;
+                            alpha[gid] = t.TransportNoRotation(h, alpha[fid])  + conn;
                         faceParentList[gid] = fid;
                         queue.Enqueue(gid);
                     }
@@ -50,9 +51,13 @@ namespace ddg {
             } 
             var field = new float3[geom.nFaces];
             foreach (var f in geom.Faces) {
-                var u = new Vector2(Mathf.Cos((float)alpha[f.fid]), Mathf.Sin((float)alpha[f.fid]));
-                var (e1, e2) = geom.OrthonormalBasis(f);
-                field[f.fid] = e1 * u.x + e2 * u.y;
+                if (alpha.ContainsKey(f.fid)) {
+                    var u = new Vector2(Mathf.Cos((float)alpha[f.fid]), Mathf.Sin((float)alpha[f.fid]));
+                    var (e1, e2) = geom.OrthonormalBasis(f);
+                    field[f.fid] = e1 * u.x + e2 * u.y;
+                }else {
+                    field[f.fid] = float3.zero;
+                }
             }
             return field;
         }
