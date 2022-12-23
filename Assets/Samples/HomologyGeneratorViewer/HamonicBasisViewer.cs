@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ddg {
@@ -8,12 +6,13 @@ namespace ddg {
 
         protected override void Start() {
             base.Start();
-            var hb = new HamonicBasis(bundle.Geom);
-            var hd = new HodgeDecomposition(bundle.Geom);
-            var hm = new Homology(bundle.Geom);
+            var g = bundle.geom;
+            var hb = new HamonicBasis(g);
+            var hd = new HodgeDecomposition(g);
+            var hm = new Homology(g);
             var bases = hb.Compute(hd, hm.BuildGenerators());
             var w = bases[Mathf.Clamp(baseNumber, 0, bases.Count)];
-            UpdateTng(w.ToArray());
+            UpdateTng(w);
         }
     }
 }

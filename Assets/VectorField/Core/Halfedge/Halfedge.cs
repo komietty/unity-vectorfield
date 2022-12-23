@@ -9,6 +9,7 @@ namespace ddg {
         public HalfEdge prev;
         public HalfEdge twin;
         public bool onBoundary;
+        public bool IsEdgeDir() => id == edge.hid;
 
         public HalfEdge(int id, int vid = -1) {
             this.id = id;
@@ -32,8 +33,6 @@ namespace ddg {
             this.hid = hid;
             this.eid = eid;
         }
-
-        public bool IsSameDir(HalfEdge h) => hid == h.id;
     }
 
     public readonly struct Face {

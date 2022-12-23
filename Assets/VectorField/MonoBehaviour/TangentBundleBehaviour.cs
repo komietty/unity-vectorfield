@@ -1,10 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
+using MathNet.Numerics.LinearAlgebra;
 using static UnityEngine.GraphicsBuffer;
+using static Unity.Mathematics.math;
 
 namespace ddg {
+    using V = Vector<double>;
+
     public abstract class TangentBundleBehaviour : MonoBehaviour {
         [SerializeField] protected Material surfaceMat;
         [SerializeField] protected Shader lineShader;
@@ -24,32 +26,32 @@ namespace ddg {
             filt.sharedMesh = mesh;
             rend.material = surfaceMat;
             bundle = new TangentBundle(mesh);
-            colBuf = new GraphicsBuffer(Target.Structured, bundle.Geom.nVerts,     sizeof(float) * 3);
-            nrmBuf = new GraphicsBuffer(Target.Structured, bundle.Geom.nVerts * 2, sizeof(float) * 3);
-            tngBuf = new GraphicsBuffer(Target.Structured, bundle.Geom.nFaces * 6, sizeof(float) * 3);
+            colBuf = new GraphicsBuffer(Target.Structured, bundle.geom.nVerts,     12);
+            nrmBuf = new GraphicsBuffer(Target.Structured, bundle.geom.nVerts * 2, 12);
+            tngBuf = new GraphicsBuffer(Target.Structured, bundle.geom.nFaces * 6, 12);
             UpdateNrm();
         }
 
         protected void UpdateCol(float[] values) {
-            var g = bundle.Geom;
+            var g = bundle.geom;
             var n = g.nVerts;
-            var max = 0f;
+            var x = 0f;
             var vals = new float[n];
             var lrps = new Vector3[n];
             for (var i = 0; i < n; i++) {
                 var vrt = g.Verts[i];
                 var val = values[vrt.vid];
                 vals[i] = val;
-                max = Mathf.Max(Mathf.Abs(val), max);
+                x = max(abs(val), x);
             }
-            max = Mathf.Min(Mathf.PI / 8, max);
-            for (var i = 0; i < n; i++) lrps[i] = ColorMap.Color(vals[i], -max, max);
+            x = min(PI / 8, x);
+            for (var i = 0; i < n; i++) lrps[i] = ColorMap.Color(vals[i], -x, x);
             colBuf.SetData(lrps);
             surfaceMat.SetBuffer("_Col", colBuf);
         }
 
         protected void UpdateNrm() {
-            var g = bundle.Geom;
+            var g = bundle.geom;
             var n = g.nVerts;
             var l = g.MeanEdgeLength();
             var nrms = new Vector3[n * 2];
@@ -61,8 +63,8 @@ namespace ddg {
             nrmMat.SetBuffer("_Line", nrmBuf);
         }
 
-        protected void UpdateTng(double[] omega) {
-            var g = bundle.Geom;
+        protected void UpdateTng(V omega) {
+            var g = bundle.geom;
             var n = g.nFaces;
             var tngs = new Vector3[n * 6];
             var mlen = 0.3f * g.MeanEdgeLength();
@@ -95,12 +97,12 @@ namespace ddg {
 
         protected virtual void OnRenderObject() {
             if (showNormal) {
-                var n = bundle.Geom.nVerts * 2;
+                var n = bundle.geom.nVerts * 2;
                 nrmMat.SetPass(0);
                 Graphics.DrawProceduralNow(MeshTopology.Lines, n);
             }
             if (showTangent) {
-                var n = bundle.Geom.nFaces * 6;
+                var n = bundle.geom.nFaces * 6;
                 tngMat.SetPass(0);
                 Graphics.DrawProceduralNow(MeshTopology.Lines, n);
             }

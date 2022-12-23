@@ -1,7 +1,6 @@
 using MathNet.Numerics.LinearAlgebra;
 using UnityEngine;
 using Unity.Mathematics;
-using System.Linq;
 using System.Collections.Generic;
 
 namespace ddg {
@@ -10,7 +9,7 @@ namespace ddg {
 
         protected override void Start() {
             base.Start();
-            var g = bundle.Geom;
+            var g = bundle.geom;
             t = new TrivialConnection(g);
             var singularites = new float[g.nVerts];
             for(var i = 0; i < g.nVerts; i++){
@@ -60,7 +59,7 @@ namespace ddg {
             return field;
         }
         protected void UpdateTng(float3[] omega) {
-            var g = bundle.Geom;
+            var g = bundle.geom;
             var n = g.nFaces;
             var tngs = new Vector3[n * 6];
             var mlen = 0.3f * g.MeanEdgeLength();

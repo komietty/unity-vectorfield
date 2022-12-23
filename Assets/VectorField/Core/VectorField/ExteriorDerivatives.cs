@@ -4,6 +4,7 @@ using Unity.Mathematics;
 
 namespace ddg {
     using S = SparseMatrix;
+
     public static class ExteriorDerivatives {
 
         public static S BuildHodgeStar0Form(HeGeom g) {

@@ -37,7 +37,7 @@ namespace ddg {
         }
 
         float[] GenCurvatureCol() {
-            var g = bundle.Geom;
+            var g = bundle.geom;
             var c = new float[g.nVerts];
             var t = curvType;
             for (var i = 0; i < g.nVerts; i++) {

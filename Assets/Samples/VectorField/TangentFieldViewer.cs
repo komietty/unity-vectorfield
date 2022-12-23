@@ -1,8 +1,11 @@
+using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using UnityEngine;
 using System.Linq;
 
 namespace ddg {
+    using V = Vector<double>;
+
     public class TangentFieldViewer : TangentBundleBehaviour {
         public enum Field { Random, Exact, CoExact }
         [SerializeField] protected Field field;
@@ -13,9 +16,9 @@ namespace ddg {
         [SerializeField] Color scalarColor;
         [SerializeField] Color vectorColor;
         protected bool flag = false;
-        protected double[] random;
-        protected double[] exact;
-        protected double[] coexact;
+        protected V random;
+        protected V exact;
+        protected V coexact;
         protected GraphicsBuffer scalarPots;
         protected GraphicsBuffer vectorPots;
         protected GraphicsBuffer distances;
@@ -33,13 +36,12 @@ namespace ddg {
 
         protected override void Start() {
             base.Start();
-            var g = bundle.Geom;
+            var g = bundle.geom;
             var h = new HodgeDecomposition(g);
             var (omega, sids, vids) = TangentBundle.GenRandomOneForm(g);
-            var m = DenseVector.OfArray(omega);
             random  = omega;
-            exact   = h.Exact(m).ToArray();
-            coexact = h.CoExact(m).ToArray();
+            exact   = h.Exact(omega);
+            coexact = h.CoExact(omega);
             UpdateTng(random);
             
             var t = GraphicsBuffer.Target.Structured;
