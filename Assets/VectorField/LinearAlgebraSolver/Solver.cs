@@ -34,7 +34,7 @@ namespace ddg {
             var data = SparseCompressedRowMatrixStorage<double>.OfMatrix(A.Storage);
             var iter = data.EnumerateNonZeroIndexed();
             var outs = new double[geom.nVerts];
-            var trps = iter.Select(i => new Triplet(i.Item3, i.Item1, i.Item2)).ToArray();
+            var trps = iter.Select(i => new Triplet(i)).ToArray();
             var rslt = new double[B.RowCount];
             for (var i = 0; i < rslt.Length; i++) { rslt[i] = B[i, 0]; }
             Solver.DecompAndSolveChol(iter.Count(), geom.nVerts, trps, rslt, outs);

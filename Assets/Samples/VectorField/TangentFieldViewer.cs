@@ -36,10 +36,10 @@ namespace ddg {
             var g = bundle.Geom;
             var h = new HodgeDecomposition(g);
             var (omega, sids, vids) = TangentBundle.GenRandomOneForm(g);
-            var m = DenseMatrix.OfColumnMajor(omega.Length, 1, omega);
+            var m = DenseVector.OfArray(omega);
             random  = omega;
-            exact   = h.ComputeExactComponent(m).Column(0).ToArray();
-            coexact = h.ComputeCoExactComponent(m).Column(0).ToArray();
+            exact   = h.ComputeExactComponent(m).ToArray();
+            coexact = h.ComputeCoExactComponent(m).ToArray();
             UpdateTng(random);
             
             var t = GraphicsBuffer.Target.Structured;

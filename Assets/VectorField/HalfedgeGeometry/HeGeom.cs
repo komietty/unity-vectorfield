@@ -34,7 +34,7 @@ namespace ddg {
             return dot(p, n) / length(cross(p, n));
         }
 
-        public Vector3 Centroid(Face f){
+        public float3 Centroid(Face f){
             var h = halfedges[f.hid];
             var a = Pos[h.vid];
             var b = Pos[h.next.vid];

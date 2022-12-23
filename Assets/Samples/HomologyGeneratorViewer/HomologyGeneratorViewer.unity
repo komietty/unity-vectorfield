@@ -580,7 +580,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1625726130}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7bf9b72e9a9914eefaa25981fe7a0cf0, type: 3}
   m_Name: 
@@ -604,3 +604,4 @@ MonoBehaviour:
   lineShader: {fileID: 4800000, guid: 7a7e528bfe4af4f02ad5430fc92bee32, type: 3}
   showNormal: 0
   showTangent: 1
+  baseNumber: 1

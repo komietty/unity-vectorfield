@@ -1,4 +1,4 @@
-using MathNet.Numerics.LinearAlgebra.Double;
+using MathNet.Numerics.LinearAlgebra;
 using UnityEngine;
 using Unity.Mathematics;
 using System.Linq;
@@ -13,8 +13,6 @@ namespace ddg {
             var g = bundle.Geom;
             t = new TrivialConnection(g);
             var singularites = new float[g.nVerts];
-//            Debug.Log("vpos: " + g.Pos[1]);
-//            Debug.Log("vpos: " + g.Pos[3]);
             for(var i = 0; i < g.nVerts; i++){
                 var v = 0f;
                 if (i == 1) v = 1f;
@@ -30,7 +28,7 @@ namespace ddg {
         Dictionary<int, int> faceParentList = new Dictionary<int, int>();
         Dictionary<int, double> alpha = new Dictionary<int, double>();
 
-        float3[] BuildDirectionalField(HeGeom geom, DenseMatrix phi) {
+        float3[] BuildDirectionalField(HeGeom geom, Vector<double> phi) {
             foreach (var f in geom.Faces) faceParentList.Add(f.fid, f.fid);
             var queue = new Queue<int>();
             var f0 = geom.Faces[UnityEngine.Random.Range(0, geom.nFaces)];
@@ -42,7 +40,7 @@ namespace ddg {
                     var gid = h.twin.face.fid;
                     if (faceParentList[gid] == gid && gid != f0.fid) {
                         var sign = h.edge.hid == h.id ? 1 : -1;
-                        var conn = sign * phi[h.edge.eid, 0]; 
+                        var conn = sign * phi[h.edge.eid]; 
                             alpha[gid] = t.TransportNoRotation(h, alpha[fid])  + conn;
                         faceParentList[gid] = fid;
                         queue.Enqueue(gid);
@@ -52,9 +50,9 @@ namespace ddg {
             var field = new float3[geom.nFaces];
             foreach (var f in geom.Faces) {
                 if (alpha.ContainsKey(f.fid)) {
-                    var u = new Vector2(Mathf.Cos((float)alpha[f.fid]), Mathf.Sin((float)alpha[f.fid]));
+                    var u = new double2(math.cos(alpha[f.fid]), math.sin(alpha[f.fid]));
                     var (e1, e2) = geom.OrthonormalBasis(f);
-                    field[f.fid] = e1 * u.x + e2 * u.y;
+                    field[f.fid] = e1 * (float)u.x + e2 * (float)u.y;
                 }else {
                     field[f.fid] = float3.zero;
                 }

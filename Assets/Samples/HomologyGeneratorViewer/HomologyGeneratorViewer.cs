@@ -16,7 +16,6 @@ namespace ddg {
         protected List<Vector3> carr;
         protected List<Vector3> garr;
             
-
         void Start() {
             var filt = GetComponentInChildren<MeshFilter>();
             var mesh = MeshUtils.Weld(filt.sharedMesh);
@@ -26,22 +25,23 @@ namespace ddg {
             var tree = h.vertParentList;
             var cotr = h.faceParentList;
             var gnum = gens.Select(g => g.Count).ToArray();
-            tarr = new List<Vector3>(tree.Count * 2);
-            carr = new List<Vector3>(cotr.Count * 2);
+            tarr = new List<Vector3>(tree.Length * 2);
+            carr = new List<Vector3>(cotr.Length * 2);
             garr = new List<Vector3>(gnum.Sum() * 4);
 
-            foreach(var item in tree) {
-                var v1 = item.Key;
-                var v2 = item.Value;
+            for (var i = 0; i < tree.Length; i++) {
+                var v1 = i;
+                var v2 = tree[i];
                 tarr.Add(geom.Pos[v1]);
                 tarr.Add(geom.Pos[v2]);
             }
 
-            foreach(var item in cotr) {
-                var fid1 = item.Key;
-                var fid2 = item.Value;
-                carr.Add(geom.Centroid(geom.Faces[fid1]) + (Vector3)geom.FaceNormal(geom.Faces[fid1]).n * 0.02f);
-                carr.Add(geom.Centroid(geom.Faces[fid2]) + (Vector3)geom.FaceNormal(geom.Faces[fid2]).n * 0.02f);
+            //foreach(var item in cotr) {
+            for (var i = 0; i < cotr.Length; i++) {
+                var fid1 = i;
+                var fid2 = cotr[i];
+                carr.Add(geom.Centroid(geom.Faces[fid1]) + geom.FaceNormal(geom.Faces[fid1]).n * 0.02f);
+                carr.Add(geom.Centroid(geom.Faces[fid2]) + geom.FaceNormal(geom.Faces[fid2]).n * 0.02f);
             }
 
             foreach(var g in gens) {
@@ -58,9 +58,9 @@ namespace ddg {
             }
             }
 
-            treeBuf = new GraphicsBuffer(Target.Structured, tree.Count * 2, sizeof(float) * 3);
-            cotrBuf = new GraphicsBuffer(Target.Structured, cotr.Count * 2, sizeof(float) * 3);
-            gensBuf = new GraphicsBuffer(Target.Structured, gnum.Sum() * 4, sizeof(float) * 3);
+            treeBuf = new GraphicsBuffer(Target.Structured, tree.Length * 2, sizeof(float) * 3);
+            cotrBuf = new GraphicsBuffer(Target.Structured, cotr.Length * 2, sizeof(float) * 3);
+            gensBuf = new GraphicsBuffer(Target.Structured, gnum.Sum() * 4,  sizeof(float) * 3);
             treeBuf.SetData(tarr);
             cotrBuf.SetData(carr);
             gensBuf.SetData(garr);

@@ -6,17 +6,17 @@ using UnityEngine;
 namespace ddg {
     public class Homology {
         public HeGeom geom;
-        public Dictionary<int, int> vertParentList;
-        public Dictionary<int, int> faceParentList;
+        public int[] vertParentList;
+        public int[] faceParentList;
 
         public Homology(HeGeom g) {
             geom = g;
-            vertParentList = new Dictionary<int, int>();
-            faceParentList = new Dictionary<int, int>();
+            vertParentList = new int[geom.nVerts];
+            faceParentList = new int[geom.nFaces];
         }
 
         public void BuildPrimalSpanningTree() {
-            foreach (var v in geom.Verts) vertParentList.Add(v.vid, v.vid);
+            foreach (var v in geom.Verts) vertParentList[v.vid] = v.vid;
             var rid = geom.Verts[0].vid;
             var queue = new Queue<int>();
             queue.Enqueue(rid);
@@ -33,7 +33,7 @@ namespace ddg {
         }
 
         public void BuildDualSpanningCotree() {
-            foreach (var f in geom.Faces) faceParentList.Add(f.fid, f.fid);
+            foreach (var f in geom.Faces) faceParentList[f.fid] = f.fid;
             var queue = new Queue<int>();
             var f0 = geom.Faces[0];
             queue.Enqueue(f0.fid);

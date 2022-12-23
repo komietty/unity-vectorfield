@@ -44,7 +44,7 @@ public static class ExteriorDerivatives {
 
         public static SparseMatrix BuildExteriorDerivative0Form(HeGeom g) {
             var l = new List<(int, int, double)>();
-            foreach(var e in g.Edges) {
+            foreach (var e in g.Edges) {
                 l.Add((e.eid, g.halfedges[e.hid].vid, -1.0));
                 l.Add((e.eid, g.halfedges[e.hid].next.vid,  1.0));
             }

@@ -4,13 +4,16 @@ using UnityEngine;
 
 namespace ddg {
     public class HamonicBasisViewer : TangentBundleBehaviour {
+        [SerializeField] protected int baseNumber;
+
         protected override void Start() {
             base.Start();
             var hb = new HamonicBasis(bundle.Geom);
             var hd = new HodgeDecomposition(bundle.Geom);
             var hm = new Homology(bundle.Geom);
-            var w  = hb.Compute(hd, hm.BuildGenerators());
-            UpdateTng(w[1].Column(0).ToArray());
+            var bases = hb.Compute(hd, hm.BuildGenerators());
+            var w = bases[Mathf.Clamp(baseNumber, 0, bases.Count)];
+            UpdateTng(w.ToArray());
         }
     }
 }

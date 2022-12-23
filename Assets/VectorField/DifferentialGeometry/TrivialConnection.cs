@@ -1,8 +1,8 @@
+using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using Unity.Mathematics;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 using static Unity.Mathematics.math;
 
 namespace ddg {
@@ -12,22 +12,20 @@ namespace ddg {
         protected SparseMatrix A;
         protected SparseMatrix h1;
         protected SparseMatrix d0;
-        protected List<DenseMatrix> bases;
-        protected List<List<HalfEdge>> generators;
+        //protected List<DenseVector> bases;
+        //protected List<List<HalfEdge>> generators;
 
         public TrivialConnection(HeGeom g) {
             geom = g;
             var hd = new HodgeDecomposition(geom);
             var tc = new Homology(geom);
-            var hb = new HamonicBasis(geom);
-            generators = tc.BuildGenerators();
-            bases = hb.Compute(hd, generators);
-            //P = BuildPeriodMatrix();
-            A = hd.ZeroFromLaplaceMtx;
+            //var hb = new HamonicBasis(geom);
+            //generators = tc.BuildGenerators();
+            //bases = hb.Compute(hd, generators);
+            A = hd.A;
             h1 = hd.h1;
             d0 = hd.d0;
         }
-
         
         bool SatisfyGaussBonnet(float[] singularity){
             var sum = 0f;
@@ -44,16 +42,11 @@ namespace ddg {
             return alphaI - thetaIJ + thetaJI;
         }
 
-        DenseMatrix ComputeCoExactComponent(float[] singularity) {
+        Vector<double> ComputeCoExactComponent(float[] singularity) {
             var rhs = new double[geom.nVerts];
-            foreach (var v in geom.Verts) {
-                var i = v.vid;
-                rhs[i] = -geom.AngleDefect(v) + 2 * Mathf.PI * singularity[i];
-            }
-            var outs = new double[rhs.Length];
-            var trps = A.Storage.EnumerateNonZeroIndexed().Select(t => new Triplet(t.Item3, t.Item1, t.Item2)).ToArray();
-            Solver.DecompAndSolveChol(trps.Length, rhs.Length, trps, rhs, outs);
-            return (DenseMatrix)(h1 * d0 * DenseMatrix.OfColumnMajor(outs.Length, 1, outs));
+            foreach (var v in geom.Verts) 
+                rhs[v.vid] = -geom.AngleDefect(v) + 2 * Mathf.PI * singularity[v.vid];
+            return h1 * d0 * Solver.Cholesky(A, rhs);
         }
 
 /*
@@ -111,7 +104,7 @@ namespace ddg {
             return gamma;
         }
 */
-        public DenseMatrix ComputeConnections(float[] singularity) {
+        public Vector<double> ComputeConnections(float[] singularity) {
             //if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
             var deltaBeta = ComputeCoExactComponent(singularity);
             //var gamma = ComputeHamonicComponent(deltaBeta);
@@ -125,20 +118,20 @@ namespace ddg {
 
         public HamonicBasis(HeGeom g) { geom = g; }
 
-        public DenseMatrix BuildClosedPrimalOneForm(List<HalfEdge> generator) {
+        public DenseVector BuildClosedPrimalOneForm(List<HalfEdge> generator) {
             var n = geom.nEdges;
             var d = new double[n];
             foreach (var h in generator) d[h.edge.eid] = h.edge.hid == h.id ? 1 : -1;
-            return DenseMatrix.OfColumnMajor(n, 1, d);
+            return DenseVector.OfArray(d);
         } 
 
-        public List<DenseMatrix> Compute(HodgeDecomposition hd, List<List<HalfEdge>> generators) {
-            var gammas = new List<DenseMatrix>();
+        public List<DenseVector> Compute(HodgeDecomposition hd, List<List<HalfEdge>> generators) {
+            var gammas = new List<DenseVector>();
             if (generators.Count > 0) {
                 foreach (var g in generators) {
                     var omega  = BuildClosedPrimalOneForm(g);
                     var dAlpha = hd.ComputeExactComponent(omega);
-                    gammas.Add(omega - dAlpha);
+                    gammas.Add(omega - (DenseVector)dAlpha);
                 }
             }
             return gammas;
