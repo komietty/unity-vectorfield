@@ -64,9 +64,7 @@ namespace ddg {
         }
 
         HalfEdge SharedHalfEdge(Face f, Face g) {
-            foreach (var h in geom.GetAdjacentHalfedges(f)) {
-                if (h.twin.face.fid == g.fid) return h;
-            }
+            foreach (var h in geom.GetAdjacentHalfedges(f)) { if (h.twin.face.fid == g.fid) return h; }
             throw new System.Exception("no halfedge shared");
         }
 

@@ -12,7 +12,6 @@ namespace ddg {
         protected SparseMatrix A;
         protected SparseMatrix h1;
         protected SparseMatrix d0;
-        protected SparseMatrix d0t;
         protected List<DenseMatrix> bases;
         protected List<List<HalfEdge>> generators;
 
@@ -23,31 +22,12 @@ namespace ddg {
             var hb = new HamonicBasis(geom);
             generators = tc.BuildGenerators();
             bases = hb.Compute(hd, generators);
-            P = BuildPeriodMatrix();
+            //P = BuildPeriodMatrix();
             A = hd.ZeroFromLaplaceMtx;
             h1 = hd.h1;
             d0 = hd.d0;
-            d0t = hd.d0t;
         }
 
-        SparseMatrix BuildPeriodMatrix() {
-            var n = bases.Count;
-            var t = new List<(int, int, double)>();
-            for (var i = 0; i < n; i++) {
-                var g = generators[i];
-                for (var j = 0; j < n; j++) {
-                    var bases = this.bases[j];
-                    var sum = 0.0;
-                    foreach (var h in g) {
-                        var k = h.edge.eid;
-                        var s = h.edge.hid == h.id ? 1 : -1;
-                        sum += s * bases[k, 0];
-                    }
-                    t.Add((i, j, sum));
-                }
-            }
-            return SparseMatrix.OfIndexed(n, n, t);
-        }
         
         bool SatisfyGaussBonnet(float[] singularity){
             var sum = 0f;
@@ -74,6 +54,26 @@ namespace ddg {
             var trps = A.Storage.EnumerateNonZeroIndexed().Select(t => new Triplet(t.Item3, t.Item1, t.Item2)).ToArray();
             Solver.DecompAndSolveChol(trps.Length, rhs.Length, trps, rhs, outs);
             return (DenseMatrix)(h1 * d0 * DenseMatrix.OfColumnMajor(outs.Length, 1, outs));
+        }
+
+/*
+        SparseMatrix BuildPeriodMatrix() {
+            var n = bases.Count;
+            var t = new List<(int, int, double)>();
+            for (var i = 0; i < n; i++) {
+                var g = generators[i];
+                for (var j = 0; j < n; j++) {
+                    var bases = this.bases[j];
+                    var sum = 0.0;
+                    foreach (var h in g) {
+                        var k = h.edge.eid;
+                        var s = h.edge.hid == h.id ? 1 : -1;
+                        sum += s * bases[k, 0];
+                    }
+                    t.Add((i, j, sum));
+                }
+            }
+            return SparseMatrix.OfIndexed(n, n, t);
         }
 
         DenseMatrix ComputeHamonicComponent(DenseMatrix deltaBeta) {
@@ -110,13 +110,38 @@ namespace ddg {
             }
             return gamma;
         }
-
+*/
         public DenseMatrix ComputeConnections(float[] singularity) {
-            if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
+            //if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
             var deltaBeta = ComputeCoExactComponent(singularity);
             //var gamma = ComputeHamonicComponent(deltaBeta);
             //return deltaBeta + gamma;
             return deltaBeta;
+        }
+    }
+
+    public class HamonicBasis {
+        protected HeGeom geom;
+
+        public HamonicBasis(HeGeom g) { geom = g; }
+
+        public DenseMatrix BuildClosedPrimalOneForm(List<HalfEdge> generator) {
+            var n = geom.nEdges;
+            var d = new double[n];
+            foreach (var h in generator) d[h.edge.eid] = h.edge.hid == h.id ? 1 : -1;
+            return DenseMatrix.OfColumnMajor(n, 1, d);
+        } 
+
+        public List<DenseMatrix> Compute(HodgeDecomposition hd, List<List<HalfEdge>> generators) {
+            var gammas = new List<DenseMatrix>();
+            if (generators.Count > 0) {
+                foreach (var g in generators) {
+                    var omega  = BuildClosedPrimalOneForm(g);
+                    var dAlpha = hd.ComputeExactComponent(omega);
+                    gammas.Add(omega - dAlpha);
+                }
+            }
+            return gammas;
         }
     }
 }

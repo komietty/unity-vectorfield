@@ -55,7 +55,7 @@ public static class ExteriorDerivatives {
             var l = new List<(int, int, double)>();
             foreach(var f in g.Faces) {
                 foreach(var h in g.GetAdjacentHalfedges(f)){
-                    var dir = (h.id == h.edge.hid) ? 1.0 : -1.0;
+                    var dir = h.id == h.edge.hid ? 1.0 : -1.0;
                     l.Add((f.fid, h.edge.eid, dir));
                 }
             }

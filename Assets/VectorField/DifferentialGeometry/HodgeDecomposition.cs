@@ -9,7 +9,7 @@ namespace ddg {
         public SparseMatrix d1 {get; private set;}
         SparseMatrix h1i;
         SparseMatrix h2i;
-        public SparseMatrix d0t;
+        SparseMatrix d0t;
         SparseMatrix d1t;
         SparseMatrix A;
         SparseMatrix B;
@@ -42,12 +42,11 @@ namespace ddg {
             var outs = new double[m.RowCount];
             var trps = B.Storage.EnumerateNonZeroIndexed().Select(t => new Triplet(t.Item3, t.Item1, t.Item2)).ToArray();
             Solver.DecompAndSolveLU(trps.Length, m.RowCount, trps, m.Column(0).ToArray(), outs);
-            //return (h1i * d1t * mm).Column(0).ToArray();
             return (DenseMatrix)(h1i * d1t * DenseMatrix.OfColumnMajor(outs.Length, 1, outs));
         }
 
-        public float[] ComputeHarmonicComponent(DenseMatrix omega, DenseMatrix exact, DenseMatrix coexact) {
-            throw new System.Exception();
+        public DenseMatrix ComputeHarmonicComponent(DenseMatrix omega, DenseMatrix exact, DenseMatrix coexact) {
+            return omega - exact - coexact;
         }
     }
 }
