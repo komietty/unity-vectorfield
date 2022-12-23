@@ -8,6 +8,7 @@ namespace ddg {
     */
     public class HeComp {
         public HalfEdge[] halfedges     { get; private set; }
+        public bool isManifold          { get; private set; }
         public int eulerCharactaristics { get; private set; }
         public ReadOnlySpan<Vert> Verts => verts.AsSpan();
         public ReadOnlySpan<Edge> Edges => edges.AsSpan();
@@ -56,7 +57,7 @@ namespace ddg {
                             break;
                         }
                     }
-                    if(!fg){
+                    if (!fg) {
                         alones.Add(hb);
                         var e = new Edge(hb.id, ecount);
                         edges[ecount] = e;
@@ -65,8 +66,8 @@ namespace ddg {
                     }
                 }
 
-                for (int j = 0; j < 3; j++) { halfedges[i + j] = tripls[j]; }
-                for (int j = i; j < n; j++) { verts[idxs[j]] = new Vert(j, idxs[j]); }
+                for (int j = 0; j < 3; j++) halfedges[i + j] = tripls[j];
+                for (int j = i; j < n; j++) verts[idxs[j]] = new Vert(j, idxs[j]);
             }
 
             var hasTwins = new List<int>();
@@ -89,7 +90,7 @@ namespace ddg {
                     do {
                         var bh = new HalfEdge(len);
                         var next = curr.next;
-                        while (hasTwins.Contains(next.id)) { next = next.twin.next; }
+                        while (hasTwins.Contains(next.id)) next = next.twin.next;
                         f = new Face(i, -1);
                         bh.vid = next.vid;
                         bh.face = f;
@@ -132,7 +133,6 @@ namespace ddg {
                     else { sortedEdges.Add((i, j)); nBoundaryHe++; }
                 }
             }
-
             nVerts = nv;
             nFaces = idcs.Length / 3;
             nEdges = sortedEdges.Count;
@@ -147,11 +147,5 @@ namespace ddg {
             eulerCharactaristics = nFaces - nEdges + nVerts;
         }
 
-/*
-        Mesh TestMesh() {
-            var m = new Mesh();
-            m.vertices = [];
-        }
-*/
     }
 }

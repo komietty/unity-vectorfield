@@ -1,17 +1,19 @@
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
-using Unity.Mathematics;
 using System.Collections.Generic;
 using UnityEngine;
 using static Unity.Mathematics.math;
 
 namespace ddg {
+    using S = SparseMatrix;
+    using V = Vector<double>;
+
     public class TrivialConnection {
         protected HeGeom geom;
-        protected SparseMatrix P;
-        protected SparseMatrix A;
-        protected SparseMatrix h1;
-        protected SparseMatrix d0;
+        protected S P;
+        protected S A;
+        protected S h1;
+        protected S d0;
         //protected List<DenseVector> bases;
         //protected List<List<HalfEdge>> generators;
 
@@ -42,7 +44,7 @@ namespace ddg {
             return alphaI - thetaIJ + thetaJI;
         }
 
-        Vector<double> ComputeCoExactComponent(float[] singularity) {
+        V ComputeCoExactComponent(float[] singularity) {
             var rhs = new double[geom.nVerts];
             foreach (var v in geom.Verts) 
                 rhs[v.vid] = -geom.AngleDefect(v) + 2 * Mathf.PI * singularity[v.vid];
@@ -104,7 +106,7 @@ namespace ddg {
             return gamma;
         }
 */
-        public Vector<double> ComputeConnections(float[] singularity) {
+        public V ComputeConnections(float[] singularity) {
             //if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
             var deltaBeta = ComputeCoExactComponent(singularity);
             //var gamma = ComputeHamonicComponent(deltaBeta);
@@ -118,20 +120,20 @@ namespace ddg {
 
         public HamonicBasis(HeGeom g) { geom = g; }
 
-        public DenseVector BuildClosedPrimalOneForm(List<HalfEdge> generator) {
+        public V BuildClosedPrimalOneForm(List<HalfEdge> generator) {
             var n = geom.nEdges;
             var d = new double[n];
             foreach (var h in generator) d[h.edge.eid] = h.edge.hid == h.id ? 1 : -1;
             return DenseVector.OfArray(d);
         } 
 
-        public List<DenseVector> Compute(HodgeDecomposition hd, List<List<HalfEdge>> generators) {
-            var gammas = new List<DenseVector>();
+        public List<V> Compute(HodgeDecomposition hd, List<List<HalfEdge>> generators) {
+            var gammas = new List<V>();
             if (generators.Count > 0) {
                 foreach (var g in generators) {
                     var omega  = BuildClosedPrimalOneForm(g);
-                    var dAlpha = hd.ComputeExactComponent(omega);
-                    gammas.Add(omega - (DenseVector)dAlpha);
+                    var dAlpha = hd.Exact(omega);
+                    gammas.Add(omega - dAlpha);
                 }
             }
             return gammas;
