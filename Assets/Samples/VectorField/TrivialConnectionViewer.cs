@@ -6,12 +6,11 @@ namespace ddg {
         protected override void Start() {
             base.Start();
             var t = new TrivialConnection(geom);
-            var singularites = new float[geom.nVerts];
-            for (var i = 0; i < geom.nVerts; i++) singularites[i] = 0;
-            singularites[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
-            singularites[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
-            var m = t.ComputeConnections(singularites);
-            UpdateTng(t.BuildDirectionalField(geom, m));
+            var s = new float[geom.nVerts];
+            for (var i = 0; i < geom.nVerts; i++) s[i] = 0;
+            s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
+            s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
+            UpdateTng(t.GenField(t.ComputeConnections(s)));
             tngtMat.SetFloat("_C", 1);
         }
     }

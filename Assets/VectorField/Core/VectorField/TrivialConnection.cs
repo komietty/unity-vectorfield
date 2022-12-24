@@ -11,47 +11,77 @@ namespace ddg {
     using V = Vector<double>;
 
     public class TrivialConnection {
-        protected HeGeom g;
+        protected HeGeom geom;
         protected S P;
         protected S A;
         protected S h1;
         protected S d0;
-        //protected List<DenseVector> bases;
-        //protected List<List<HalfEdge>> generators;
 
         public TrivialConnection(HeGeom g) {
-            this.g = g;
             var hd = new HodgeDecomposition(g);
-            var tc = new HomologyGenerator(g);
-            //var hb = new HamonicBasis(geom);
-            //generators = tc.BuildGenerators();
-            //bases = hb.Compute(hd, generators);
-            A = hd.A;
+            geom = g;
+            A  = hd.A;
             h1 = hd.h1;
             d0 = hd.d0;
         }
         
         bool SatisfyGaussBonnet(float[] singularity){
             var sum = 0f;
-            foreach (var v in g.Verts) sum += singularity[v.vid];
-            return Mathf.Abs(g.eulerCharactaristics - sum) < 1e-8;
+            foreach (var v in geom.Verts) sum += singularity[v.vid];
+            return Mathf.Abs(geom.eulerCharactaristics - sum) < 1e-8;
         }
 
         public double TransportNoRotation(HalfEdge h, double alphaI = 0) {
-            var u = g.Vector(h);
-            var (e1, e2) = g.OrthonormalBasis(h.face);
-            var (f1, f2) = g.OrthonormalBasis(h.twin.face);
+            var u = geom.Vector(h);
+            var (e1, e2) = geom.OrthonormalBasis(h.face);
+            var (f1, f2) = geom.OrthonormalBasis(h.twin.face);
             var thetaIJ = atan2(dot(u, e2), dot(u, e1));
             var thetaJI = atan2(dot(u, f2), dot(u, f1));
             return alphaI - thetaIJ + thetaJI;
         }
 
         V ComputeCoExactComponent(float[] singularity) {
-            var rhs = new double[g.nVerts];
-            foreach (var v in g.Verts)
-                rhs[v.vid] = -g.AngleDefect(v) + 2 * Mathf.PI * singularity[v.vid];
+            var rhs = new double[geom.nVerts];
+            foreach (var v in geom.Verts)
+                rhs[v.vid] = -geom.AngleDefect(v) + 2 * Mathf.PI * singularity[v.vid];
             return h1 * d0 * Solver.Cholesky(A, rhs);
         }
+
+        public V ComputeConnections(float[] singularity) {
+            if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
+            return  ComputeCoExactComponent(singularity);
+        }
+
+        public float3[] GenField(V phi) {
+            var visit = Enumerable.Repeat(false, geom.nFaces).ToArray();
+            var alpha = new Dictionary<int, double>();
+            var field = new float3[geom.nFaces];
+            var queue = new Queue<int>();
+            var f0 = geom.Faces[0];
+            queue.Enqueue(f0.fid);
+            alpha[f0.fid] = 0;
+            while (queue.Count > 0) {
+                var fid = queue.Dequeue();
+                foreach (var h in geom.GetAdjacentHalfedges(geom.Faces[fid])) {
+                    var gid = h.twin.face.fid;
+                    if (!visit[gid] && gid != f0.fid) {
+                        var sign = h.IsEdgeDir() ? 1 : -1;
+                        var conn = sign * phi[h.edge.eid];
+                        alpha[gid] = TransportNoRotation(h, alpha[fid]) + conn;
+                        visit[gid] = true;
+                        queue.Enqueue(gid);
+                    }
+                }
+            } 
+            foreach (var f in geom.Faces) {
+                var a = alpha[f.fid];
+                var (e1, e2) = geom.OrthonormalBasis(f);
+                field[f.fid] = e1 * (float)cos(a) + e2 * (float)sin(a);
+            }
+            return field;
+        }
+    }
+}
 
 /*
         SparseMatrix BuildPeriodMatrix() {
@@ -108,41 +138,3 @@ namespace ddg {
             return gamma;
         }
 */
-        public V ComputeConnections(float[] singularity) {
-            //if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
-            var deltaBeta = ComputeCoExactComponent(singularity);
-            //var gamma = ComputeHamonicComponent(deltaBeta);
-            //return deltaBeta + gamma;
-            return deltaBeta;
-        }
-
-        public float3[] BuildDirectionalField(HeGeom g, V phi) {
-            var visit = Enumerable.Repeat(false, g.nFaces).ToArray();
-            var alpha = new Dictionary<int, double>();
-            var field = new float3[g.nFaces];
-            var queue = new Queue<int>();
-            var f0 = g.Faces[0];
-            queue.Enqueue(f0.fid);
-            alpha[f0.fid] = 0;
-            while (queue.Count > 0) {
-                var fid = queue.Dequeue();
-                foreach (var h in g.GetAdjacentHalfedges(g.Faces[fid])) {
-                    var gid = h.twin.face.fid;
-                    if (!visit[gid] && gid != f0.fid) {
-                        var sign = h.IsEdgeDir() ? 1 : -1;
-                        var conn = sign * phi[h.edge.eid];
-                        alpha[gid] = TransportNoRotation(h, alpha[fid]) + conn;
-                        visit[gid] = true;
-                        queue.Enqueue(gid);
-                    }
-                }
-            } 
-            foreach (var f in g.Faces) {
-                var a = alpha[f.fid];
-                var (e1, e2) = g.OrthonormalBasis(f);
-                field[f.fid] = e1 * (float)cos(a) + e2 * (float)sin(a);
-            }
-            return field;
-        }
-    }
-}
