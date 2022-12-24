@@ -14,8 +14,6 @@ namespace ddg {
 
         protected override void Start() {
             base.Start();
-            var n = new GUIStyleState();
-            n.textColor = Color.white;
             StartCoroutine(ChangeCurvature());
         }
 
