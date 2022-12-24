@@ -18,12 +18,12 @@ namespace ddg {
             
         void Start() {
             var filt = GetComponentInChildren<MeshFilter>();
-            var mesh = MeshUtils.Weld(filt.sharedMesh);
+            var mesh = HeComp.Weld(filt.sharedMesh);
             geom = new HeGeom(mesh);
-            var h = new Homology(geom);
+            var h = new HomologyGenerator(geom);
             var gens = h.BuildGenerators();
-            var tree = h.vertParentList;
-            var cotr = h.faceParentList;
+            var tree = h.vertParent;
+            var cotr = h.faceParent;
             var gnum = gens.Select(g => g.Count).ToArray();
             tarr = new List<Vector3>(tree.Length * 2);
             carr = new List<Vector3>(cotr.Length * 2);

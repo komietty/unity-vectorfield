@@ -1,13 +1,12 @@
 using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.LinearAlgebra.Double;
 using UnityEngine;
 using System.Linq;
 
 namespace ddg {
     using V = Vector<double>;
 
-    public class TangentFieldViewer : TangentBundleBehaviour {
-        public enum Field { Random, Exact, CoExact }
+    public class TangentFieldViewer : TangentBundle {
+        public enum Field { Random, Exact, CoExact, Harmonic }
         [SerializeField] protected Field field;
         [SerializeField] protected GameObject point;
         [SerializeField] protected ComputeShader cs;
@@ -19,44 +18,46 @@ namespace ddg {
         protected V random;
         protected V exact;
         protected V coexact;
+        protected V harmonic;
         protected GraphicsBuffer scalarPots;
         protected GraphicsBuffer vectorPots;
         protected GraphicsBuffer distances;
-        protected GameObject scalarPotGo;
-        protected GameObject vectorPotGo;
+        protected GameObject sPotGo;
+        protected GameObject vPotGo;
 
         void OnValidate(){
             if (!flag) return;
             switch (field) {
-                case Field.Random:  UpdateTng(random);  break;
-                case Field.Exact:   UpdateTng(exact);   break;
-                case Field.CoExact: UpdateTng(coexact); break;
+                case Field.Random:   UpdateTng(random);   break;
+                case Field.Exact:    UpdateTng(exact);    break;
+                case Field.CoExact:  UpdateTng(coexact);  break;
+                case Field.Harmonic: UpdateTng(harmonic); break;
             }
         }
 
         protected override void Start() {
             base.Start();
-            var g = bundle.geom;
-            var h = new HodgeDecomposition(g);
-            var (omega, sids, vids) = TangentBundle.GenRandomOneForm(g);
-            random  = omega;
-            exact   = h.Exact(omega);
-            coexact = h.CoExact(omega);
+            var h = new HodgeDecomposition(geom);
+            var (omega, sids, vids) = TangentField.GenRandomOneForm(geom);
+            random   = omega;
+            exact    = h.Exact(omega);
+            coexact  = h.CoExact(omega);
+            harmonic = h.Harmonic(omega, exact, coexact);
             UpdateTng(random);
             
             var t = GraphicsBuffer.Target.Structured;
             scalarPots = new GraphicsBuffer(t, sids.Length,  sizeof(float) * 3);
             vectorPots = new GraphicsBuffer(t, vids.Length,  sizeof(float) * 3);
             distances  = new GraphicsBuffer(t, tngBuf.count, sizeof(float) * 2);
-            scalarPotGo = new GameObject();
-            vectorPotGo = new GameObject();
-            scalarPotGo.transform.SetParent(transform);
-            vectorPotGo.transform.SetParent(transform);
-            var sPots = sids.Select(i => g.Pos[i]).ToArray();
-            var vPots = vids.Select(i => g.Pos[i]).ToArray();
+            sPotGo = new GameObject();
+            vPotGo = new GameObject();
+            sPotGo.transform.SetParent(transform);
+            vPotGo.transform.SetParent(transform);
+            var sPots = sids.Select(i => geom.Pos[i]).ToArray();
+            var vPots = vids.Select(i => geom.Pos[i]).ToArray();
             var q = Quaternion.identity;
-            foreach (var p in sPots) { var go = GameObject.Instantiate(point, p, q); go.transform.SetParent(scalarPotGo.transform); }
-            foreach (var p in vPots) { var go = GameObject.Instantiate(point, p, q); go.transform.SetParent(vectorPotGo.transform); }
+            foreach (var p in sPots) { var go = GameObject.Instantiate(point, p, q); go.transform.SetParent(sPotGo.transform); }
+            foreach (var p in vPots) { var go = GameObject.Instantiate(point, p, q); go.transform.SetParent(vPotGo.transform); }
             scalarPots.SetData(sPots);
             vectorPots.SetData(vPots);
 
@@ -64,36 +65,29 @@ namespace ddg {
             int s = Mathf.CeilToInt(tngBuf.count / 64.0f);
             cs.SetInt("ScalarPotentialNum", sids.Length);
             cs.SetInt("VectorPotentialNum", vids.Length);
-            cs.SetFloat("MeanEdgeLength", g.MeanEdgeLength());
+            cs.SetFloat("MeanEdgeLength", geom.MeanEdgeLength());
             cs.SetBuffer(k, "TangentArrowBuf", tngBuf);
             cs.SetBuffer(k, "ScalarPotentialPosBuf", scalarPots);
             cs.SetBuffer(k, "VectorPotentialPosBuf", vectorPots);
             cs.SetBuffer(k, "Distances", distances);
             cs.Dispatch(k, s, 1, 1);
-            tngMat.SetBuffer("_Dist", distances);
+            tngtMat.SetBuffer("_Dist", distances);
             flag = true;
         }
 
         void Update() {
-            if (Input.GetKeyDown(KeyCode.Space)) {
-                field = (Field)(((int)field + 1) % 3);
-                switch (field) {
-                    case Field.Random: UpdateTng(random); break;
-                    case Field.Exact: UpdateTng(exact); break;
-                    case Field.CoExact: UpdateTng(coexact); break;
-                }
-            }
             switch (field) {
-                case Field.Random:  scalarPotGo.SetActive(true);  vectorPotGo.SetActive(true);  break;
-                case Field.Exact:   scalarPotGo.SetActive(true);  vectorPotGo.SetActive(false); break;
-                case Field.CoExact: scalarPotGo.SetActive(false); vectorPotGo.SetActive(true);  break;
+                case Field.Random:   sPotGo.SetActive(true);  vPotGo.SetActive(true);  break;
+                case Field.Exact:    sPotGo.SetActive(true);  vPotGo.SetActive(false); break;
+                case Field.CoExact:  sPotGo.SetActive(false); vPotGo.SetActive(true);  break;
+                case Field.Harmonic: sPotGo.SetActive(false); vPotGo.SetActive(false); break;
             }
-            tngMat.SetInt("_M", (int)field);
-            tngMat.SetFloat("_T", Time.time);
-            tngMat.SetFloat("_C", potentialColor);
-            tngMat.SetColor("_C0", baseColor);
-            tngMat.SetColor("_C1", scalarColor);
-            tngMat.SetColor("_C2", vectorColor);
+            tngtMat.SetInt("_M", (int)field);
+            tngtMat.SetFloat("_T", Time.time);
+            tngtMat.SetFloat("_C", potentialColor);
+            tngtMat.SetColor("_C0", baseColor);
+            tngtMat.SetColor("_C1", scalarColor);
+            tngtMat.SetColor("_C2", vectorColor);
         }
 
         protected override void OnDestroy() {

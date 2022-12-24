@@ -6,7 +6,7 @@ using MathNet.Numerics.LinearAlgebra.Storage;
 namespace ddg {
     using S = SparseMatrix;
 
-    public class MeshSmoothingDemo : TangentBundleBehaviour {
+    public class MeshSmoothingDemo : TangentBundle {
         [SerializeField] protected bool native = true;
         [SerializeField, Range(0.001f, 0.1f)] protected float delta = 0.001f;
 
@@ -16,12 +16,12 @@ namespace ddg {
         }
 
         IEnumerator Smooth() {
-            var flow = new MeanCurvatureFlow(bundle.geom);
+            var flow = new MeanCurvatureFlow(geom);
             while(true){
                 yield return new WaitForSeconds(0.5f);
-                if(native) flow.IntegrateNative(delta);
+                if(native) flow.Integrate(delta);
                 else       flow.IntegrateCSharp(delta);
-                mesh.SetVertices(bundle.geom.Pos.ToArray());
+                mesh.SetVertices(geom.Pos.ToArray());
                 mesh.RecalculateNormals();
             }
         }
@@ -42,7 +42,7 @@ namespace ddg {
             return I + (M * L) * h;
         }
 
-        public void IntegrateNative(double h){
+        public void Integrate(double h){
             var fm = GenFlowMtx(h);
             var data = SparseCompressedRowMatrixStorage<double>.OfMatrix(fm.Storage);
             var iter = data.EnumerateNonZeroIndexed();

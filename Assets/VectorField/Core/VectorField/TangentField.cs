@@ -9,17 +9,9 @@ namespace ddg {
     using V = Vector<double>;
     using R = UnityEngine.Random;
 
-    public class TangentBundle {
-        public float3[] tangentField { get; private set; }
-        public HeGeom geom { get; private set; }
+    public static class TangentField {
 
-        public TangentBundle(Mesh mesh){ geom = new HeGeom(mesh); }
-
-        public static (
-            V oneForm,
-            int[] scalarPotentialIds,
-            int[] vectorPotentialIds
-            ) GenRandomOneForm(HeGeom g) {
+        public static (V oneForm, int[] exactIds, int[] coexactIds) GenRandomOneForm(HeGeom g) {
             var nv = g.nVerts;
             var r = max(2, (int)(nv / 1000f));
             var rho1 = DenseVector.Create(nv, 0);

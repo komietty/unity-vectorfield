@@ -7,7 +7,6 @@ int ScalarPotentialNum;
 int VectorPotentialNum;
 float MeanEdgeLength;
 
-
 [numthreads(64,1,1)]
 void SetDistance (uint3 id : SV_DispatchThreadID) {
     float2 d = float2(1e8, 1e8);

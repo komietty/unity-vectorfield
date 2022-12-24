@@ -1,31 +1,29 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
 
 namespace ddg {
-    public class Homology {
-        public HeGeom geom;
-        public int[] vertParentList;
-        public int[] faceParentList;
+    public class HomologyGenerator {
 
-        public Homology(HeGeom g) {
+        HeGeom geom;
+        public int[] vertParent { get; private set; }
+        public int[] faceParent { get; private set; }
+
+        public HomologyGenerator(HeGeom g) {
             geom = g;
-            vertParentList = new int[geom.nVerts];
-            faceParentList = new int[geom.nFaces];
+            vertParent = new int[geom.nVerts];
+            faceParent = new int[geom.nFaces];
         }
 
         public void BuildPrimalSpanningTree() {
-            foreach (var v in geom.Verts) vertParentList[v.vid] = v.vid;
-            var rid = geom.Verts[0].vid;
+            foreach (var v in geom.Verts) vertParent[v.vid] = v.vid;
+            var rtid = geom.Verts[0].vid;
             var queue = new Queue<int>();
-            queue.Enqueue(rid);
+            queue.Enqueue(rtid);
             while (queue.Count != 0) {
                 var uid = queue.Dequeue();
                 foreach (var v in geom.GetAdjacentVerts(geom.Verts[uid])) {
                     var vid = v.vid;
-                    if (vertParentList[vid] == vid && vid != rid) {
-                        vertParentList[vid] = uid;
+                    if (vertParent[vid] == vid && vid != rtid) {
+                        vertParent[vid] = uid;
                         queue.Enqueue(vid);
                     }
                 }
@@ -33,7 +31,7 @@ namespace ddg {
         }
 
         public void BuildDualSpanningCotree() {
-            foreach (var f in geom.Faces) faceParentList[f.fid] = f.fid;
+            foreach (var f in geom.Faces) faceParent[f.fid] = f.fid;
             var queue = new Queue<int>();
             var f0 = geom.Faces[0];
             queue.Enqueue(f0.fid);
@@ -42,8 +40,8 @@ namespace ddg {
                 foreach (var h in geom.GetAdjacentHalfedges(geom.Faces[fid])) {
                     if (!InPrimalSpanningTree(h)) {
                         var gid = h.twin.face.fid;
-                        if (faceParentList[gid] == gid && gid != f0.fid) {
-                            faceParentList[gid] = fid;
+                        if (faceParent[gid] == gid && gid != f0.fid) {
+                            faceParent[gid] = fid;
                             queue.Enqueue(gid);
                         }
                     }
@@ -54,17 +52,17 @@ namespace ddg {
         bool InPrimalSpanningTree(HalfEdge h) {
             var uid = h.vid;
             var vid = h.twin.vid;
-            return vertParentList[uid] == vid || vertParentList[vid] == uid;
+            return vertParent[uid] == vid || vertParent[vid] == uid;
         }
 
         bool InDualSpanningTree(HalfEdge h) {
             var fid = h.face.fid;
             var gid = h.twin.face.fid;
-            return faceParentList[fid] == gid || faceParentList[gid] == fid;
+            return faceParent[fid] == gid || faceParent[gid] == fid;
         }
 
         HalfEdge SharedHalfEdge(Face f, Face g) {
-            foreach (var h in geom.GetAdjacentHalfedges(f)) { if (h.twin.face.fid == g.fid) return h; }
+            foreach (var h in geom.GetAdjacentHalfedges(f)) if (h.twin.face.fid == g.fid) return h;
             throw new System.Exception("no halfedge shared");
         }
 
@@ -81,17 +79,17 @@ namespace ddg {
                     var f = h.face;
                     var c1 = 0;
                     var c2 = 0;
-                    while(faceParentList[f.fid] != f.fid){
+                    while(faceParent[f.fid] != f.fid){
                         c1++;
-                        var p = geom.Faces[faceParentList[f.fid]];
+                        var p = geom.Faces[faceParent[f.fid]];
                         tmp1.Add(SharedHalfEdge(f, p));
                         f = p;
                     }
 
                     f = h.twin.face;
-                    while(faceParentList[f.fid] != f.fid){
+                    while(faceParent[f.fid] != f.fid){
                         c2++;
-                        var p = geom.Faces[faceParentList[f.fid]];
+                        var p = geom.Faces[faceParent[f.fid]];
                         tmp2.Add(SharedHalfEdge(f, p));
                         f = p;
                     }

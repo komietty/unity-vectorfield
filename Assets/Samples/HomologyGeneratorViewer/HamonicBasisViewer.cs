@@ -1,18 +1,16 @@
 using UnityEngine;
 
 namespace ddg {
-    public class HamonicBasisViewer : TangentBundleBehaviour {
+    public class HamonicBasisViewer : TangentBundle {
         [SerializeField] protected int baseNumber;
 
         protected override void Start() {
             base.Start();
-            var g = bundle.geom;
-            var hb = new HamonicBasis(g);
-            var hd = new HodgeDecomposition(g);
-            var hm = new Homology(g);
-            var bases = hb.Compute(hd, hm.BuildGenerators());
-            var w = bases[Mathf.Clamp(baseNumber, 0, bases.Count)];
-            UpdateTng(w);
+            var hb = new HamonicBasis(geom);
+            var hd = new HodgeDecomposition(geom);
+            var hm = new HomologyGenerator(geom);
+            var bs = hb.Compute(hd, hm.BuildGenerators());
+            UpdateTng(bs[Mathf.Clamp(baseNumber, 0, bs.Count)]);
         }
     }
 }

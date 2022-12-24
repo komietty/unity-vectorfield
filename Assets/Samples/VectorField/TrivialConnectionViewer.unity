@@ -301,10 +301,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 007f12c427ed0473f9e5a36d17720825, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  surfaceMat: {fileID: 2100000, guid: f6c21c34573e946b1bab4bfe0d528214, type: 2}
-  lineShader: {fileID: 4800000, guid: 9891401915ae54a0da12151edaaa35d9, type: 3}
-  showNormal: 0
-  showTangent: 1
+  surfMat: {fileID: 2100000, guid: 29d24685523474f149b6d05e68b78acb, type: 2}
+  tngtMat: {fileID: 2100000, guid: f6c21c34573e946b1bab4bfe0d528214, type: 2}
 --- !u!1 &924420045
 GameObject:
   m_ObjectHideFlags: 0

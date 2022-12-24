@@ -1,4 +1,4 @@
-Shader "ddg/TangentFieldViewer" {
+Shader "ddg/TrivialConn" {
     Properties { }
     SubShader
     {
@@ -31,7 +31,7 @@ Shader "ddg/TangentFieldViewer" {
             }
 
             float4 frag (v2f i) : SV_Target {
-                float4 o = float4(_C, 0, 0, 1);
+                float4 o = float4(1, 1, 1, 1);
                 return clamp(o, 0, 1);
             }
             ENDCG
