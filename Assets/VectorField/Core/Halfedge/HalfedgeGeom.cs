@@ -2,6 +2,7 @@ using Unity.Mathematics;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 using static Unity.Mathematics.math;
 
 namespace ddg {
@@ -11,9 +12,9 @@ namespace ddg {
         public Vector3[] pos;
         public Vector3[] nrm;
 
-        public HeGeom(UnityEngine.Mesh mesh) : base(mesh) {
-            pos = mesh.vertices;
-            nrm = mesh.normals;
+        public HeGeom(UnityEngine.Mesh mesh, Transform trs) : base(mesh) {
+            pos = mesh.vertices.Select(v => trs.TransformPoint(v)).ToArray();
+            nrm = mesh.normals.Select(n => trs.TransformDirection(n)).ToArray();
         }
 
         public float3 Vector(HalfEdge h) {

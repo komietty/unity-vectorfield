@@ -9,24 +9,25 @@ public class RibbonViewer : MonoBehaviour {
     HeGeom g;
 
     void Start() {
-        g = new HeGeom(HeComp.Weld(GetComponent<MeshFilter>().sharedMesh));
-        var f = g.Faces[0];
-        var hInit = g.halfedges[f.hid];
-        var t = new float3(0.1f, 1.0f, 0);
-        //for(var i = 0; i < 100; i++) {
-            var rate = 0.3f;
-            var (h, r) = TangentTracer.CrossHe(t, f, hInit, rate, g);
+        g = new HeGeom(HeComp.Weld(GetComponent<MeshFilter>().sharedMesh), transform);
+        var face = g.Faces[1];
+        var curr = g.halfedges[face.hid];
+        var rate = 0.6f;
+        var tng = transform.TransformDirection(new float3(1f, -0.1f, 0f));
+        for(var i = 0; i < 2; i++) {
+            var (h, r) = TangentTracer.CrossHe(tng, face, curr, rate, g);
             var g1 = GameObject.Instantiate(arrow);
             //g1.transform.position = g.Centroid(f);
-            g1.transform.position = (g.Pos[hInit.next.vid] - g.Pos[hInit.vid]) * rate + g.Pos[hInit.vid];
-            g1.transform.LookAt(g1.transform.position + (Vector3)t);
+            g1.transform.position = (g.Pos[curr.next.vid] - g.Pos[curr.vid]) * rate + g.Pos[curr.vid];
+            g1.transform.LookAt(g1.transform.position + (Vector3)tng);
             g1.transform.localScale *= 0.02f;
             var g2 = GameObject.CreatePrimitive(PrimitiveType.Cube);
             g2.transform.position = (g.Pos[h.next.vid] - g.Pos[h.vid]) * r + g.Pos[h.vid];
             g2.transform.localScale *= 0.02f;
-            f = h.twin.face;
-            Debug.Log(f.fid);
-        //}
+            face = h.twin.face;
+            curr = h.twin;
+            rate = 1f - r;
+        }
         //var ob = g.OrthonormalBasis(f);
         //var o1 = GameObject.Instantiate(arrow);
         //var o2 = GameObject.Instantiate(arrow);

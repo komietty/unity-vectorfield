@@ -19,7 +19,7 @@ namespace ddg {
         void Start() {
             var filt = GetComponentInChildren<MeshFilter>();
             var mesh = HeComp.Weld(filt.sharedMesh);
-            geom = new HeGeom(mesh);
+            geom = new HeGeom(mesh, transform);
             var h = new HomologyGenerator(geom);
             var gens = h.BuildGenerators();
             var tree = h.vertParent;

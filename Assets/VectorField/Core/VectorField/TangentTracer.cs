@@ -55,7 +55,7 @@ namespace ddg {
                 if(intersect_h2.flag) return (h2, intersect_h2.r);
             }
             if (h.id == h1.id) {
-                var pBgn = v1 * r + v2 * (1f - r);
+                var pBgn = v1 * (1f - r) + v2 * r;
                 var intersect_h2 = Intersect(dir, pBgn, v2, v0);
                 var intersect_h0 = Intersect(dir, pBgn, v0, v1);
                 if(intersect_h2.flag) return (h2, intersect_h2.r);

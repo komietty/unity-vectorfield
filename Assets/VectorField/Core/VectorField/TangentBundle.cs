@@ -19,7 +19,7 @@ namespace ddg {
             var filt = GetComponentInChildren<MeshFilter>();
             var rend = GetComponentInChildren<MeshRenderer>();
             mesh = HeComp.Weld(filt.sharedMesh);
-            geom = new HeGeom(mesh);
+            geom = new HeGeom(mesh, transform);
             filt.sharedMesh = mesh;
             rend.material = surfMat;
             colBuf = new GraphicsBuffer(Target.Structured, geom.nVerts,     12);
