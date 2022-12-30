@@ -31,10 +31,15 @@ namespace ddg {
             var c = p1;
             var d = p2;
             var deno = cross(new f3(b - a, 0), new f3(d - c, 0)).z;
-            if (deno == 0) return (false, 0);
+            if (deno == 0) { return (false, 0); }
             var s = cross(float3(c - a, 0), float3(d - c, 0)).z / deno;
             var t = cross(float3(b - a, 0), float3(a - c, 0)).z / deno;
-            if (s < 0.0 || 1.0 < s || t < 0.0 || 1.0 < t) { return (false, 0); }
+            var e = 1e-3;
+            if (s < -e || 1 + e < s || t < -e || 1 + e < t) {
+                Debug.Log("s:" + s);
+                Debug.Log("t:" + t);
+                return (false, 0);
+            }
             return (true, t);
         }
 
@@ -48,6 +53,7 @@ namespace ddg {
             var v1 = TangentOnFacePlane(g.Pos[h1.vid] - g.Pos[h0.vid], f, g);
             var v2 = TangentOnFacePlane(g.Pos[h2.vid] - g.Pos[h0.vid], f, g);
             if (h.id == h0.id) {
+                //Debug.Log(0);
                 var pBgn = v1 * r;
                 var intersect_h1 = Intersect(dir, pBgn, v1, v2);
                 var intersect_h2 = Intersect(dir, pBgn, v2, v0);
@@ -55,6 +61,7 @@ namespace ddg {
                 if(intersect_h2.flag) return (h2, intersect_h2.r);
             }
             if (h.id == h1.id) {
+                //Debug.Log(1);
                 var pBgn = v1 * (1f - r) + v2 * r;
                 var intersect_h2 = Intersect(dir, pBgn, v2, v0);
                 var intersect_h0 = Intersect(dir, pBgn, v0, v1);
@@ -62,6 +69,7 @@ namespace ddg {
                 if(intersect_h0.flag) return (h0, intersect_h0.r);
             }
             if (h.id == h2.id) {
+                //Debug.Log(2);
                 var pBgn = v2 * (1f - r);
                 var intersect_h0 = Intersect(dir, pBgn, v0, v1);
                 var intersect_h1 = Intersect(dir, pBgn, v1, v2);
