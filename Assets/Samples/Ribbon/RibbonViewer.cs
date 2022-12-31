@@ -6,6 +6,7 @@ using Unity.Mathematics;
 
 public class RibbonViewer : TangentBundle {
     [SerializeField] protected GameObject arrow;
+    [SerializeField] protected Material tmp;
     float3[] tangentFields;
     Face face;
     HalfEdge curr;
@@ -30,10 +31,10 @@ public class RibbonViewer : TangentBundle {
         //}
         //UpdateTng(tmp);
 
-        //Draw();
         face = geom.Faces[1];
         curr = geom.halfedges[face.hid];
         rate = 0.5f;
+        Draw();
     }
 
 
@@ -49,7 +50,7 @@ public class RibbonViewer : TangentBundle {
             g2.transform.position = geom.Centroid(face);
             g2.transform.localScale *= 0.02f;
 
-            var (hid, r) = TangentTracer.CrossHe(tng, face, curr, rate, geom);
+            var (flg, hid, r) = TangentTracer.CrossHe(tng, face, curr, rate, geom);
             r = Mathf.Min(r, 0.95f);
             r = Mathf.Max(r, 0.05f);
             curr = geom.halfedges[hid].twin;
@@ -59,18 +60,33 @@ public class RibbonViewer : TangentBundle {
         }
     }
 
+    List<Vector3> list = new List<Vector3>();
     void Draw() {
-        for(var i = 0; i < 60; i++) {
+        for(var i = 0; i < 1000; i++) {
             var tng = tangentFields[face.fid];
-            var g1 = GameObject.Instantiate(arrow);
-            g1.transform.position = (geom.Pos[curr.next.vid] - geom.Pos[curr.vid]) * rate + geom.Pos[curr.vid];
-            g1.transform.LookAt(g1.transform.position + (Vector3)tng);
-            g1.transform.localScale *= 0.02f;
-            var (hid, r) = TangentTracer.CrossHe(tng, face, curr, rate, geom);
+            var pos = (geom.Pos[curr.next.vid] - geom.Pos[curr.vid]) * rate + geom.Pos[curr.vid];
+            list.Add(pos);
+            var (flg, hid, r) = TangentTracer.CrossHe(tng, face, curr, rate, geom);
             curr = geom.halfedges[hid].twin;
             face = curr.face;
             rate = 1f - r;
-            if(curr.onBoundary) break;
+            if(!flg || curr.onBoundary) break;
         }
+
+    }
+
+
+    protected override void OnRenderObject() {
+        base.OnRenderObject();
+
+        tmp.SetPass(0);
+        GL.PushMatrix();
+        GL.MultMatrix(transform.localToWorldMatrix);
+        GL.Begin(GL.LINE_STRIP);
+        for (int i = 0; i < list.Count; ++i) {
+            GL.Vertex(list[i]);
+        }
+        GL.End();
+        GL.PopMatrix();
     }
 }
