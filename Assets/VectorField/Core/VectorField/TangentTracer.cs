@@ -36,15 +36,11 @@ namespace ddg {
             var c = p1;
             var d = p2;
             var deno = cross(new d3(b - a, 0), new d3(d - c, 0)).z;
-            if (deno == 0) { return (false, 0); }
+            if (deno == 0) return (false, 0);
             var s = cross(new d3(c - a, 0), new d3(d - c, 0)).z / deno;
             var t = cross(new d3(b - a, 0), new d3(a - c, 0)).z / deno;
             var e = 1e-5;
-            if (s < -e || t < -e || 1 + e < t) {
-//                Debug.Log("s:" + s);
-//                Debug.Log("t:" + t);
-                return (false, 0);
-            }
+            if (s < -e || t < -e || 1 + e < t) { return (false, 0); }
             return (true, (float)t);
         }
 
@@ -79,7 +75,7 @@ namespace ddg {
                 if (intersect_h1.flag) { return (true, h1.id, intersect_h1.r); }
             }
 
-            Debug.LogWarning("not found");
+            //throw new System.Exception();
             return (false, 0, 0);
         }
     }
