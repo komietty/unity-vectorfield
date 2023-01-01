@@ -5,7 +5,6 @@ using ddg;
 using System.Linq;
 
 public class RibbonViewer : TangentBundle {
-    [SerializeField] protected GameObject arrow;
     [SerializeField] protected Material tmp;
     List<Vector3> tracerlist = new List<Vector3>();
     TangentTracer tracer;
@@ -24,7 +23,7 @@ public class RibbonViewer : TangentBundle {
         tracer = new TangentTracer(geom, tngs);
         UpdateTng(tngs);
 
-        var count = 10;
+        var count = 1000;
         tblArr = new int[count];
 
         for (var i = 0; i < count; i++) {
@@ -36,23 +35,21 @@ public class RibbonViewer : TangentBundle {
                 tracerlist.Add(tr[j + 1]);
             }
         }
-
-
         //var posArr = new Vector3[size];
+        posBuff = new GraphicsBuffer(GraphicsBuffer.Target.Structured, tracerlist.Count, sizeof(float) * 3);
+        posBuff.SetData(tracerlist);
+        tmp.SetBuffer("_Line", posBuff);
         //tblBuff = new GraphicsBuffer(GraphicsBuffer.Target.Structured, count, sizeof(int));
     }
 
     protected override void OnRenderObject() {
         base.OnRenderObject();
         tmp.SetPass(0);
-        //tmp.SetColor("_Color", Color.HSVToRGB(0.17f + (i % 10) * 0.1f * 0.5f, 1, 1));
-        GL.PushMatrix();
-        GL.MultMatrix(transform.localToWorldMatrix);
-        GL.Begin(GL.LINES);
-        for (int i = 0; i < tracerlist.Count; i++) {
-            GL.Vertex(tracerlist[i]);
-        }
-        GL.End();
-        GL.PopMatrix();
+        Graphics.DrawProceduralNow(MeshTopology.Lines, tracerlist.Count);
+    }
+
+    protected override void OnDestroy() {
+        base.OnDestroy();
+        posBuff.Dispose();
     }
 }

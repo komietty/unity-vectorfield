@@ -22,17 +22,14 @@ namespace ddg {
 
         public List<Vector3> GenTracer(Face bgn) {
             var f = bgn;
-            var h = geom.halfedges[f.fid];
-            //var r = UnityEngine.Random.value * 0.8f + 0.1f;
-            var r = 0.5f;
+            var h = geom.halfedges[f.hid];
+            var r = UnityEngine.Random.value * 0.8f + 0.1f;
             var fwd = GenTracer(f, h, r, 1);
-            //var bwd = GenTracer(h.twin.face, h.twin, 1 - r, -1);
-            //Debug.Log("bwd: " + bwd.Count);
-            Debug.Log("fwd: " + fwd.Count);
-            //bwd.RemoveAt(0);
-            //bwd.Reverse();
-            //bwd.AddRange(fwd);
-            return fwd;
+            var bwd = GenTracer(h.twin.face, h.twin, 1 - r, -1);
+            bwd.RemoveAt(0);
+            bwd.Reverse();
+            bwd.AddRange(fwd);
+            return bwd;
         }
 
 
