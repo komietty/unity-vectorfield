@@ -10,7 +10,50 @@ namespace ddg {
     using f3 = float3;
     using d2 = double2;
     using d3 = double3;
+
     public class TangentTracer {
+        HeGeom geom;
+        float3[] tangents;
+
+        public TangentTracer(HeGeom geom, float3[] tangents) {
+            this.geom = geom;
+            this.tangents = tangents;
+        }
+
+        public List<Vector3> GenTracer(Face bgn) {
+            var f = bgn;
+            var h = geom.halfedges[f.fid];
+            //var r = UnityEngine.Random.value * 0.8f + 0.1f;
+            var r = 0.5f;
+            var fwd = GenTracer(f, h, r, 1);
+            //var bwd = GenTracer(h.twin.face, h.twin, 1 - r, -1);
+            //Debug.Log("bwd: " + bwd.Count);
+            Debug.Log("fwd: " + fwd.Count);
+            //bwd.RemoveAt(0);
+            //bwd.Reverse();
+            //bwd.AddRange(fwd);
+            return fwd;
+        }
+
+
+        public List<Vector3> GenTracer(Face bgn, HalfEdge he, float rate, float dir) {
+            var f = bgn;
+            var h = he;
+            var r = rate;
+            var l = new List<Vector3>();
+            for (var i = 0; i < 100; i++) {
+                var t = tangents[f.fid] * dir;
+                var p = geom.Pos[h.next.vid] * r + geom.Pos[h.vid] * (1 - r);
+                l.Add(p + (Vector3)geom.FaceNormal(f).n * 0.01f);
+                var (fl, id, rr) = CrossHe(t, f, h, r, geom);
+                h = geom.halfedges[id].twin;
+                f = h.face;
+                r = 1f - rr;
+                if(!fl || h.onBoundary) break;
+            }
+            return l;
+        }
+
         public static (float tray, float tline) RayLineIntersection(f2 rayBgn, f2 rayDir, f2 lineA, f2 lineB) {
             var v1 = rayBgn - lineA;
             var v2 = lineB - lineA;
@@ -74,8 +117,6 @@ namespace ddg {
                 if (intersect_h0.flag) { return (true, h0.id, intersect_h0.r); }
                 if (intersect_h1.flag) { return (true, h1.id, intersect_h1.r); }
             }
-
-            //throw new System.Exception();
             return (false, 0, 0);
         }
     }
