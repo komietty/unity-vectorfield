@@ -8,29 +8,32 @@ public class RibbonViewer : TangentBundle {
     TangentTracer tracer;
     GraphicsBuffer posBuff;
     GraphicsBuffer colBuff;
-    int[] tblArr;
 
     List<Vector3> tracerlist = new List<Vector3>();
     List<Vector3> colourlist = new List<Vector3>();
 
     protected override void Start() {
         base.Start();
-        var t = new TrivialConnection(geom);
-        var s = new float[geom.nVerts];
-        for (var i = 0; i < geom.nVerts; i++) s[i] = 0;
-        s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
-        s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
-        var tngs = t.GenField(t.ComputeConnections(s));
-        tracer = new TangentTracer(geom, tngs);
+        //var t = new TrivialConnection(geom);
+        //var s = new float[geom.nVerts];
+        //for (var i = 0; i < geom.nVerts; i++) s[i] = 0;
+        //s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
+        //s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
+        //var tngs = t.GenField(t.ComputeConnections(s));
+
+        var h = new HodgeDecomposition(geom);
+        var (omega, sids, vids) = TangentField.GenRandomOneForm(geom);
+        var exact    = h.Exact(omega);
+        var coexact  = h.CoExact(omega);
+        var tngs = TangentField.InterpolateWhitney(coexact, geom);
+        tracer = new TangentTracer(geom, tngs, 200);
         UpdateTng(tngs);
 
-        var count = 4000;
-        tblArr = new int[count];
+        var count = 5000;
 
         for (var i = 0; i < count; i++) {
             var f = geom.Faces[Random.Range(0, geom.nFaces)];
             var tr = tracer.GenTracer(f);
-            tblArr[i] = (tr.Count - 1) * 2;
             var c = (Vector4)Color.HSVToRGB(0.6f + (i % 10) * 0.1f * 0.1f, Random.Range(0.5f, 1f), 1);
             for (var j = 0; j < tr.Count - 1; j++) {
                 tracerlist.Add(tr[j]);

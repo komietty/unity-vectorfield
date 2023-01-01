@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Unity.Mathematics;
 using static Unity.Mathematics.math;
@@ -14,10 +13,12 @@ namespace ddg {
     public class TangentTracer {
         HeGeom geom;
         float3[] tangents;
+        int maxlength;
 
-        public TangentTracer(HeGeom geom, float3[] tangents) {
+        public TangentTracer(HeGeom geom, float3[] tangents, int maxlength) {
             this.geom = geom;
             this.tangents = tangents;
+            this.maxlength = maxlength;
         }
 
         public List<Vector3> GenTracer(Face bgn) {
@@ -38,14 +39,14 @@ namespace ddg {
             var h = he;
             var r = rate;
             var l = new List<Vector3>();
-            for (var i = 0; i < 100; i++) {
+            for (var i = 0; i < maxlength; i++) {
                 var t = tangents[f.fid] * dir;
                 var p = geom.Pos[h.next.vid] * r + geom.Pos[h.vid] * (1 - r);
                 l.Add(p + (Vector3)geom.FaceNormal(f).n * 0.01f);
                 var (fl, id, rr) = CrossHe(t, f, h, r, geom);
                 h = geom.halfedges[id].twin;
                 f = h.face;
-                r = 1f - rr;
+                r = Mathf.Clamp(1f - rr, 0.05f, 0.95f);
                 if(!fl || h.onBoundary) break;
             }
             return l;
@@ -79,8 +80,7 @@ namespace ddg {
             if (deno == 0) return (false, 0);
             var s = cross(new d3(c - a, 0), new d3(d - c, 0)).z / deno;
             var t = cross(new d3(b - a, 0), new d3(a - c, 0)).z / deno;
-            var e = 1e-5;
-            if (s < -e || t < -e || 1 + e < t) { return (false, 0); }
+            if (s < 0 || t < 0 || 1 < t) { return (false, 0); }
             return (true, (float)t);
         }
 
