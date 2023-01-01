@@ -2,15 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ddg;
-using System.Linq;
 
 public class RibbonViewer : TangentBundle {
     [SerializeField] protected Material tmp;
-    List<Vector3> tracerlist = new List<Vector3>();
     TangentTracer tracer;
     GraphicsBuffer posBuff;
-    GraphicsBuffer tblBuff;
+    GraphicsBuffer colBuff;
     int[] tblArr;
+
+    List<Vector3> tracerlist = new List<Vector3>();
+    List<Vector3> colourlist = new List<Vector3>();
 
     protected override void Start() {
         base.Start();
@@ -23,23 +24,27 @@ public class RibbonViewer : TangentBundle {
         tracer = new TangentTracer(geom, tngs);
         UpdateTng(tngs);
 
-        var count = 1000;
+        var count = 4000;
         tblArr = new int[count];
 
         for (var i = 0; i < count; i++) {
             var f = geom.Faces[Random.Range(0, geom.nFaces)];
             var tr = tracer.GenTracer(f);
             tblArr[i] = (tr.Count - 1) * 2;
+            var c = (Vector4)Color.HSVToRGB(0.6f + (i % 10) * 0.1f * 0.1f, Random.Range(0.5f, 1f), 1);
             for (var j = 0; j < tr.Count - 1; j++) {
                 tracerlist.Add(tr[j]);
                 tracerlist.Add(tr[j + 1]);
+                colourlist.Add(c);
+                colourlist.Add(c);
             }
         }
-        //var posArr = new Vector3[size];
         posBuff = new GraphicsBuffer(GraphicsBuffer.Target.Structured, tracerlist.Count, sizeof(float) * 3);
+        colBuff = new GraphicsBuffer(GraphicsBuffer.Target.Structured, tracerlist.Count, sizeof(float) * 3);
         posBuff.SetData(tracerlist);
+        colBuff.SetData(colourlist);
         tmp.SetBuffer("_Line", posBuff);
-        //tblBuff = new GraphicsBuffer(GraphicsBuffer.Target.Structured, count, sizeof(int));
+        tmp.SetBuffer("_Col",  colBuff);
     }
 
     protected override void OnRenderObject() {
@@ -51,5 +56,6 @@ public class RibbonViewer : TangentBundle {
     protected override void OnDestroy() {
         base.OnDestroy();
         posBuff.Dispose();
+        colBuff.Dispose();
     }
 }
