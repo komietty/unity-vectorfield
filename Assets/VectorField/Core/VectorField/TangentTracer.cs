@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
@@ -7,15 +6,13 @@ using static Unity.Mathematics.math;
 namespace ddg {
     using f2 = float2;
     using f3 = float3;
-    using d2 = double2;
-    using d3 = double3;
 
     public class TangentTracer {
         HeGeom geom;
         float3[] tangents;
         int maxlength;
 
-        public TangentTracer(HeGeom geom, float3[] tangents, int maxlength) {
+        public TangentTracer(HeGeom geom, f3[] tangents, int maxlength) {
             this.geom = geom;
             this.tangents = tangents;
             this.maxlength = maxlength;
@@ -24,7 +21,7 @@ namespace ddg {
         public List<Vector3> GenTracer(Face bgn) {
             var f = bgn;
             var h = geom.halfedges[f.hid];
-            var r = UnityEngine.Random.value * 0.8f + 0.1f;
+            var r = UnityEngine.Random.Range(0.1f, 0.9f);
             var fwd = GenTracer(f, h, r, 1);
             var bwd = GenTracer(h.twin.face, h.twin, 1 - r, -1);
             bwd.RemoveAt(0);
@@ -34,87 +31,66 @@ namespace ddg {
         }
 
 
-        public List<Vector3> GenTracer(Face bgn, HalfEdge he, float rate, float dir) {
-            var f = bgn;
-            var h = he;
+        List<Vector3> GenTracer(Face fbgn, HalfEdge hfeg, float rate, float sign) {
+            var f = fbgn;
+            var h = hfeg;
             var r = rate;
             var l = new List<Vector3>();
             for (var i = 0; i < maxlength; i++) {
-                var t = tangents[f.fid] * dir;
+                var t = tangents[f.fid] * sign;
                 var p = geom.Pos[h.next.vid] * r + geom.Pos[h.vid] * (1 - r);
                 l.Add(p + (Vector3)geom.FaceNormal(f).n * 0.01f);
-                var (fl, id, rr) = CrossHe(t, f, h, r, geom);
-                h = geom.halfedges[id].twin;
+                var (_f, _h, _r) = CrossHalfedge(t, f, h, r);
+                if (!_f || h.onBoundary) break;
+                h = _h.twin;
                 f = h.face;
-                r = Mathf.Clamp(1f - rr, 0.05f, 0.95f);
-                if(!fl || h.onBoundary) break;
+                r = Mathf.Clamp(1f - _r, 0.01f, 0.99f);
             }
             return l;
         }
 
-        public static (float tray, float tline) RayLineIntersection(f2 rayBgn, f2 rayDir, f2 lineA, f2 lineB) {
-            var v1 = rayBgn - lineA;
-            var v2 = lineB - lineA;
-            var v3 = new f2(-rayDir.y, rayDir.x);
-            var cross21 = v2.x * v1.y - v2.y * v1.x;
-            var tray = cross21 / dot(v2, v3);
-            var tline = dot(v1, v3) / dot(v2, v3);
-            if (tray < 0) tray = float.PositiveInfinity;
-            return (tray, tline);
+        f2 OnFacePlane(f3 v, Face f) {
+            var (a, b) = geom.OrthonormalBasis(f);
+            return new f2(dot(v, a), dot(v, b));
         }
 
-        public static d2 TangentOnFacePlane(f3 v, Face f, HeGeom g) {
-                var o = g.OrthonormalBasis(f);
-                return new double2(
-                    dot((d3)v, (d3)o.Item1),
-                    dot((d3)v, (d3)o.Item2)
-                );
+        float Cross(f2 a, f2 b) => b.x * a.y - b.y * a.x;
+
+        bool Intersect(f2 a, f2 b, f2 c, f2 d, out float rate) {
+            var deno = Cross(b - a, d - c);
+            if (deno == 0) { rate = 0; return false; }
+            var s = Cross(c - a, d - c) / deno;
+            var t = Cross(b - a, a - c) / deno;
+            if (s < 0 || t < 0 || 1 < t) { rate = 0; return false; }
+            rate = t;
+            return true;
         }
 
-        public static (bool flag, float r) Intersect(d2 dir, d2 pos, d2 p1, d2 p2) {
-            var a = pos;
-            var b = pos + dir;
-            var c = p1;
-            var d = p2;
-            var deno = cross(new d3(b - a, 0), new d3(d - c, 0)).z;
-            if (deno == 0) return (false, 0);
-            var s = cross(new d3(c - a, 0), new d3(d - c, 0)).z / deno;
-            var t = cross(new d3(b - a, 0), new d3(a - c, 0)).z / deno;
-            if (s < 0 || t < 0 || 1 < t) { return (false, 0); }
-            return (true, (float)t);
-        }
-
-        public static (bool f, int hid, float r) CrossHe (float3 tng, Face f, HalfEdge h, float r, HeGeom g) {
-            var h0 = g.halfedges[f.hid];
+        (bool, HalfEdge, float) CrossHalfedge(f3 t, Face f, HalfEdge h, float r) {
+            var h0 = geom.halfedges[f.hid];
             var h1 = h0.next;
             var h2 = h0.prev;
 
-            var dir = TangentOnFacePlane(tng, f, g);
-            var v0 = new float2();
-            var v1 = TangentOnFacePlane(g.Pos[h1.vid] - g.Pos[h0.vid], f, g);
-            var v2 = TangentOnFacePlane(g.Pos[h2.vid] - g.Pos[h0.vid], f, g);
-            if (h.id == h0.id) {
-                var pBgn = v1 * r;
-                var intersect_h1 = Intersect(dir, pBgn, v1, v2);
-                var intersect_h2 = Intersect(dir, pBgn, v2, v0);
-                if (intersect_h1.flag) { return (true, h1.id, intersect_h1.r); }
-                if (intersect_h2.flag) { return (true, h2.id, intersect_h2.r); }
+            var v0  = new f2();
+            var v1  = OnFacePlane(geom.Pos[h1.vid] - geom.Pos[h0.vid], f);
+            var v2  = OnFacePlane(geom.Pos[h2.vid] - geom.Pos[h0.vid], f);
+            var dir = OnFacePlane(t, f);
+            if (h == h0) {
+                var bgn = v1 * r;
+                if (Intersect(bgn, bgn + dir, v1, v2, out float r1)) return (true, h1, r1);
+                if (Intersect(bgn, bgn + dir, v2, v0, out float r2)) return (true, h2, r2);
             }
-            if (h.id == h1.id) {
-                var pBgn = v1 * (1f - r) + v2 * r;
-                var intersect_h2 = Intersect(dir, pBgn, v2, v0);
-                var intersect_h0 = Intersect(dir, pBgn, v0, v1);
-                if (intersect_h2.flag) { return (true, h2.id, intersect_h2.r); }
-                if (intersect_h0.flag) { return (true, h0.id, intersect_h0.r); }
+            else if (h == h1) {
+                var bgn = v1 * (1f - r) + v2 * r;
+                if (Intersect(bgn, bgn + dir, v2, v0, out float r2)) return (true, h2, r2);
+                if (Intersect(bgn, bgn + dir, v0, v1, out float r0)) return (true, h0, r0);
             }
-            if (h.id == h2.id) {
-                var pBgn = v2 * (1f - r);
-                var intersect_h0 = Intersect(dir, pBgn, v0, v1);
-                var intersect_h1 = Intersect(dir, pBgn, v1, v2);
-                if (intersect_h0.flag) { return (true, h0.id, intersect_h0.r); }
-                if (intersect_h1.flag) { return (true, h1.id, intersect_h1.r); }
+            else if (h == h2) {
+                var bgn = v2 * (1f - r);
+                if (Intersect(bgn, bgn + dir, v0, v1, out float r0)) return (true, h0, r0);
+                if (Intersect(bgn, bgn + dir, v1, v2, out float r1)) return (true, h1, r1);
             }
-            return (false, 0, 0);
+            return (false, new HalfEdge(-1), 0);
         }
     }
 }

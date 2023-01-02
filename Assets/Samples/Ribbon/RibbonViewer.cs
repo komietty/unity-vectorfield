@@ -14,22 +14,23 @@ public class RibbonViewer : TangentBundle {
 
     protected override void Start() {
         base.Start();
-        //var t = new TrivialConnection(geom);
-        //var s = new float[geom.nVerts];
-        //for (var i = 0; i < geom.nVerts; i++) s[i] = 0;
-        //s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
-        //s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
-        //var tngs = t.GenField(t.ComputeConnections(s));
 
-        var h = new HodgeDecomposition(geom);
-        var (omega, sids, vids) = TangentField.GenRandomOneForm(geom);
-        var exact    = h.Exact(omega);
-        var coexact  = h.CoExact(omega);
-        var tngs = TangentField.InterpolateWhitney(coexact, geom);
+        var t = new TrivialConnection(geom);
+        var s = new float[geom.nVerts];
+        for (var i = 0; i < geom.nVerts; i++) s[i] = 0;
+        s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
+        s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
+        var tngs = t.GenField(t.ComputeConnections(s));
+
+        //var h = new HodgeDecomposition(geom);
+        //var (omega, sids, vids) = TangentField.GenRandomOneForm(geom);
+        //var exact    = h.Exact(omega);
+        //var coexact  = h.CoExact(omega);
+        //var tngs = TangentField.InterpolateWhitney(exact, geom);
+
         tracer = new TangentTracer(geom, tngs, 200);
         UpdateTng(tngs);
-
-        var count = 5000;
+        var count = 50;
 
         for (var i = 0; i < count; i++) {
             var f = geom.Faces[Random.Range(0, geom.nFaces)];
