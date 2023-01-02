@@ -1,17 +1,17 @@
-# MonoManifold
-Geometry processing library for Unity, specially focusing on differential geometry.
+# VFD
+Vector Field Designer for Unity.
 
  <img src="Documents/ribbon.png"/>
 
 ## Features
-- Halfedge structure module included
+- Halfedge structure 
 - Curvature culclation (Gausian / Mean / Principal / Normal)
 - Poisson equation solver on mesh
-- Mesh smoothing based on Poisson equation
 - Tangent field decomposition (Hodge decomposition)
-
-<img src="Documents/decomp1.png" width="33.3%"/><img src="Documents/decomp2.png" width="33.3%"/><img src="Documents/decomp3.png" width="33.3%"/>
-
+- Hamonic basis generator
+- Homology basis finder 
+- Trivial connection generator
+- Ribbon follows vector field 
 
 ## References
 - [Discrete Differential Geometry: An Applied Introduction - Keenan Crane](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/)
