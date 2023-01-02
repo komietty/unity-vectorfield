@@ -5,6 +5,8 @@ using ddg;
 
 public class RibbonViewer : TangentBundle {
     [SerializeField] protected Material tmp;
+    [SerializeField] protected int tracerNum;
+    [SerializeField] protected int tracerLen;
     TangentTracer tracer;
     GraphicsBuffer posBuff;
     GraphicsBuffer colBuff;
@@ -28,11 +30,10 @@ public class RibbonViewer : TangentBundle {
         //var coexact  = h.CoExact(omega);
         //var tngs = TangentField.InterpolateWhitney(exact, geom);
 
-        tracer = new TangentTracer(geom, tngs, 200);
+        tracer = new TangentTracer(geom, tngs, tracerLen);
         UpdateTng(tngs);
-        var count = 50;
 
-        for (var i = 0; i < count; i++) {
+        for (var i = 0; i < tracerNum; i++) {
             var f = geom.Faces[Random.Range(0, geom.nFaces)];
             var tr = tracer.GenTracer(f);
             var c = (Vector4)Color.HSVToRGB(0.6f + (i % 10) * 0.1f * 0.1f, Random.Range(0.5f, 1f), 1);

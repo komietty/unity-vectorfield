@@ -600,8 +600,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af886bc75cf4541ada9a28694561577a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  surfaceMat: {fileID: -3033667219593020291, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
-  lineShader: {fileID: 4800000, guid: 7a7e528bfe4af4f02ad5430fc92bee32, type: 3}
-  showNormal: 0
-  showTangent: 1
+  surfMat: {fileID: 2100000, guid: 29d24685523474f149b6d05e68b78acb, type: 2}
+  tngtMat: {fileID: 2100000, guid: 6dd285232008d44fdb3f388c2ec44785, type: 2}
   baseNumber: 1
