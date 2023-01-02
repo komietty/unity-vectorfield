@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using static Unity.Mathematics.math;
 
-namespace ddg {
+namespace VFD {
     public class HeGeom: HeComp {
         public System.Span<Vector3> Pos => pos.AsSpan();
         public System.Span<Vector3> Nrm => nrm.AsSpan();

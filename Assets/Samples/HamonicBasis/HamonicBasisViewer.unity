@@ -573,21 +573,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
   m_PrefabInstance: {fileID: 1625726129}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1625726131
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1625726130}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7bf9b72e9a9914eefaa25981fe7a0cf0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  treeMat: {fileID: 2100000, guid: 25850dda579cd44839e6724a0f1f1eb4, type: 2}
-  cotrMat: {fileID: 2100000, guid: 2ed1cb3708abb44a397d78189fb30598, type: 2}
-  gensMat: {fileID: 2100000, guid: 78cb956b2afda4a0d8dd7db4ffe57ca4, type: 2}
 --- !u!114 &1625726133
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -601,5 +586,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   surfMat: {fileID: 2100000, guid: 29d24685523474f149b6d05e68b78acb, type: 2}
-  tngtMat: {fileID: 2100000, guid: 6dd285232008d44fdb3f388c2ec44785, type: 2}
+  tngtMat: {fileID: 2100000, guid: f06181c810ac942b99541d77166a8dcf, type: 2}
   baseNumber: 1

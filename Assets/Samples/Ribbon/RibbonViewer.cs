@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ddg;
+using VFD;
 
 public class RibbonViewer : TangentBundle {
     [SerializeField] protected Material tmp;
@@ -17,7 +17,7 @@ public class RibbonViewer : TangentBundle {
     protected override void Start() {
         base.Start();
 
-        var t = new TrivialConnection(geom);
+        var t = new TrivialConnection(geom, new HodgeDecomposition(geom));
         var s = new float[geom.nVerts];
         for (var i = 0; i < geom.nVerts; i++) s[i] = 0;
         s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;

@@ -4,7 +4,7 @@ using MathNet.Numerics.LinearAlgebra;
 using static UnityEngine.GraphicsBuffer;
 using static Unity.Mathematics.math;
 
-namespace ddg {
+namespace VFD {
     using V = Vector<double>;
 
     public abstract class TangentBundle : MonoBehaviour {

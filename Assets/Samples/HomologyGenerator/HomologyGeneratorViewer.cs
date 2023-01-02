@@ -4,7 +4,7 @@ using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 using System.Linq;
 
-namespace ddg {
+namespace VFD {
     public class HomologyGeneratorViewer : MonoBehaviour {
         [SerializeField] protected Material treeMat;
         [SerializeField] protected Material cotrMat;
@@ -40,8 +40,8 @@ namespace ddg {
             for (var i = 0; i < cotr.Length; i++) {
                 var fid1 = i;
                 var fid2 = cotr[i];
-                carr.Add(geom.Centroid(geom.Faces[fid1]) + geom.FaceNormal(geom.Faces[fid1]).n * 0.02f);
-                carr.Add(geom.Centroid(geom.Faces[fid2]) + geom.FaceNormal(geom.Faces[fid2]).n * 0.02f);
+                carr.Add(geom.Centroid(geom.Faces[fid1]) + geom.FaceNormal(geom.Faces[fid1]).n * 0.01f);
+                carr.Add(geom.Centroid(geom.Faces[fid2]) + geom.FaceNormal(geom.Faces[fid2]).n * 0.01f);
             }
 
             foreach(var g in gens) {

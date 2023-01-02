@@ -6,7 +6,7 @@ using UnityEngine;
 using Unity.Mathematics;
 using static Unity.Mathematics.math;
 
-namespace ddg {
+namespace VFD {
     using S = SparseMatrix;
     using V = Vector<double>;
 
@@ -17,12 +17,11 @@ namespace ddg {
         protected S h1;
         protected S d0;
 
-        public TrivialConnection(HeGeom g) {
-            var hd = new HodgeDecomposition(g);
-            geom = g;
-            A  = hd.A;
-            h1 = hd.h1;
-            d0 = hd.d0;
+        public TrivialConnection(HeGeom geom, HodgeDecomposition hodge) {
+            this.geom = geom;
+            this.A  = hodge.A;
+            this.h1 = hodge.h1;
+            this.d0 = hodge.d0;
         }
         
         bool SatisfyGaussBonnet(float[] singularity){

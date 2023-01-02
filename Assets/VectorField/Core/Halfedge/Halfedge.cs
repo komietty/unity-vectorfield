@@ -1,4 +1,4 @@
-namespace ddg {
+namespace VFD {
     public class HalfEdge {
         public int id;
         public int vid;

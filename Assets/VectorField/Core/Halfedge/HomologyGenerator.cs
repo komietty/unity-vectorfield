@@ -1,16 +1,16 @@
 using System.Collections.Generic;
 
-namespace ddg {
+namespace VFD {
     public class HomologyGenerator {
 
-        HeGeom geom;
+        protected HeGeom geom;
         public int[] vertParent { get; private set; }
         public int[] faceParent { get; private set; }
 
-        public HomologyGenerator(HeGeom g) {
-            geom = g;
-            vertParent = new int[geom.nVerts];
-            faceParent = new int[geom.nFaces];
+        public HomologyGenerator(HeGeom geom) {
+            this.geom = geom;
+            this.vertParent = new int[geom.nVerts];
+            this.faceParent = new int[geom.nFaces];
         }
 
         public void BuildPrimalSpanningTree() {
@@ -62,7 +62,8 @@ namespace ddg {
         }
 
         HalfEdge SharedHalfEdge(Face f, Face g) {
-            foreach (var h in geom.GetAdjacentHalfedges(f)) if (h.twin.face.fid == g.fid) return h;
+            foreach (var h in geom.GetAdjacentHalfedges(f))
+                if (h.twin.face.fid == g.fid) return h;
             throw new System.Exception("no halfedge shared");
         }
 

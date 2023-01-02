@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System;
 
-namespace ddg {
+namespace VFD {
     public class CurvatureViewer : TangentBundle {
         public enum CurvType {
             ScalarGaussCurvature,
@@ -14,15 +14,7 @@ namespace ddg {
 
         protected override void Start() {
             base.Start();
-            StartCoroutine(ChangeCurvature());
-        }
-
-        IEnumerator ChangeCurvature() {
-            while(true) {
-                UpdateCol(GenCurvatureCol());
-                yield return new WaitForSeconds(2);
-                curvType = (CurvType)(((int)curvType + 1) % Enum.GetNames(typeof(CurvType)).Length);
-            }
+            UpdateCol(GenCurvatureCol());
         }
 
         float[] GenCurvatureCol() {

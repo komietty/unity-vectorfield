@@ -3,7 +3,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 
-namespace ddg {
+namespace VFD {
     /*
      * HalfEdge Complex
     */

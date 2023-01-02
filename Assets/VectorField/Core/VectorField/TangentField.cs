@@ -5,7 +5,7 @@ using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using static Unity.Mathematics.math;
 
-namespace ddg {
+namespace VFD {
     using V = Vector<double>;
     using R = UnityEngine.Random;
 

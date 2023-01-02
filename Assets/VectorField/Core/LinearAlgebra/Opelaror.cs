@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using MathNet.Numerics.LinearAlgebra.Double;
 
-namespace ddg {
+namespace VFD {
     using S = SparseMatrix;
 
     public static class Operator {

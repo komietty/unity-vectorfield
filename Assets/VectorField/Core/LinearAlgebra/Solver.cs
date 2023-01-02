@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 
-namespace ddg {
+namespace VFD {
     using S = SparseMatrix;
     using V = Vector<double>;
 

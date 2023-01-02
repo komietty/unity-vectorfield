@@ -2,13 +2,13 @@ using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using System.Collections.Generic;
 
-namespace ddg {
+namespace VFD {
     using V = Vector<double>;
 
     public class HamonicBasis {
         protected HeGeom geom;
 
-        public HamonicBasis(HeGeom g) { geom = g; }
+        public HamonicBasis(HeGeom geom) { this.geom = geom; }
 
         public V BuildClosedPrimalOneForm(List<HalfEdge> generator) {
             var n = geom.nEdges;

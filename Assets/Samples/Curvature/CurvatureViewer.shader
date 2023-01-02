@@ -1,8 +1,8 @@
-Shader "ddg/Color" {
+Shader "VFD/CurvatureViewer" {
     Properties { }
     SubShader {
         Tags { "RenderType"="Opaque" }
-
+        LOD 100
         Pass {
             CGPROGRAM
             #pragma vertex vert
