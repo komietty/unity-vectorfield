@@ -5,13 +5,13 @@ Vector Field Designer for Unity.
 
 ## Features
 - Halfedge structure 
-- Curvature culclation (Gausian / Mean / Principal / Normal)
+- Curvature culclation
 - Poisson equation solver on mesh
-- Tangent field decomposition (Hodge decomposition)
-- Hamonic basis generator
+- Hodge decomposition
+- Hamonic basis finder
 - Homology basis finder 
 - Trivial connection generator
-- Ribbon follows vector field 
+- Ribbon drawings on vector field 
 
 ## References
 - [Discrete Differential Geometry: An Applied Introduction - Keenan Crane](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/)
