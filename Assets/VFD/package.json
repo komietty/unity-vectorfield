@@ -1,9 +1,10 @@
 {
-  "name": "com.komietty.monomanifold",
-  "displayName": "MonoManifold",
+  "name": "com.komietty.vectorfield",
+  "displayName": "VectorFeild",
   "version": "0.0.1",
   "unity": "2022.2",
   "keywords": [
+    "Vector Field",
     "Manifold",
     "Geometry"
   ],

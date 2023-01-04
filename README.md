@@ -1,4 +1,4 @@
-# VFD
+# unity-vectorfield
 Vector Field Designer for Unity.
 
  <img src="Documents/ribbon.png"/>
