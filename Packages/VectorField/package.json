@@ -1,13 +1,14 @@
 {
   "name": "com.komietty.vectorfield",
   "displayName": "VectorFeild",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "unity": "2022.2",
   "keywords": [
     "Vector Field",
     "Manifold",
     "Geometry"
   ],
+  "description": "Vector field generator on mesh and a set of its operators",
   "dependencies": {
     "com.unity.mathematics": "1.2.6"
   },
@@ -16,5 +17,5 @@
     "email": "komietty@gmail.com",
     "url": "https://github.com/komietty"
   },
-  "type": "library"
+  "type": "module"
 }
