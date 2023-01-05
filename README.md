@@ -1,7 +1,7 @@
 # unity-vectorfield
  <img src="Documents/ribbon.png"/>
 
-Unity-vectorfield is vector field generator on mesh and a set of its operators. It allows you to quick implementation of differential geometry algorithms, then instantly applicable to game programming, media art creation, or physical simulation on Unity3d. This library is heavily Inspired by [Keenan Crane's Lectures at CMU](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/) and [Polyscope](https://github.com/nmwsharp/polyscope) and referencing a lot from them.
+Unity-vectorfield is vector field utility library, consisting of vector field generators on mesh and operators for them. It allows you to quick implementation of differential geometry algorithms on Unity, which instantly applicable to game programming, media art creation, or physical simulation. This library is heavily Inspired by [Keenan Crane's Lectures at CMU](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/) and [Polyscope](https://github.com/nmwsharp/polyscope) and referencing a lot from them.
 
 ## Features
 This library contains features below: 
