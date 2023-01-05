@@ -1,17 +1,25 @@
-# MonoManifold
-Geometry processing library on Unity, specially focusing on differencial geometry.
+# unity-vectorfield
+A general purpose vector field utility library for Unity.
 
- <img src="Imgs/bunny.png"/>
+
+
+ <img src="Documents/ribbon.png"/>
 
 ## Features
-- Halfedge structure module included
+- Halfedge structure (as very core and standalone module)
 - Curvature culclation (Gausian / Mean / Principal / Normal)
-- Poisson equation solver on mesh
-- Mesh smoothing based on Poisson eq. 
-- Tangent field decomposition (Hodge decomposition)
+- Vector field generator by solving Poisson equation on mesh
+- Hodge decomposition for a given tangent field 
+- Basis finder for Hamonic component
+- Basis finder for Homology group
+- Trivial connection generator
+- Ribbon drawer on a given vector field 
 
-<img src="Imgs/decomp1.png" width="33.3%"/><img src="Imgs/decomp2.png" width="33.3%"/><img src="Imgs/decomp3.png" width="33.3%"/>
+## Installation & Usage
+For installation, put the following address to UnitPackageManager.
+https://github.com/komietty/unity-vectorfield.git?path=/Packages/VectorField
 
+To check the samples under Assets/Samples, just clone this repo and run.
 
 ## References
 - [Discrete Differential Geometry: An Applied Introduction - Keenan Crane](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/)

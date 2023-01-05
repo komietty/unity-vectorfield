@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Samples/TangentFieldViewer/TangentFieldViewer.unity
+    path: Assets/Samples/TangentField/TangentFieldViewer.unity
     guid: 84efe3775ff3a413ea7f79b0688a39ef
   m_configObjects: {}
