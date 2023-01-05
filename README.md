@@ -15,9 +15,11 @@ A general purpose vector field utility library for Unity.
 - Trivial connection generator
 - Ribbon drawer on a given vector field 
 
-## Usage
+## Installation & Usage
+For installation, put the following address to UnitPackageManager.
+https://github.com/komietty/unity-vectorfield.git?path=/Packages/VectorField
 
-
+To check the samples under Assets/Samples, just clone this repo and run.
 
 ## References
 - [Discrete Differential Geometry: An Applied Introduction - Keenan Crane](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/)
