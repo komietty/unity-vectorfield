@@ -1,17 +1,23 @@
 # unity-vectorfield
-A General Vector Field Utility Library for Unity.
+A general purpose vector field utility library for Unity.
+
+
 
  <img src="Documents/ribbon.png"/>
 
 ## Features
-This library contains vector field generator on mesh and its oparators. For general simplical-complex oparation, it contains *Halfedge Structure* as its very core structure, which can be used as standalone module. Based on it, this lib has features below.
-- Curvature culclation
-- Poisson equation solver
-- Hodge decomposition
-- Hamonic basis finder
-- Homology basis finder 
+- Halfedge structure (as very core and standalone module)
+- Curvature culclation (Gausian / Mean / Principal / Normal)
+- Vector field generator by solving Poisson equation on mesh
+- Hodge decomposition for a given tangent field 
+- Basis finder for Hamonic component
+- Basis finder for Homology group
 - Trivial connection generator
-- Ribbon drawings on vector field 
+- Ribbon drawer on a given vector field 
+
+## Usage
+
+
 
 ## References
 - [Discrete Differential Geometry: An Applied Introduction - Keenan Crane](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/)
