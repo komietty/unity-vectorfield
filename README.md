@@ -1,11 +1,8 @@
 # unity-vectorfield
-A general purpose vector field utility library for Unity.
-
-
-
  <img src="Documents/ribbon.png"/>
 
 ## Features
+Unity-vectorfield is vector field generator on mesh and set of its oparators. It allows you to quick implementation of differecial geometry argolithms on Unity3d, then instantly applying to game creation or media art programmings. This library contains features below: 
 - Halfedge structure (as very core and standalone module)
 - Curvature culclation (Gausian / Mean / Principal / Normal)
 - Vector field generator by solving Poisson equation on mesh
@@ -16,12 +13,12 @@ A general purpose vector field utility library for Unity.
 - Ribbon drawer on a given vector field 
 
 ## Installation & Usage
-For installation, put the following address to UnitPackageManager.
-https://github.com/komietty/unity-vectorfield.git?path=/Packages/VectorField
+For installation, put the following address to UnitPackageManager.  
+`https://github.com/komietty/unity-vectorfield.git?path=/Packages/VectorField`
 
 To check the samples under Assets/Samples, just clone this repo and run.
 
 ## References
-- [Discrete Differential Geometry: An Applied Introduction - Keenan Crane](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/)
+- [Discrete Differential Geometry: An Applied Introduction](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/)
 
-- 森田茂之, 微分形式の幾何学
+- [polyscope](https://github.com/nmwsharp/polyscope)

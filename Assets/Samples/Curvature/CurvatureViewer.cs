@@ -1,7 +1,9 @@
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
+using static Unity.Mathematics.math;
 
 namespace VectorField {
-    public class CurvatureViewer : TangentBundle {
+    public class CurvatureViewer : MonoBehaviour {
         public enum CurvType {
             ScalarGaussCurvature,
             ScalarMeanCurvature,
@@ -9,9 +11,19 @@ namespace VectorField {
             NormalCurvature
         };
         [SerializeField] protected CurvType curvType;
+        [SerializeField] protected Material surfMat;
+        protected GraphicsBuffer colBuf;
+        protected HeGeom geom;
+        protected Mesh mesh;
 
-        protected override void Start() {
-            base.Start();
+        void Start() {
+            var filt = GetComponentInChildren<MeshFilter>();
+            var rend = GetComponentInChildren<MeshRenderer>();
+            mesh = HeComp.Weld(filt.sharedMesh);
+            geom = new HeGeom(mesh, transform);
+            filt.sharedMesh = mesh;
+            rend.material = surfMat;
+            colBuf = new GraphicsBuffer(Target.Structured, geom.nVerts, 12);
             UpdateCol(GenCurvatureCol());
         }
 
@@ -30,6 +42,26 @@ namespace VectorField {
                 }
             }
             return c;
+        }
+
+        protected void UpdateCol(float[] values) {
+            var n = geom.nVerts;
+            var x = 0f;
+            var vals = new float[n];
+            var lrps = new Vector3[n];
+            for (var i = 0; i < n; i++) {
+                var vrt = geom.Verts[i];
+                var val = values[vrt.vid];
+                vals[i] = val;
+                x = max(abs(val), x);
+            }
+            x = min(PI / 8, x);
+            for (var i = 0; i < n; i++) lrps[i] = ColorMap.Color(vals[i], -x, x);
+            colBuf.SetData(lrps);
+            surfMat.SetBuffer("_Col", colBuf);
+        }
+        void OnDestroy() {
+            colBuf?.Dispose();
         }
     }
 }
