@@ -36,10 +36,12 @@ public class RibbonViewer : TangentBundle {
         for (var i = 0; i < tracerNum; i++) {
             var f = geom.Faces[Random.Range(0, geom.nFaces)];
             var tr = tracer.GenTracer(f);
-            var c = (Vector4)Color.HSVToRGB(0.6f + (i % 10) * 0.1f * 0.1f, Random.Range(0.5f, 1f), 1);
+            var c = (Vector4)Color.HSVToRGB(0.6f + (i % 10) * 0.01f, Random.Range(0.5f, 1f), 1);
             for (var j = 0; j < tr.Count - 1; j++) {
-                tracerlist.Add(tr[j]);
-                tracerlist.Add(tr[j + 1]);
+                var tr0 = tr[j];
+                var tr1 = tr[j + 1];
+                tracerlist.Add(tr0.p + tr0.n * 0.5f);
+                tracerlist.Add(tr1.p + tr1.n * 0.5f);
                 colourlist.Add(c);
                 colourlist.Add(c);
             }

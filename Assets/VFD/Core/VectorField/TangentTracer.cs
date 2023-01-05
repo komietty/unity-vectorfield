@@ -18,7 +18,7 @@ namespace VFD {
             this.maxlength = maxlength;
         }
 
-        public List<Vector3> GenTracer(Face bgn) {
+        public List<(f3 p, f3 n)> GenTracer(Face bgn) {
             var f = bgn;
             var h = geom.halfedges[f.hid];
             var r = UnityEngine.Random.Range(0.1f, 0.9f);
@@ -31,15 +31,15 @@ namespace VFD {
         }
 
 
-        List<Vector3> GenTracer(Face fbgn, HalfEdge hfeg, float rate, float sign) {
+        List<(f3 p, f3 n)> GenTracer(Face fbgn, HalfEdge hfeg, float rate, float sign) {
             var f = fbgn;
             var h = hfeg;
             var r = rate;
-            var l = new List<Vector3>();
+            var l = new List<(f3, f3)>();
             for (var i = 0; i < maxlength; i++) {
                 var t = tangents[f.fid] * sign;
                 var p = geom.Pos[h.next.vid] * r + geom.Pos[h.vid] * (1 - r);
-                l.Add(p + (Vector3)geom.FaceNormal(f).n * 0.01f);
+                l.Add((p, geom.FaceNormal(f).n));
                 var (_f, _h, _r) = CrossHalfedge(t, f, h, r);
                 if (!_f || h.onBoundary) break;
                 h = _h.twin;

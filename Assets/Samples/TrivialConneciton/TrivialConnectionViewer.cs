@@ -11,7 +11,6 @@ namespace VFD {
             s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
             s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
             UpdateTng(t.GenField(t.ComputeConnections(s)));
-            tngtMat.SetFloat("_C", 1);
         }
     }
 }
