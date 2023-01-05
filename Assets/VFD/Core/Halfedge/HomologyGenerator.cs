@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace VFD {
+namespace VectorField {
     public class HomologyGenerator {
 
         protected HeGeom geom;

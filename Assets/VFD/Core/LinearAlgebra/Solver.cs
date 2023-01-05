@@ -1,10 +1,9 @@
-using UnityEngine;
 using System.Linq;
 using System.Runtime.InteropServices;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 
-namespace VFD {
+namespace VectorField {
     using S = SparseMatrix;
     using V = Vector<double>;
 
@@ -43,30 +42,22 @@ namespace VFD {
         }
         
         [DllImport("EigenSolver.bundle")]
-            public static extern void DecompAndSolveLUVec(
-                int ntrps,
-                int nvrts,
-                [In]  T[] trplets,
-                [In]  Vector3[] vrts,
-                [Out] Vector3[] outs
-            );
+        static extern void DecompAndSolveChol(
+            int ntrps,
+            int nresult,
+            [In]  T[] trplets,
+            [In]  double[] result,
+            [Out] double[] answer
+        );
 
         [DllImport("EigenSolver.bundle")]
-            static extern void DecompAndSolveChol(
-                int ntrps,
-                int nresult,
-                [In]  T[] trplets,
-                [In]  double[] result,
-                [Out] double[] answer
-            );
-        [DllImport("EigenSolver.bundle")]
-            static extern void DecompAndSolveLU(
-                int ntrps,
-                int nresult,
-                [In]  T[] trplets,
-                [In]  double[] result,
-                [Out] double[] answer
-            );
+        static extern void DecompAndSolveLU(
+            int ntrps,
+            int nresult,
+            [In]  T[] trplets,
+            [In]  double[] result,
+            [Out] double[] answer
+        );
 
         /*
          * Triplet for Sparse Matrix.

@@ -337,11 +337,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.7071068
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.7071068
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_LocalRotation.y
@@ -353,7 +353,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: -90
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -366,7 +366,7 @@ PrefabInstance:
     - target: {fileID: -6400281290468069383, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: -2432090755550338912, guid: 08f0115afb38748dfa1b4a8401bf4725, type: 3}
+      objectReference: {fileID: -2432090755550338912, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
     - target: {fileID: 919132149155446097, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_Name
       value: torus
@@ -392,9 +392,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   surfMat: {fileID: 2100000, guid: 29d24685523474f149b6d05e68b78acb, type: 2}
-  tngtMat: {fileID: 2100000, guid: 6dd285232008d44fdb3f388c2ec44785, type: 2}
+  tngtMat: {fileID: 2100000, guid: f06181c810ac942b99541d77166a8dcf, type: 2}
   tmp: {fileID: 2100000, guid: 853e24a2948fb495784ae01f9b3ef2c4, type: 2}
-  tracerNum: 2000
+  tracerNum: 1000
   tracerLen: 200
 --- !u!1 &924420045
 GameObject:

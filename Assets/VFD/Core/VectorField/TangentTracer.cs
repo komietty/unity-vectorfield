@@ -3,7 +3,7 @@ using UnityEngine;
 using Unity.Mathematics;
 using static Unity.Mathematics.math;
 
-namespace VFD {
+namespace VectorField {
     using f2 = float2;
     using f3 = float3;
 

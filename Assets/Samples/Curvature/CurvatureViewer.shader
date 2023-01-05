@@ -1,4 +1,4 @@
-Shader "VFD/CurvatureViewer" {
+Shader "VectorField/CurvatureViewer" {
     Properties { }
     SubShader {
         Tags { "RenderType"="Opaque" }

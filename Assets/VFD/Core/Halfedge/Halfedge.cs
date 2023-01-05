@@ -1,4 +1,4 @@
-namespace VFD {
+namespace VectorField {
     public class HalfEdge {
         public int id;
         public int vid;

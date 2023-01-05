@@ -4,7 +4,7 @@ using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 using System.Linq;
 
-namespace VFD {
+namespace VectorField {
     public class HomologyGeneratorViewer : MonoBehaviour {
         [SerializeField] protected Material treeMat;
         [SerializeField] protected Material cotrMat;

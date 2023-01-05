@@ -1,11 +1,6 @@
 using UnityEngine;
-using System.Linq;
-using System;
-using System.Buffers;
 
-namespace VFD {
-}
-
+namespace VectorField {
 public static class ColorMap {
     public static Vector3 Color(float val, float min, float max) {
 		val = Mathf.Clamp(val, min, max);
@@ -536,4 +531,5 @@ public static class ColorMap {
     {0.998f, 0.500f, 0.000f, 0.000f},
     {1.000f, 0.500f, 0.000f, 0.000f}
 };
+}
 }

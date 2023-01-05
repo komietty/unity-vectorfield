@@ -1,4 +1,4 @@
-Shader "ddg/TangentFieldViewer" {
+Shader "VectorField/TangentFieldViewer" {
     Properties { }
     SubShader
     {

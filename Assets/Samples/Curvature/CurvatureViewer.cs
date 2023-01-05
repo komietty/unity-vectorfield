@@ -1,8 +1,6 @@
 using UnityEngine;
-using System.Collections;
-using System;
 
-namespace VFD {
+namespace VectorField {
     public class CurvatureViewer : TangentBundle {
         public enum CurvType {
             ScalarGaussCurvature,

@@ -1,4 +1,4 @@
-Shader "ddg/RibbonViewer" {
+Shader "VectorField/RibbonViewer" {
     Properties { }
     SubShader {
         Tags { "RenderType"="Opaque" }

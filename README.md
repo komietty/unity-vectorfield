@@ -1,12 +1,12 @@
-# VFD
-Vector Field Designer for Unity.
+# unity-vectorfield
+A General Vector Field Utility Library for Unity.
 
  <img src="Documents/ribbon.png"/>
 
 ## Features
-- Halfedge structure 
+This library contains vector field generator on mesh and its oparators. For general simplical-complex oparation, it contains *Halfedge Structure* as its very core structure, which can be used as standalone module. Based on it, this lib has features below.
 - Curvature culclation
-- Poisson equation solver on mesh
+- Poisson equation solver
 - Hodge decomposition
 - Hamonic basis finder
 - Homology basis finder 

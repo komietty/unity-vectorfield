@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using MathNet.Numerics.LinearAlgebra.Double;
 using Unity.Mathematics;
 
-namespace VFD {
+namespace VectorField {
     using S = SparseMatrix;
 
     public static class ExteriorDerivatives {

@@ -2,7 +2,7 @@ using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using System.Collections.Generic;
 
-namespace VFD {
+namespace VectorField {
     using V = Vector<double>;
 
     public class HamonicBasis {

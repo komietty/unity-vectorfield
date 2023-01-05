@@ -6,7 +6,7 @@ using UnityEngine;
 using Unity.Mathematics;
 using static Unity.Mathematics.math;
 
-namespace VFD {
+namespace VectorField {
     using S = SparseMatrix;
     using V = Vector<double>;
 

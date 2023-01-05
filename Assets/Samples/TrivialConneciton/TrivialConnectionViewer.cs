@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace VFD {
+namespace VectorField {
     public class TrivialConnectionViewer : TangentBundle {
 
         protected override void Start() {

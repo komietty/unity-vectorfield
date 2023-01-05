@@ -1,4 +1,4 @@
-Shader "ddg/SimpleLines" {
+Shader "VectorField/SimpleLines" {
     Properties {
         _Color ("Color", Color) = (1,1,1,1)
      }

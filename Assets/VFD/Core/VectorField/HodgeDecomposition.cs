@@ -1,7 +1,7 @@
 using MathNet.Numerics.LinearAlgebra.Double;
 using MathNet.Numerics.LinearAlgebra;
 
-namespace VFD {
+namespace VectorField {
     using V = Vector<double>;
     using S = SparseMatrix;
     using E = ExteriorDerivatives;

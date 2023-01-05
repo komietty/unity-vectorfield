@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace VFD {
+namespace VectorField {
     public class HamonicBasisViewer : TangentBundle {
         [SerializeField] protected int baseNumber;
 

@@ -2,7 +2,7 @@ using MathNet.Numerics.LinearAlgebra;
 using UnityEngine;
 using System.Linq;
 
-namespace VFD {
+namespace VectorField {
     using V = Vector<double>;
 
     public class TangentFieldViewer : TangentBundle {
