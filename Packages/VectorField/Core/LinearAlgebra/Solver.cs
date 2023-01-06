@@ -41,6 +41,7 @@ namespace VectorField {
             //return A.LU().Solve(-M * (rho - rhoBar));
         }
         
+        #if UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
         [DllImport("EigenSolver.bundle")]
         static extern void DecompAndSolveChol(
             int ntrps,
@@ -58,6 +59,27 @@ namespace VectorField {
             [In]  double[] result,
             [Out] double[] answer
         );
+        #endif
+
+        #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+        [DllImport("EigenSolver.dll")]
+        static extern void DecompAndSolveChol(
+            int ntrps,
+            int nresult,
+            [In]  T[] trplets,
+            [In]  double[] result,
+            [Out] double[] answer
+        );
+
+        [DllImport("EigenSolver.dll")]
+        static extern void DecompAndSolveLU(
+            int ntrps,
+            int nresult,
+            [In]  T[] trplets,
+            [In]  double[] result,
+            [Out] double[] answer
+        );
+        #endif
 
         /*
          * Triplet for Sparse Matrix.
