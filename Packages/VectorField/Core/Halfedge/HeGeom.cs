@@ -1,8 +1,8 @@
-using Unity.Mathematics;
 using System.Collections.Generic;
-using UnityEngine;
 using System;
 using System.Linq;
+using Unity.Mathematics;
+using UnityEngine;
 using static Unity.Mathematics.math;
 
 namespace VectorField {
@@ -140,10 +140,10 @@ namespace VectorField {
 
         public IEnumerable<Vert> GetAdjacentVerts(Vert v) {
             var curr = halfedges[v.hid];
-            var endId = curr.id;
+            var goal = curr;
             var once = false;
             while (true) {
-                if (once && curr.id == endId) break;
+                if (once && curr == goal) break;
                 yield return Verts[curr.next.vid];
                 curr = curr.twin.next;
                 once = true;
@@ -151,14 +151,13 @@ namespace VectorField {
         }
 
         public IEnumerable<Face> GetAdjacentFaces(Vert v) {
-            var tgt = halfedges[v.hid];
-            while (tgt.onBoundary) { tgt = tgt.twin.next; }
-            var curr = tgt;
-            var endId = tgt.id;
+            var goal = halfedges[v.hid];
+            while (goal.onBoundary) { goal = goal.twin.next; }
+            var curr = goal;
             var once = false;
             while (true) {
                 while (curr.onBoundary) { curr = curr.twin.next; }
-                if (once && curr.id == tgt.id) break;
+                if (once && curr == goal) break;
                 once = true;
                 yield return curr.next.face;
                 curr = curr.twin.next;
@@ -166,14 +165,13 @@ namespace VectorField {
         }
 
         public IEnumerable<Corner> GetAdjacentConers(Vert v) {
-            var tgt = halfedges[v.hid];
-            while (tgt.onBoundary) { tgt = tgt.twin.next; }
-            var curr = tgt;
-            var endId = tgt.id;
+            var goal = halfedges[v.hid];
+            while (goal.onBoundary) goal = goal.twin.next;
+            var curr = goal;
             var once = false;
             while (true) {
-                while (curr.onBoundary) { curr = curr.twin.next; }
-                if (once && curr.id == tgt.id) break;
+                while (curr.onBoundary) curr = curr.twin.next;
+                if (once && curr == goal) break;
                 once = true;
                 yield return curr.next.corner;
                 curr = curr.twin.next;
@@ -182,10 +180,10 @@ namespace VectorField {
 
         public IEnumerable<HalfEdge> GetAdjacentHalfedges(Vert v) {
             var curr = halfedges[v.hid];
-            var endId = curr.id;
+            var goal = curr;
             var once = false;
             while (true) {
-                if (once && curr.id == endId) break;
+                if (once && curr == goal) break;
                 yield return curr;
                 curr = curr.twin.next;
                 once = true;
@@ -194,10 +192,10 @@ namespace VectorField {
 
         public IEnumerable<HalfEdge> GetAdjacentHalfedges(Face f) {
             var curr = halfedges[f.hid];
-            var endId = curr.id;
+            var goal = curr;
             var once = false;
             while (true) {
-                if (once && curr.id == endId) break;
+                if (once && curr == goal) break;
                 yield return curr;
                 curr = curr.next;
                 once = true;
