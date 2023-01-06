@@ -62,7 +62,7 @@ namespace VectorField {
         #endif
 
         #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-        [DllImport("EigenDll.dll")]
+        [DllImport("EigenSolver.dll")]
         static extern void DecompAndSolveChol(
             int ntrps,
             int nresult,
@@ -71,7 +71,7 @@ namespace VectorField {
             [Out] double[] answer
         );
 
-        [DllImport("EigenDll.dll")]
+        [DllImport("EigenSolver.dll")]
         static extern void DecompAndSolveLU(
             int ntrps,
             int nresult,
