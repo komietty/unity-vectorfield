@@ -8,7 +8,7 @@
     "Manifold",
     "Geometry"
   ],
-  "description": "Vector field generator on mesh and a set of its operators",
+  "description": "Vector field utility library for Unity",
   "dependencies": {
     "com.unity.mathematics": "1.2.6"
   },
@@ -17,5 +17,5 @@
     "email": "komietty@gmail.com",
     "url": "https://github.com/komietty"
   },
-  "type": "module"
+  "type": "library"
 }
