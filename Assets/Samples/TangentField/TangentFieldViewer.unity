@@ -269,10 +269,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7635826562936255635, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 29d24685523474f149b6d05e68b78acb, type: 2}
     - target: {fileID: -6400281290468069383, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: -2432090755550338912, guid: 3cd29200260c04696a1d75e1c8f7e8f9, type: 3}
+      objectReference: {fileID: -2432090755550338912, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
     - target: {fileID: 919132149155446097, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
       propertyPath: m_Name
       value: bunny
@@ -301,8 +305,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99b0154ea2e904b7c9d4794106014c1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  surfMat: {fileID: 2100000, guid: 29d24685523474f149b6d05e68b78acb, type: 2}
   tngtMat: {fileID: 2100000, guid: 6dd285232008d44fdb3f388c2ec44785, type: 2}
+  showTangent: 1
   field: 0
   point: {fileID: 6656469689329903998, guid: a9a0b1a78d24b4053aff7e0550903ed9, type: 3}
   cs: {fileID: 7200000, guid: 37db18243e83a4d44afcf6fb30cc2fa3, type: 3}

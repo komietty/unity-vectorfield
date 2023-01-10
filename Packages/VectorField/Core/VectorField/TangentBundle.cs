@@ -7,8 +7,8 @@ namespace VectorField {
     using V = Vector<double>;
 
     public abstract class TangentBundle : MonoBehaviour {
-        [SerializeField] protected Material surfMat;
         [SerializeField] protected Material tngtMat;
+        [SerializeField] protected bool showTangent;
         protected GraphicsBuffer tngBuf;
         protected HeGeom geom;
         protected Mesh mesh;
@@ -19,7 +19,6 @@ namespace VectorField {
             mesh = HeComp.Weld(filt.sharedMesh);
             geom = new HeGeom(mesh, transform);
             filt.sharedMesh = mesh;
-            rend.material = surfMat;
             tngBuf = new GraphicsBuffer(Target.Structured, geom.nFaces * 6, 12);
         }
 
@@ -58,8 +57,10 @@ namespace VectorField {
         }
 
         protected virtual void OnRenderObject() {
-            tngtMat.SetPass(0);
-            Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nFaces * 6);
+            if (showTangent) {
+                tngtMat.SetPass(0);
+                Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nFaces * 6);
+            }
         }
 
         protected virtual void OnDestroy() {

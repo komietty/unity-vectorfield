@@ -269,10 +269,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7635826562936255635, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 29d24685523474f149b6d05e68b78acb, type: 2}
     - target: {fileID: -6400281290468069383, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: -2432090755550338912, guid: 51f81cedd0e3347568a6b06335a3373c, type: 3}
+      objectReference: {fileID: -2432090755550338912, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
     - target: {fileID: 919132149155446097, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
       propertyPath: m_Name
       value: bunny
@@ -301,8 +305,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 007f12c427ed0473f9e5a36d17720825, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  surfMat: {fileID: 2100000, guid: 29d24685523474f149b6d05e68b78acb, type: 2}
   tngtMat: {fileID: 2100000, guid: f06181c810ac942b99541d77166a8dcf, type: 2}
+  showTangent: 1
 --- !u!1 &924420045
 GameObject:
   m_ObjectHideFlags: 0

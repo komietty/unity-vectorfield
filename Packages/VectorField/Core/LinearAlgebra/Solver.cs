@@ -37,8 +37,6 @@ namespace VectorField {
             var rhoSum = (M * rho).Sum();
             var rhoBar = DenseVector.Create(M.RowCount, rhoSum / T);
             return Cholesky(A, -M * (rho - rhoBar));
-            // C#
-            //return A.LU().Solve(-M * (rho - rhoBar));
         }
         
         #if UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX

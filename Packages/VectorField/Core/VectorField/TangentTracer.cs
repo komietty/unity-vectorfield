@@ -7,7 +7,7 @@ namespace VectorField {
 
     public class TangentTracer {
         HeGeom geom;
-        float3[] tangents;
+        f3[] tangents;
         int maxlength;
 
         public TangentTracer(HeGeom geom, f3[] tangents, int maxlength) {

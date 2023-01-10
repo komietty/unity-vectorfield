@@ -363,6 +363,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7635826562936255635, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 29d24685523474f149b6d05e68b78acb, type: 2}
     - target: {fileID: -6400281290468069383, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -391,9 +395,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cadb8b0ecfa64654867bc99c01379ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  surfMat: {fileID: 2100000, guid: ba6521eb27469450ca3109a57608da40, type: 2}
   tngtMat: {fileID: 2100000, guid: f06181c810ac942b99541d77166a8dcf, type: 2}
-  tmp: {fileID: 2100000, guid: 853e24a2948fb495784ae01f9b3ef2c4, type: 2}
+  showTangent: 0
+  tracerMat: {fileID: 2100000, guid: 853e24a2948fb495784ae01f9b3ef2c4, type: 2}
   tracerNum: 1000
   tracerLen: 200
 --- !u!1 &924420045
