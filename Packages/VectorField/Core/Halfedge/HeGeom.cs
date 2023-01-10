@@ -1,23 +1,27 @@
 using Unity.Mathematics;
 using System.Collections.Generic;
-using UnityEngine;
 using System;
 using System.Linq;
-using static Unity.Mathematics.math;
 
 namespace VectorField {
-    public class HeGeom: HeComp {
-        public System.Span<Vector3> Pos => pos.AsSpan();
-        public System.Span<Vector3> Nrm => nrm.AsSpan();
-        public Vector3[] pos;
-        public Vector3[] nrm;
+    using M = UnityEngine.Mesh;
+    using T = UnityEngine.Transform;
+    using f2 = float2;
+    using f3 = float3;
+    using static Unity.Mathematics.math;
 
-        public HeGeom(UnityEngine.Mesh mesh, Transform trs) : base(mesh) {
-            pos = mesh.vertices.Select(v => trs.TransformPoint(v)).ToArray();
-            nrm = mesh.normals.Select(n => trs.TransformDirection(n)).ToArray();
+    public class HeGeom: HeComp {
+        public System.Span<f3> Pos => pos.AsSpan();
+        public System.Span<f3> Nrm => nrm.AsSpan();
+        f3[] pos;
+        f3[] nrm;
+
+        public HeGeom(M mesh, T trs) : base(mesh) {
+            pos = mesh.vertices.Select(v => (f3)trs.TransformPoint(v)).ToArray();
+            nrm = mesh.normals.Select(n => (f3)trs.TransformDirection(n)).ToArray();
         }
 
-        public float3 Vector(HalfEdge h) {
+        public f3 Vector(HalfEdge h) {
             return Pos[h.next.vid] - Pos[h.vid];
         }
 
@@ -35,7 +39,7 @@ namespace VectorField {
             return dot(p, n) / length(cross(p, n));
         }
 
-        public float3 Centroid(Face f){
+        public f3 Centroid(Face f){
             var h = halfedges[f.hid];
             var a = Pos[h.vid];
             var b = Pos[h.next.vid];
@@ -44,7 +48,7 @@ namespace VectorField {
             return (a + b + c) / 3;
         }
 
-        public (float3, float3) OrthonormalBasis(Face f) {
+        public (f3, f3) OrthonormalBasis(Face f) {
             var e1 = normalize(Vector(halfedges[f.hid]));
             var e2 = cross(FaceNormal(f).n, e1);
             return (e1, e2);
@@ -70,8 +74,8 @@ namespace VectorField {
             return sum / this.nEdges;
         }
 
-        public (bool b, float3 n) FaceNormal(Face f){
-            var n = new float3();
+        public (bool b, f3 n) FaceNormal(Face f){
+            var n = new f3();
             var h = halfedges[f.hid];
             if(h.onBoundary) return (false, n);
             var u = Vector(h);
@@ -130,12 +134,12 @@ namespace VectorField {
             return o * 0.5f;
         }
         
-        public float2 PrincipalCurvature(Vert v) {
+        public f2 PrincipalCurvature(Vert v) {
             var A = CircumcentricDualArea(v);
             var H = ScalarMeanCurvature(v) / A;
             var K = ScalarGaussCurvature(v) / A;
             var D = sqrt(H * H - K);
-            return new float2(H - D, H + D);
+            return new f2(H - D, H + D);
         } 
 
         public IEnumerable<Vert> GetAdjacentVerts(Vert v) {
@@ -167,12 +171,12 @@ namespace VectorField {
 
         public IEnumerable<Corner> GetAdjacentConers(Vert v) {
             var tgt = halfedges[v.hid];
-            while (tgt.onBoundary) { tgt = tgt.twin.next; }
+            while (tgt.onBoundary) tgt = tgt.twin.next;
             var curr = tgt;
             var endId = tgt.id;
             var once = false;
             while (true) {
-                while (curr.onBoundary) { curr = curr.twin.next; }
+                while (curr.onBoundary) curr = curr.twin.next;
                 if (once && curr.id == tgt.id) break;
                 once = true;
                 yield return curr.next.corner;

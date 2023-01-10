@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using UnityEngine;
 using Unity.Mathematics;
-using static Unity.Mathematics.math;
 
 namespace VectorField {
     using f2 = float2;
@@ -44,14 +42,14 @@ namespace VectorField {
                 if (!_f || h.onBoundary) break;
                 h = _h.twin;
                 f = h.face;
-                r = Mathf.Clamp(1f - _r, 0.01f, 0.99f);
+                r = math.clamp(1f - _r, 0.01f, 0.99f);
             }
             return l;
         }
 
         f2 OnFacePlane(f3 v, Face f) {
             var (a, b) = geom.OrthonormalBasis(f);
-            return new f2(dot(v, a), dot(v, b));
+            return new f2(math.dot(v, a), math.dot(v, b));
         }
 
         float Cross(f2 a, f2 b) => b.x * a.y - b.y * a.x;

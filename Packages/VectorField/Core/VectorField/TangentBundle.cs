@@ -2,7 +2,6 @@ using UnityEngine;
 using Unity.Mathematics;
 using MathNet.Numerics.LinearAlgebra;
 using static UnityEngine.GraphicsBuffer;
-using static Unity.Mathematics.math;
 
 namespace VectorField {
     using V = Vector<double>;
@@ -37,7 +36,7 @@ namespace VectorField {
                 var fc1 = C - field + N * 0.005f;
                 var fc2 = C + field + N * 0.005f;
                 var v = fc2 - fc1;
-                var vT = cross(N, v);
+                var vT = math.cross(N, v);
                 tngs[i * 6 + 0] = fc1;
                 tngs[i * 6 + 1] = fc2;
                 tngs[i * 6 + 2] = fc2;

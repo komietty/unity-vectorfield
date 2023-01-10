@@ -391,7 +391,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cadb8b0ecfa64654867bc99c01379ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  surfMat: {fileID: 2100000, guid: 29d24685523474f149b6d05e68b78acb, type: 2}
+  surfMat: {fileID: 2100000, guid: ba6521eb27469450ca3109a57608da40, type: 2}
   tngtMat: {fileID: 2100000, guid: f06181c810ac942b99541d77166a8dcf, type: 2}
   tmp: {fileID: 2100000, guid: 853e24a2948fb495784ae01f9b3ef2c4, type: 2}
   tracerNum: 1000

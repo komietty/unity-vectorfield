@@ -1,9 +1,7 @@
 using System.Collections.Generic;
-using UnityEngine;
-using Unity.Mathematics;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
-using static Unity.Mathematics.math;
+using Unity.Mathematics;
 
 namespace VectorField {
     using V = Vector<double>;
@@ -13,7 +11,7 @@ namespace VectorField {
 
         public static (V oneForm, int[] exactIds, int[] coexactIds) GenRandomOneForm(HeGeom g) {
             var nv = g.nVerts;
-            var r = max(2, (int)(nv / 1000f));
+            var r = math.max(2, (int)(nv / 1000f));
             var rho1 = DenseVector.Create(nv, 0);
             var rho2 = DenseVector.Create(nv, 0);
             var exactIds   = new int[r];
@@ -38,14 +36,14 @@ namespace VectorField {
                 foreach (var h in g.GetAdjacentHalfedges(f)) {
                     var j = h.prev.vid;
                     var e  = g.Vector(h);
-                    var eT = cross(n, e);
+                    var eT = math.cross(n, e);
                     v += eT * (float)(scalarPotential[j] / (2 * a));
                     v += e  * (float)(vectorPotential[j] / (2 * a));
                 }
                 var c = g.Centroid(f);
                 var u = new float3(-c.z, 0, c.x);
-                u -= n * dot(u, n);
-                u = normalize(u);
+                u -= n * math.dot(u, n);
+                u = math.normalize(u);
                 v += u * 0.3f;
                 field[f] = v;
             }
@@ -55,7 +53,7 @@ namespace VectorField {
                 var h = g.halfedges[e.hid];
                 var f1 = h.onBoundary ? new float3() : field[h.face];
                 var f2 = h.twin.onBoundary ? new float3() : field[h.twin.face];
-                omega[i] = dot(f1 + f2, g.Vector(h));
+                omega[i] = math.dot(f1 + f2, g.Vector(h));
             }
             return (DenseVector.OfArray(omega), exactIds, coexactIds);
         }
@@ -82,7 +80,7 @@ namespace VectorField {
                 var a = (eki - ejk) * (float)cij;
                 var b = (eij - eki) * (float)cjk;
                 var c = (ejk - eij) * (float)cki;
-                field[i] = cross(N, (a + b + c)) / (float)(6 * A);
+                field[i] = math.cross(N, (a + b + c)) / (float)(6 * A);
             }
             return field;
         }

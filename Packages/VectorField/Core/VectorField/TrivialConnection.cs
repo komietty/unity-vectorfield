@@ -2,9 +2,7 @@ using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using Unity.Mathematics;
-using static Unity.Mathematics.math;
 
 namespace VectorField {
     using S = SparseMatrix;
@@ -27,22 +25,22 @@ namespace VectorField {
         bool SatisfyGaussBonnet(float[] singularity){
             var sum = 0f;
             foreach (var v in geom.Verts) sum += singularity[v.vid];
-            return Mathf.Abs(geom.eulerCharactaristics - sum) < 1e-8;
+            return math.abs(geom.eulerCharactaristics - sum) < 1e-8;
         }
 
         public double TransportNoRotation(HalfEdge h, double alphaI = 0) {
             var u = geom.Vector(h);
             var (e1, e2) = geom.OrthonormalBasis(h.face);
             var (f1, f2) = geom.OrthonormalBasis(h.twin.face);
-            var thetaIJ = atan2(dot(u, e2), dot(u, e1));
-            var thetaJI = atan2(dot(u, f2), dot(u, f1));
+            var thetaIJ = math.atan2(math.dot(u, e2), math.dot(u, e1));
+            var thetaJI = math.atan2(math.dot(u, f2), math.dot(u, f1));
             return alphaI - thetaIJ + thetaJI;
         }
 
         V ComputeCoExactComponent(float[] singularity) {
             var rhs = new double[geom.nVerts];
             foreach (var v in geom.Verts)
-                rhs[v.vid] = -geom.AngleDefect(v) + 2 * Mathf.PI * singularity[v.vid];
+                rhs[v.vid] = -geom.AngleDefect(v) + 2 * math.PI * singularity[v.vid];
             return h1 * d0 * Solver.Cholesky(A, rhs);
         }
 
@@ -75,7 +73,7 @@ namespace VectorField {
             foreach (var f in geom.Faces) {
                 var a = alpha[f.fid];
                 var (e1, e2) = geom.OrthonormalBasis(f);
-                field[f.fid] = e1 * (float)cos(a) + e2 * (float)sin(a);
+                field[f.fid] = e1 * (float)math.cos(a) + e2 * (float)math.sin(a);
             }
             return field;
         }
