@@ -20,15 +20,18 @@ namespace VectorField {
             var (omega, sids, vids) = TangentField.GenRandomOneForm(geom);
             var exact = h.Exact(omega);
             var coexact = h.CoExact(omega);
-            var tf = TangentField.InterpolateWhitney(exact, geom);
+            var hamonic = h.Harmonic(omega, exact, coexact);
+            var tf = TangentField.InterpolateWhitney(hamonic, geom);
 
             UpdateTng(tf);
             for (var i = 0; i < tf.Length; i++) {
                 var go = GameObject.Instantiate(scale);
                 var f = geom.Faces[i];
-                //go.transform.localScale *= 0.4f;
-                go.transform.position = geom.Centroid(f);
-                var q = Quaternion.LookRotation(tf[i] + geom.FaceNormal(f).n * 0.1f, geom.FaceNormal(f).n);
+                var t = math.normalize(tf[i]);
+                var n = math.normalize(geom.FaceNormal(f).n);
+                go.transform.localScale *= UnityEngine.Random.Range(0.034f, 0.036f);
+                go.transform.position = geom.Centroid(f) + n * 0.01f + t * UnityEngine.Random.Range(0.0f, 0.01f);
+                var q = Quaternion.LookRotation(t + n * UnityEngine.Random.Range(0.1f, 0.4f), n);
                 go.transform.rotation = q * Quaternion.identity;
             }
         }
