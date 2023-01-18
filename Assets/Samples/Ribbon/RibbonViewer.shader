@@ -9,7 +9,7 @@ Shader "VectorField/RibbonViewer" {
             #pragma fragment frag
             #include "UnityCG.cginc"
             StructuredBuffer<float3> _Line;
-            StructuredBuffer<float3> _Col;
+            StructuredBuffer<float3> _Color;
 
             struct appdata { float4 vertex : POSITION; };
             struct v2f {
@@ -20,7 +20,7 @@ Shader "VectorField/RibbonViewer" {
             v2f vert (uint vid: SV_VertexID, appdata val) {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(float4(_Line[vid], 1));
-                o.colour = float4(_Col[vid], 1);
+                o.colour = float4(_Color[vid], 1);
                 return o;
             }
 

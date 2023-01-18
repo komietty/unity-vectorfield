@@ -7,6 +7,7 @@ namespace VectorField.Demo {
         [SerializeField] protected Material tracerMat;
         [SerializeField] protected int tracerNum;
         [SerializeField] protected int tracerLen;
+        [SerializeField] protected int tracerOffset;
         TangentTracer tracer;
         GraphicsBuffer tracerBuff;
         GraphicsBuffer colourBuff;
@@ -33,8 +34,8 @@ namespace VectorField.Demo {
                     var tr1 = r[j + 1];
                     var bt0 = math.cross(tr1.p - tr0.p, tr0.n); 
                     var bt1 = math.cross(tr1.p - tr0.p, tr1.n); 
-                    tracers.Add(tr0.p + tr0.n * 0.01f);
-                    tracers.Add(tr1.p + tr1.n * 0.01f);
+                    tracers.Add(tr0.p + tr0.n * tracerOffset);
+                    tracers.Add(tr1.p + tr1.n * tracerOffset);
                     colours.Add((Vector4)c);
                     colours.Add((Vector4)c);
                 }
@@ -44,7 +45,7 @@ namespace VectorField.Demo {
             tracerBuff.SetData(tracers);
             colourBuff.SetData(colours);
             tracerMat.SetBuffer("_Line", tracerBuff);
-            tracerMat.SetBuffer("_Col",  colourBuff);
+            tracerMat.SetBuffer("_Color",  colourBuff);
         }
     
         protected override void OnRenderObject() {

@@ -2,19 +2,22 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using Unity.Mathematics;
-using UnityEngine;
 using static Unity.Mathematics.math;
 
 namespace VectorField {
-    public class HeGeom: HeComp {
-        public System.Span<Vector3> Pos => pos.AsSpan();
-        public System.Span<Vector3> Nrm => nrm.AsSpan();
-        public Vector3[] pos;
-        public Vector3[] nrm;
+    using M = UnityEngine.Mesh;
+    using T = UnityEngine.Transform;
+    using f3 = float3;
 
-        public HeGeom(UnityEngine.Mesh mesh, Transform trs) : base(mesh) {
-            pos = mesh.vertices.Select(v => trs.TransformPoint(v)).ToArray();
-            nrm = mesh.normals.Select(n => trs.TransformDirection(n)).ToArray();
+    public class HeGeom: HeComp {
+        public Span<f3> Pos => pos.AsSpan();
+        public Span<f3> Nrm => nrm.AsSpan();
+        f3[] pos;
+        f3[] nrm;
+
+        public HeGeom(M mesh, T trs) : base(mesh) {
+            pos = mesh.vertices.Select(v => (f3)trs.TransformPoint(v)).ToArray();
+            nrm = mesh.normals.Select(n => (f3)trs.TransformDirection(n)).ToArray();
         }
 
         public float3 Vector(HalfEdge h) {

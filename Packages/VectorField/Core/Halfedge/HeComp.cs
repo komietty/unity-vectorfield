@@ -3,7 +3,8 @@ using System;
 using System.Linq;
 
 namespace VectorField {
-    using Mesh = UnityEngine.Mesh;
+    using M = UnityEngine.Mesh;
+
     /*
      * HalfEdge Complex
     */
@@ -23,7 +24,7 @@ namespace VectorField {
         Face[] bunds;
         Corner[] corners;
 
-        public HeComp(Mesh mesh) {
+        public HeComp(M mesh) {
             var idxs = new ReadOnlySpan<int>(mesh.triangles);
             Preallocate(idxs, mesh.vertexCount);
 
@@ -151,10 +152,10 @@ namespace VectorField {
         /**
          * Weld vertices which are apparently same but structualy disconnected.
         */
-        public static Mesh Weld(Mesh original, bool normalize = true) {
+        public static M Weld(M original, bool normalize = true) {
             var ogl_vrts = original.vertices;
             var ogl_idcs = original.triangles;
-            var alt_mesh = new Mesh();
+            var alt_mesh = new M();
             var alt_vrts = ogl_vrts.Distinct().ToArray();
             var alt_idcs = new int[ogl_idcs.Length];
             var vrt_rplc = new int[ogl_vrts.Length];
