@@ -5,7 +5,6 @@ using Unity.Mathematics;
 namespace VectorField {
     using S = SparseMatrix;
     using V = Vector<double>;
-    using V3 = Vector<double3>;
 
     public class ScalarHeatMethod {
         protected HeGeom geom; 
@@ -19,8 +18,8 @@ namespace VectorField {
             this.F = Operator.Mass(geom) + A * t;
         }
 
-        public V3 ComputeVectorField(V u) {
-            var X = V3.Build.Dense(geom.nFaces);
+        public DenseMatrix ComputeVectorField(V u) {
+            var X = DenseMatrix.Create(geom.nFaces, 3, 0);
             foreach (var f in geom.Faces) {
                 var n = geom.FaceNormal(f).n;
                 var a = geom.Area(f);
@@ -30,18 +29,20 @@ namespace VectorField {
                     var ei = geom.Vector(h);
                     g += (double3)math.cross(n, ei) * ui;
                 }
-                X[f.fid] = -math.normalize(g / (2 * a));
+                var xi = -math.normalize(g / (2 * a));
+                X.SetRow(f.fid, V.Build.DenseOfArray(new double[] { xi.x, xi.y, xi.z }));
             }
             return X;
         }
 
-        public V ComputeDivergence(V3 X) {
+        public V ComputeDivergence(DenseMatrix X) {
             var D = V.Build.Dense(geom.nVerts);
             foreach(var v in geom.Verts) {
                 var sum = 0.0;
                 foreach( var h in geom.GetAdjacentHalfedges(v)) {
                     if (!h.onBoundary) {
-                        var xj = X[h.face.fid];
+                        var xm = X.Row(h.face.fid);
+                        var xj = new double3(xm[0], xm[1], xm[2]);
                         var e1 = geom.Vector(h);
                         var e2 = geom.Vector(h.prev.twin);
                         var cotTheta1 = geom.Cotan(h);
@@ -55,7 +56,7 @@ namespace VectorField {
         }
 
         void SubtractMinDistance(V phi) {
-            var min = double.NegativeInfinity;
+            var min = double.PositiveInfinity;
             for (var i = 0; i < phi.Count; i++) min = math.min(phi[i], min);
             for (var i = 0; i < phi.Count; i++) phi[i] -= min;
         }
