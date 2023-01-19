@@ -1,13 +1,10 @@
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Unity.Mathematics;
 
 namespace VectorField {
     using S = SparseMatrix;
-    using V1 = Vector<double>;
+    using V = Vector<double>;
     using V3 = Vector<double3>;
 
     public class ScalarHeatMethod {
@@ -22,7 +19,7 @@ namespace VectorField {
             this.F = Operator.Mass(geom) + A * t;
         }
 
-        public V3 ComputeVectorField(V1 u) {
+        public V3 ComputeVectorField(V u) {
             var X = V3.Build.Dense(geom.nFaces);
             foreach (var f in geom.Faces) {
                 var n = geom.FaceNormal(f).n;
@@ -38,8 +35,8 @@ namespace VectorField {
             return X;
         }
 
-        public V1 ComputeDivergence(V3 X) {
-            var D = V1.Build.Dense(geom.nVerts);
+        public V ComputeDivergence(V3 X) {
+            var D = V.Build.Dense(geom.nVerts);
             foreach(var v in geom.Verts) {
                 var sum = 0.0;
                 foreach( var h in geom.GetAdjacentHalfedges(v)) {
@@ -49,7 +46,7 @@ namespace VectorField {
                         var e2 = geom.Vector(h.prev.twin);
                         var cotTheta1 = geom.Cotan(h);
                         var cotTheta2 = geom.Cotan(h.prev);
-                        sum += (cotTheta1 * math.dot(e1, xj) + cotTheta2 * math.dot(e2, xj));
+                        sum += cotTheta1 * math.dot(e1, xj) + cotTheta2 * math.dot(e2, xj);
                     }
                 }
                 D[v.vid] = sum * 0.5;
@@ -57,13 +54,13 @@ namespace VectorField {
             return D;
         }
 
-        void SubtractMinDistance(V1 phi) {
+        void SubtractMinDistance(V phi) {
             var min = double.NegativeInfinity;
             for (var i = 0; i < phi.Count; i++) min = math.min(phi[i], min);
             for (var i = 0; i < phi.Count; i++) phi[i] -= min;
         }
 
-        public V1 Compute(V1 delta) {
+        public V Compute(V delta) {
             var u = Solver.Cholesky(F, delta);
             var X = ComputeVectorField(u);
             var D = ComputeDivergence(X);
