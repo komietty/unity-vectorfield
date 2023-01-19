@@ -1,5 +1,4 @@
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 using static Unity.Mathematics.math;
 
 namespace VectorField {
@@ -11,8 +10,7 @@ namespace VectorField {
             NormalCurvature
         };
         [SerializeField] protected CurvType curvType;
-        [SerializeField] protected Material surfMat;
-        protected GraphicsBuffer colBuf;
+        [SerializeField] protected Gradient colScheme;
         protected HeGeom geom;
         protected Mesh mesh;
 
@@ -22,19 +20,14 @@ namespace VectorField {
             mesh = HeComp.Weld(filt.sharedMesh);
             geom = new HeGeom(mesh, transform);
             filt.sharedMesh = mesh;
-            rend.material = surfMat;
-            colBuf = new GraphicsBuffer(Target.Structured, geom.nVerts,     12);
             UpdateCol(GenCurvatureCol());
-        }
-        void OnDestroy() {
-            colBuf?.Dispose();
         }
 
         protected void UpdateCol(float[] values) {
             var n = geom.nVerts;
             var x = 0f;
             var vals = new float[n];
-            var lrps = new Vector3[n];
+            var lrps = new Color[n];
             for (var i = 0; i < n; i++) {
                 var vrt = geom.Verts[i];
                 var val = values[vrt.vid];
@@ -42,9 +35,13 @@ namespace VectorField {
                 x = max(abs(val), x);
             }
             x = min(PI / 8, x);
-            for (var i = 0; i < n; i++) lrps[i] = ColorMap.Color(vals[i], -x, x);
-            colBuf.SetData(lrps);
-            surfMat.SetBuffer("_Col", colBuf);
+            for (var i = 0; i < n; i++) {
+                var min = -x;
+                var max =  x;
+                var c = colScheme.Evaluate((Mathf.Clamp(vals[i], min, max) - min) / (max - min));
+                lrps[i] = c;
+            }
+            mesh.SetColors(lrps);
         }
 
         float[] GenCurvatureCol() {
