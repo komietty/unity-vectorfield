@@ -27,9 +27,9 @@ namespace VectorField.Demo {
 
             var s = new double[geom.nVerts];
             for (var i = 0; i < geom.nVerts; i++) s[i] = 0;
-            s[100] = 1;
-            s[0] = 1;
-            //s[Random.Range(0, geom.nVerts)] = 1;
+            s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
+            s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
+            s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
 
             var hm = new ScalarHeatMethod(geom); 
             var hd = hm.Compute(V.Build.DenseOfArray(s));
@@ -48,7 +48,7 @@ namespace VectorField.Demo {
             tracers = Isoline.Build(geom, hd, (float)max);
 
             for(var i = 0; i < tracers.Count; i++) {
-                colours.Add(new Vector3(0, 0, 0));
+                colours.Add(new Vector3(1, 1, 1));
                 normals.Add(new Vector3(0, 0, 0));
             }
 
