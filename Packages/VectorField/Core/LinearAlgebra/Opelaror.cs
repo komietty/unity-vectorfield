@@ -37,5 +37,10 @@ namespace VectorField {
             var C = S.CreateDiagonal(n, n, 1e-8d);
             return M + C;
         }
+
+        /*
+         * Generates Connection Laplace Matrix
+        */
+        // ...
     }
 }
