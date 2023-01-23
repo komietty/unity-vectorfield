@@ -638,7 +638,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.007
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
       propertyPath: m_LocalPosition.z
@@ -672,13 +672,39 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -6400281290468069383, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -2432090755550338912, guid: 51f81cedd0e3347568a6b06335a3373c, type: 3}
     - target: {fileID: 919132149155446097, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
       propertyPath: m_Name
       value: bunny
       objectReference: {fileID: 0}
+    - target: {fileID: 1151388028547126963, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_AddedGameObjects: []
   m_SourcePrefab: {fileID: 100100000, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
+--- !u!1 &1715021558 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
+  m_PrefabInstance: {fileID: 1715021557}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1715021559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1715021558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 249eb8f0120f842ac9daf77941f7065a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  vectorSpaceMat: {fileID: 2100000, guid: 6df99629404484285b3ea1edba879bdf, type: 2}
 --- !u!1 &1854672280
 GameObject:
   m_ObjectHideFlags: 0
@@ -691,7 +717,7 @@ GameObject:
   - component: {fileID: 1854672283}
   - component: {fileID: 1854672282}
   m_Layer: 0
-  m_Name: Plane
+  m_Name: Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -746,7 +772,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1854672280}
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!4 &1854672284
 Transform:
   m_ObjectHideFlags: 0
@@ -754,11 +780,11 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1854672280}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.5, y: 0.5, z: -0.5, w: 0.5}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 10, y: 1, z: 10}
+  m_LocalScale: {x: 100, y: 100, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 90, z: 0}
