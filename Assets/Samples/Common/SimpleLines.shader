@@ -8,12 +8,10 @@ Shader "VectorField/SimpleLines" {
         LOD 100
         Blend SrcAlpha OneMinusSrcAlpha 
         Pass {
-            //Cull Off
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #include "UnityCG.cginc"
-            #define PI 3.14159265
             StructuredBuffer<float3> _Line;
             float4 _Color;
 

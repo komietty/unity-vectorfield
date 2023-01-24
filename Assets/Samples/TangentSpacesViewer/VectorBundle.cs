@@ -9,6 +9,7 @@ using static UnityEngine.GraphicsBuffer;
 
 namespace VectorField {
     using V = Vector<double>;
+    using R = UnityEngine.Random;
 
     public class VectorBundle {
         protected HeGeom geom;
@@ -114,9 +115,12 @@ namespace VectorField {
 
         /*
          * compute extrinsic vector on vert
-         * no background theory. just sum oneForms and project to tangent space
         */
         public static float3[] InterpolateForVerts(V oneForm, HeGeom g) {
+            throw new System.Exception();
+            /*
+             * below seems to not suppling correct result 
+             *
             var field = new float3[g.nVerts];
             for (var i = 0; i < g.nVerts; i++) {
                 var v = g.Verts[i];
@@ -128,9 +132,10 @@ namespace VectorField {
                     if (h.edge.hid != h.id) c *= -1;
                     vec += e * c;
                 }
-                field[i] = vec * 100;// - dot(vec, n);
+                field[i] = cross(n, vec) * 50;
             }
             return field;
+            */
         }
     }
 

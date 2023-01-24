@@ -704,8 +704,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 249eb8f0120f842ac9daf77941f7065a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  vectorSpaceMat: {fileID: 2100000, guid: f06181c810ac942b99541d77166a8dcf, type: 2}
-  vectorSpaceType: 3
+  vectorSpaceMat: {fileID: 2100000, guid: 6df99629404484285b3ea1edba879bdf, type: 2}
+  vectorSpaceType: 1
 --- !u!1 &1854672280
 GameObject:
   m_ObjectHideFlags: 0
