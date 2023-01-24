@@ -32,7 +32,7 @@ namespace VectorField {
                 var f = g.Faces[i];
                 var v = new float3();
                 var a = g.Area(f);
-                var (_, n) = g.FaceNormal(f);
+                var n = g.FaceNormal(f).n;
                 foreach (var h in g.GetAdjacentHalfedges(f)) {
                     var j = h.prev.vid;
                     var e  = g.Vector(h);
@@ -58,6 +58,10 @@ namespace VectorField {
             return (DenseVector.OfArray(omega), exactIds, coexactIds);
         }
 
+        /*
+         * interpolation to compute intrinsic vector on face
+         * see Keenans Lecture 8 for Whitney interpolation.
+        */
         public static float3[] InterpolateWhitney(V oneForm, HeGeom g) {
             var field = new float3[g.nFaces];
             for (var i = 0; i < g.nFaces; i++) {
@@ -76,7 +80,7 @@ namespace VectorField {
                 if (h.next.edge.hid != h.next.id) cjk *= -1;
                 if (h.prev.edge.hid != h.prev.id) cki *= -1;
                 var A = g.Area(f);
-                var (_, N) = g.FaceNormal(f);
+                var N = g.FaceNormal(f).n;
                 var a = (eki - ejk) * (float)cij;
                 var b = (eij - eki) * (float)cjk;
                 var c = (ejk - eij) * (float)cki;
@@ -84,5 +88,6 @@ namespace VectorField {
             }
             return field;
         }
+
     }
 }

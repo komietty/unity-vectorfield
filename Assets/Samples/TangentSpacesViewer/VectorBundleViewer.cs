@@ -10,6 +10,7 @@ namespace VectorField {
         protected GraphicsBuffer vertTangentSpaces;
         protected GraphicsBuffer faceTangentSpaces;
         protected GraphicsBuffer faceTangentArrows;
+        protected GraphicsBuffer vertTangentArrows;
         protected HeGeom geom;
 
         void Start() {
@@ -25,9 +26,9 @@ namespace VectorField {
             var exact = h.Exact(omega);
             var coexact = h.CoExact(omega);
             var hamonic = h.Harmonic(omega, exact, coexact);
-            var tngs = TangentField.InterpolateWhitney(exact, geom);
 
-            faceTangentArrows = bundle.GenFaceTangentArrows(tngs);
+            faceTangentArrows = bundle.GenFaceTangentArrows(TangentField.InterpolateWhitney(exact, geom));
+            vertTangentArrows = bundle.GenVertTangentArrows(VectorBundle.InterpolateForVerts(hamonic, geom));
         }
     
 
@@ -46,6 +47,11 @@ namespace VectorField {
                 // tmp _Lines -> _Line!
                 vectorSpaceMat.SetBuffer("_Line", faceTangentArrows);
                 Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nFaces * 6);
+            }
+            if (vectorSpaceType == VectorSpaceType.VertArrow) {
+                // tmp _Lines -> _Line!
+                vectorSpaceMat.SetBuffer("_Line",vertTangentArrows);
+                Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nVerts * 6);
             }
         }
 
