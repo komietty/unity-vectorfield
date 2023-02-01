@@ -1,15 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.LinearAlgebra.Double;
-using MathNet.Numerics.LinearAlgebra.Complex;
+using Unity.Mathematics;
+using static Unity.Mathematics.math;
 
 namespace VectorField {
-    using DS = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
+    using RS = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
     using DD = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix;
     using CS = MathNet.Numerics.LinearAlgebra.Complex32.SparseMatrix;
+    using CV =Vector<Complex32>;
 
     public class VectorHeatMethod {
         protected HeGeom geom;
@@ -24,25 +24,22 @@ namespace VectorField {
             throw new System.Exception();
         }
 
-        // https://numerics.mathdotnet.com/api/MathNet.Numerics/Complex32.htm
-        public static CS ConnectionLaplace(HeGeom geom){
-            var t = new List<(int, int, Complex32)>();
-            var n = geom.nVerts;
-            for (var i = 0; i < n; i++) {
-                var v = geom.Verts[i];
-                var s = 0f;
-                foreach (var h in geom.GetAdjacentHalfedges(v)) {
-                    var a = geom.Cotan(h);
-                    var b = geom.Cotan(h.twin);
-                    var c = (a + b) * 0.5f;
-                    t.Add((i, h.next.vid, new Complex32(-c, 0)));
-                    s += c;
-                }
-                t.Add((i, i, s));
+        public static CV Cholesky(CS lhs, Vector<Complex32> rhs){
+            var llt = lhs.Cholesky();
+            var rlt = llt.Solve(rhs);
+            return rlt;
+        }
+
+        public float3[] GenField(CV phi) {
+            var field = new float3[geom.nVerts];
+            var laplace = Operator.ConnectionLaplace(geom);
+            var conn = Cholesky(laplace, phi);
+            foreach (var v in geom.Verts) {
+                var (e1, e2) = geom.OrthonormalBasis(v);
+                field[v.vid] = e1 * (float)cos(conn[v.vid].Imaginary)
+                             + e2 * (float)sin(conn[v.vid].Imaginary);
             }
-            var M = CS.OfIndexed(n, n, t);
-            var C = CS.CreateDiagonal(n, n, new Complex32(1e-8f, 0));
-            return M + C;
+            return field;
         }
     }
 }

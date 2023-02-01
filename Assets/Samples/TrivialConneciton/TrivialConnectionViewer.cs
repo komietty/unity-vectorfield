@@ -18,7 +18,7 @@ namespace VectorField {
             var nrms = new Vector3[n * 6];
             for(var i = 0; i < n; i++){
                 var face = geom.Faces[i];
-                var (_, N) = geom.FaceNormal(face);
+                var N = geom.FaceNormal(face).n;
                 nrms[i * 6 + 0] = N;
                 nrms[i * 6 + 1] = N;
                 nrms[i * 6 + 2] = N;

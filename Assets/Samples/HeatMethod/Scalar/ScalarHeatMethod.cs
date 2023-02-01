@@ -1,15 +1,15 @@
-using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using Unity.Mathematics;
 
 namespace VectorField {
-    using S = SparseMatrix;
-    using V = Vector<double>;
+    using RS = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
+    using RD = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix;
+    using RV = MathNet.Numerics.LinearAlgebra.Vector<double>;
 
     public class ScalarHeatMethod {
         protected HeGeom geom; 
-        protected S A; // The laplace matrix of the input mesh
-        protected S F; // The mean curvature flow oparator built on the input mesh
+        protected RS A; // The laplace matrix of the input mesh
+        protected RS F; // The mean curvature flow oparator built on the input mesh
 
         public ScalarHeatMethod(HeGeom geom) {
             this.geom = geom;
@@ -18,8 +18,8 @@ namespace VectorField {
             this.F = Operator.Mass(geom) + A * t;
         }
 
-        public DenseMatrix ComputeVectorField(V u) {
-            var X = DenseMatrix.Create(geom.nFaces, 3, 0);
+        public RD ComputeVectorField(RV u) {
+            var X = RD.Create(geom.nFaces, 3, 0);
             foreach (var f in geom.Faces) {
                 var n = geom.FaceNormal(f).n;
                 var a = geom.Area(f);
@@ -30,13 +30,13 @@ namespace VectorField {
                     g += (double3)math.cross(n, ei) * ui;
                 }
                 var xi = -math.normalize(g / (2 * a));
-                X.SetRow(f.fid, V.Build.DenseOfArray(new double[] { xi.x, xi.y, xi.z }));
+                X.SetRow(f.fid, RV.Build.DenseOfArray(new double[] { xi.x, xi.y, xi.z }));
             }
             return X;
         }
 
-        public V ComputeDivergence(DenseMatrix X) {
-            var D = V.Build.Dense(geom.nVerts);
+        public RV ComputeDivergence(DenseMatrix X) {
+            var D = RV.Build.Dense(geom.nVerts);
             foreach(var v in geom.Verts) {
                 var sum = 0.0;
                 foreach( var h in geom.GetAdjacentHalfedges(v)) {
@@ -55,13 +55,13 @@ namespace VectorField {
             return D;
         }
 
-        void SubtractMinDistance(V phi) {
+        void SubtractMinDistance(RV phi) {
             var min = double.PositiveInfinity;
             for (var i = 0; i < phi.Count; i++) min = math.min(phi[i], min);
             for (var i = 0; i < phi.Count; i++) phi[i] -= min;
         }
 
-        public V Compute(V delta) {
+        public RV Compute(RV delta) {
             var u = Solver.Cholesky(F, delta);
             var X = ComputeVectorField(u);
             var D = ComputeDivergence(X);

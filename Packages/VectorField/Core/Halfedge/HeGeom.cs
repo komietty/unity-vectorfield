@@ -47,6 +47,14 @@ namespace VectorField {
             return (a + b + c) / 3;
         }
 
+        public (float3, float3) OrthonormalBasis(Vert v) {
+            var n = Nrm[v.vid];
+            var vec = Vector(halfedges[v.hid]);
+            var e1 = normalize(vec - dot(vec, n));
+            var e2 = cross(n, e1);
+            return (e1, e2);
+        }
+
         public (float3, float3) OrthonormalBasis(Face f) {
             var e1 = normalize(Vector(halfedges[f.hid]));
             var e2 = cross(FaceNormal(f).n, e1);

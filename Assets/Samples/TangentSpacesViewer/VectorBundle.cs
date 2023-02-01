@@ -27,9 +27,7 @@ namespace VectorField {
             for (var i = 0; i < l; i++) {
                 var n = geom.Nrm[i];
                 var p = geom.Pos[i] + n * meanLength * 0.01f;
-                var v = geom.Vector(geom.halfedges[geom.Verts[i].hid]);
-                var ta = normalize(v - dot(v, n));
-                var tb = cross(n, ta);
+                var (ta, tb) = geom.OrthonormalBasis(geom.Verts[i]);
                 a[i * 6 + 0] = p;
                 a[i * 6 + 2] = p;
                 a[i * 6 + 4] = p;
