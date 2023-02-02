@@ -3,35 +3,34 @@ using MathNet.Numerics;
 
 namespace VectorField {
     using static Unity.Mathematics.math;
-    using RS = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
-    using CS = MathNet.Numerics.LinearAlgebra.Complex32.SparseMatrix;
+    using RSprs = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
+    using CSprs = MathNet.Numerics.LinearAlgebra.Complex32.SparseMatrix;
 
     public static class Operator {
         /*
          * Generates Real Mass Matrix
         */
-        public static RS Mass(HeGeom geom){
+        public static RSprs Mass(HeGeom geom){
             var n = geom.nVerts;
             System.Span<double> a = stackalloc double[n];
-            for (int i = 0; i < n; i++) a[i] = geom.BarycentricDualArea(geom.Verts[i]);
-            return RS.OfDiagonalArray(a.ToArray());
+            for (int i = 0; i < n; i++) a[i] = geom.BarycentricDualArea(i);
+            return RSprs.OfDiagonalArray(a.ToArray());
         }
 
         /*
          * Generates Complex Mass Matrix
         */
-        public static CS MassComplex(HeGeom geom){
-            var n = geom.nVerts;
+        public static CSprs MassComplex(HeGeom g){
+            var n = g.nVerts;
             System.Span<Complex32> a = new Complex32[n];
-            for (int i = 0; i < n; i++)
-                a[i] = new Complex32((float)geom.BarycentricDualArea(geom.Verts[i]), 0);
-            return CS.OfDiagonalArray(a.ToArray());
+            for (int i = 0; i < n; i++) a[i] = new Complex32((float)g.BarycentricDualArea(i), 0);
+            return CSprs.OfDiagonalArray(a.ToArray());
         }
 
         /*
          * Generates Real Laplace Matrix
         */
-        public static RS Laplace(HeGeom geom){
+        public static RSprs Laplace(HeGeom geom){
             var t = new List<(int, int, double)>();
             var n = geom.nVerts;
             for (var i = 0; i < n; i++) {
@@ -46,8 +45,8 @@ namespace VectorField {
                 }
                 t.Add((i, i, s));
             }
-            var M = RS.OfIndexed(n, n, t);
-            var C = RS.CreateDiagonal(n, n, 1e-8d);
+            var M = RSprs.OfIndexed(n, n, t);
+            var C = RSprs.CreateDiagonal(n, n, 1e-8d);
             return M + C;
         }
 
@@ -56,7 +55,7 @@ namespace VectorField {
          * https://numerics.mathdotnet.com/api/MathNet.Numerics/Complex32.html
         */
 
-        public static CS ConnectionLaplace(HeGeom geom){
+        public static CSprs ConnectionLaplace(HeGeom geom){
             var t = new List<(int, int, Complex32)>();
             var n = geom.nVerts;
             for (var i = 0; i < n; i++) {
@@ -72,8 +71,8 @@ namespace VectorField {
                 }
                 t.Add((i, i, s));
             }
-            var M = CS.OfIndexed(n, n, t);
-            var C = CS.CreateDiagonal(n, n, new Complex32(1e-8f, 0));
+            var M = CSprs.OfIndexed(n, n, t);
+            var C = CSprs.CreateDiagonal(n, n, new Complex32(1e-8f, 0));
             return M + C;
         }
 

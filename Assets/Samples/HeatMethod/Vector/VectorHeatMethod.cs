@@ -25,7 +25,7 @@ namespace VectorField {
         }
 
         public static CV Cholesky(CS lhs, Vector<Complex32> rhs){
-            var llt = lhs.Cholesky();
+            var llt = lhs.LU();
             var rlt = llt.Solve(rhs);
             return rlt;
         }

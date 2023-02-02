@@ -112,6 +112,7 @@ namespace VectorField {
             return sum;
         }
 
+        public double BarycentricDualArea(int id) => BarycentricDualArea(Verts[id]);
         public double BarycentricDualArea(Vert v) {
             var sum = 0.0;
             foreach (var f in GetAdjacentFaces(v)) sum += Area(f);

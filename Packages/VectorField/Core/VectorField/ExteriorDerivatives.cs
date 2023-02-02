@@ -1,23 +1,22 @@
 using System.Collections.Generic;
-using MathNet.Numerics.LinearAlgebra.Double;
 using Unity.Mathematics;
 
 namespace VectorField {
-    using S = SparseMatrix;
+    using Sprs = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
 
     public static class ExteriorDerivatives {
 
-        public static S BuildHodgeStar0Form(HeGeom g) {
+        public static Sprs BuildHodgeStar0Form(HeGeom g) {
             var n = g.nVerts;
             var r = new double[n];
             for (var i = 0; i < n; i++) {
                 var v = g.Verts[i];
                 r[v.vid] = g.BarycentricDualArea(v);
             }
-            return S.OfDiagonalArray(r);
+            return Sprs.OfDiagonalArray(r);
         }
 
-        public static S BuildHodgeStar1Form(HeGeom g) {
+        public static Sprs BuildHodgeStar1Form(HeGeom g) {
             var n = g.nEdges;
             var r = new double[n];
             for (var i = 0; i < n; i++) {
@@ -25,10 +24,10 @@ namespace VectorField {
                 var h = g.halfedges[e.hid];
                 r[e.eid] = (g.Cotan(h) + g.Cotan(h.twin)) * 0.5;
             }
-            return S.OfDiagonalArray(r);
+            return Sprs.OfDiagonalArray(r);
         }
 
-        public static S BuildHodgeStar2Form(HeGeom g) {
+        public static Sprs BuildHodgeStar2Form(HeGeom g) {
             var n = g.nFaces;
             var r = new double[n];
             for (var i = 0; i < n; i++) {
@@ -40,19 +39,19 @@ namespace VectorField {
                 var s = (la + lb + lc) * 0.5;
                 r[f.fid] = 1 / math.sqrt(s * (s - la) * (s - lb) * (s - lc));
             }
-            return S.OfDiagonalArray(r);
+            return Sprs.OfDiagonalArray(r);
         }
 
-        public static S BuildExteriorDerivative0Form(HeGeom g) {
+        public static Sprs BuildExteriorDerivative0Form(HeGeom g) {
             var l = new List<(int, int, double)>();
             foreach (var e in g.Edges) {
                 l.Add((e.eid, g.halfedges[e.hid].vid, -1));
                 l.Add((e.eid, g.halfedges[e.hid].next.vid,  1));
             }
-            return S.OfIndexed(g.nEdges, g.nVerts, l);
+            return Sprs.OfIndexed(g.nEdges, g.nVerts, l);
         }
 
-        public static S BuildExteriorDerivative1Form(HeGeom g) {
+        public static Sprs BuildExteriorDerivative1Form(HeGeom g) {
             var l = new List<(int, int, double)>();
             foreach(var f in g.Faces) {
                 foreach(var h in g.GetAdjacentHalfedges(f)){
@@ -60,7 +59,7 @@ namespace VectorField {
                     l.Add((f.fid, h.edge.eid, dir));
                 }
             }
-            return S.OfIndexed(g.nFaces, g.nEdges, l);
+            return Sprs.OfIndexed(g.nFaces, g.nEdges, l);
         }
     }
 }
