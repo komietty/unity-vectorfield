@@ -66,24 +66,30 @@ namespace VectorField {
                     var b = geom.Cotan(h.twin);
                     var c = (a + b) * 0.5f;
                     var r = TransportNoRotationComplex(geom, h);
-                    t.Add((i, h.next.vid, new Complex32(-c, r.Imaginary)));
+                    t.Add((i, h.next.vid, -c * r));
                     s += c;
                 }
                 t.Add((i, i, s));
             }
             var M = CSprs.OfIndexed(n, n, t);
-            UnityEngine.Debug.Log(M);
             var C = CSprs.CreateDiagonal(n, n, new Complex32(1e-8f, 0));
+            UnityEngine.Debug.Log(M);
             return M + C;
         }
 
         public static Complex32 TransportNoRotationComplex(HeGeom g, HalfEdge h) {
-            var u = g.Vector(g.halfedges[h.edge.hid]);
             var (e1, e2) = g.OrthonormalBasis(g.Verts[h.vid]);
             var (f1, f2) = g.OrthonormalBasis(g.Verts[h.twin.vid]);
+            var u = g.Vector(g.halfedges[h.edge.hid]);
+            var v = g.Vector(g.halfedges[h.edge.hid].twin);
             var thetaIJ = atan2(dot(u, e2), dot(u, e1));
-            var thetaJI = atan2(dot(u, f2), dot(u, f1));
-            var o = -thetaIJ + thetaJI;
+            var thetaJI = atan2(dot(v, f2), dot(v, f1));
+            var _thetaJI = atan2(dot(u, f2), dot(u, f1));
+            var o = thetaJI + PI - thetaIJ;
+            var _o = _thetaJI - thetaIJ;
+            if(o != _o) {
+                UnityEngine.Debug.Log((o - _o) / 2);
+            }
             var s = sign(o);
             return new Complex32(1, s * (abs(o) % PI));
         }

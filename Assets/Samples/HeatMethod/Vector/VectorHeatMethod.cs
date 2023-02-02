@@ -24,18 +24,12 @@ namespace VectorField {
             throw new System.Exception();
         }
 
-        public static CV Cholesky(CS lhs, Vector<Complex32> rhs){
-            var llt = lhs.LU();
-            var rlt = llt.Solve(rhs);
-            return rlt;
-        }
-
         public float3[] GenField(CV phi) {
             var field = new float3[geom.nVerts];
             var laplace = Operator.ConnectionLaplace(geom);
             var t = math.pow(geom.MeanEdgeLength(), 2);
-            var F = Operator.MassComplex(geom) - laplace * t;
-            var conn = Cholesky(F, phi);
+            var F = Operator.MassComplex(geom) + laplace * t;
+            var conn = F.Solve(phi);
             foreach (var v in geom.Verts) {
                 var (e1, e2) = geom.OrthonormalBasis(v);
                 field[v.vid] = e1 * (float)cos(conn[v.vid].Imaginary)
