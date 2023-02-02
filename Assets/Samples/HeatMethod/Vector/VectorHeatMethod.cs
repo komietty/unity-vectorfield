@@ -33,7 +33,9 @@ namespace VectorField {
         public float3[] GenField(CV phi) {
             var field = new float3[geom.nVerts];
             var laplace = Operator.ConnectionLaplace(geom);
-            var conn = Cholesky(laplace, phi);
+            var t = math.pow(geom.MeanEdgeLength(), 2);
+            var F = Operator.MassComplex(geom) - laplace * t;
+            var conn = Cholesky(F, phi);
             foreach (var v in geom.Verts) {
                 var (e1, e2) = geom.OrthonormalBasis(v);
                 field[v.vid] = e1 * (float)cos(conn[v.vid].Imaginary)

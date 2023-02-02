@@ -66,23 +66,26 @@ namespace VectorField {
                     var b = geom.Cotan(h.twin);
                     var c = (a + b) * 0.5f;
                     var r = TransportNoRotationComplex(geom, h);
-                    t.Add((i, h.next.vid, r * new Complex32(-c, 0)));
+                    t.Add((i, h.next.vid, new Complex32(-c, r.Imaginary)));
                     s += c;
                 }
                 t.Add((i, i, s));
             }
             var M = CSprs.OfIndexed(n, n, t);
+            UnityEngine.Debug.Log(M);
             var C = CSprs.CreateDiagonal(n, n, new Complex32(1e-8f, 0));
             return M + C;
         }
 
-        static Complex32 TransportNoRotationComplex(HeGeom g, HalfEdge h) {
-            var u = g.Vector(h);
+        public static Complex32 TransportNoRotationComplex(HeGeom g, HalfEdge h) {
+            var u = g.Vector(g.halfedges[h.edge.hid]);
             var (e1, e2) = g.OrthonormalBasis(g.Verts[h.vid]);
             var (f1, f2) = g.OrthonormalBasis(g.Verts[h.twin.vid]);
             var thetaIJ = atan2(dot(u, e2), dot(u, e1));
             var thetaJI = atan2(dot(u, f2), dot(u, f1));
-            return new Complex32(1, -thetaIJ + thetaJI);
+            var o = -thetaIJ + thetaJI;
+            var s = sign(o);
+            return new Complex32(1, s * (abs(o) % PI));
         }
     }
 }

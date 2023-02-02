@@ -21,10 +21,18 @@ namespace VectorField.Demo {
 
             var s = new C[geom.nVerts];
             for (var i = 0; i < geom.nVerts; i++) s[i] = 0;
-            s[UnityEngine.Random.Range(0, geom.nVerts)] = new C(1, 0);
+            s[0] = new C(1, 0);
 
             var field = vhmd.GenField(V.Build.DenseOfArray(s));
             vertTangentArrows = bundle.GenVertTangentArrows(field);
+
+            foreach(var h in geom.halfedges) {
+                var a = Operator.TransportNoRotationComplex(geom, h);
+                var b = Operator.TransportNoRotationComplex(geom, h.twin);
+                if(Mathf.Abs(a.Imaginary + b.Imaginary) > 1e-5) {
+                    UnityEngine.Debug.Log(a.Imaginary + b.Imaginary);
+                };
+            }
         }
     
         void OnRenderObject() {
