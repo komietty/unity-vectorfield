@@ -1,8 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Unity.Mathematics;
+using UnityEngine;
 using static Unity.Mathematics.math;
 
 namespace VectorField {
@@ -27,13 +27,20 @@ namespace VectorField {
         public float3[] GenField(CV phi) {
             var field = new float3[geom.nVerts];
             var laplace = Operator.ConnectionLaplace(geom);
-            var t = math.pow(geom.MeanEdgeLength(), 2);
+            var t = pow(geom.MeanEdgeLength(), 2);
             var F = Operator.MassComplex(geom) + laplace * t;
+            Debug.Log(laplace);
+            Debug.Log(F);
+            if (!F.IsHermitian()) {
+                Debug.LogWarning("the Connection Laplace Op is not hermitian");
+            }
+
+            var llt = F.LU();
             var conn = F.Solve(phi);
             foreach (var v in geom.Verts) {
                 var (e1, e2) = geom.OrthonormalBasis(v);
-                field[v.vid] = e1 * (float)cos(conn[v.vid].Imaginary)
-                             + e2 * (float)sin(conn[v.vid].Imaginary);
+                field[v.vid] = e1 * cos(conn[v.vid].Real)
+                             + e2 * sin(conn[v.vid].Imaginary);
             }
             return field;
         }

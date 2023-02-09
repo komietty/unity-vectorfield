@@ -37,6 +37,39 @@ namespace VectorField {
             var n = Vector(h.next) * -1;
             return dot(p, n) / length(cross(p, n));
         }
+        
+        //TODO: check what is the edge_cotan is...
+        public float EdgeCotan(Edge e){
+            double cotSum = 0;
+
+            { // First halfedge-- always real
+                var he = halfedges[e.hid];
+                var l_ij = Length(he);
+                he = he.next;
+                var l_jk = Length(he);
+                he = he.next;
+                var l_ki = Length(he);
+                he = he.next;
+                if (he != halfedges[e.hid]) throw new Exception("face must be triangle");
+                var area = Area(he.face);
+                var cotValue = (-l_ij * l_ij + l_jk * l_jk + l_ki * l_ki) / (4.0 * area);
+                cotSum += cotValue / 2;
+            }
+
+            if (!halfedges[e.hid].twin.onBoundary) { // Second halfedge
+                var he = halfedges[e.hid].twin;
+                var l_ij = Length(he.edge);
+                he = he.next;
+                var l_jk = Length(he.edge);
+                he = he.next;
+                var l_ki = Length(he.edge);
+                var area = Area(he.face);
+                var cotValue = (-l_ij * l_ij + l_jk * l_jk + l_ki * l_ki) / (4.0 * area);
+                cotSum += cotValue / 2;
+            }
+
+            return (float)cotSum;
+        }
 
         public float3 Centroid(Face f){
             var h = halfedges[f.hid];
@@ -97,6 +130,18 @@ namespace VectorField {
             return acos(dot(v1, v2));
         }
 
+        public float AngleSum(Vert v) {
+            var sum = 0f;
+            foreach (var c in GetAdjacentConers(v)) sum += Angle(c);
+            return sum;
+        }
+
+        public float AngleDefect(Vert v) {
+            var sum = PI * 2;
+            foreach (var c in GetAdjacentConers(v)) sum -= Angle(c);
+            return sum;
+        }
+
         public float DihedralAngle(HalfEdge h) {
             var (_, n_ijk) = FaceNormal(h.face);
             var (_, n_jil) = FaceNormal(h.twin.face);
@@ -106,11 +151,6 @@ namespace VectorField {
             return atan2(dot(v, c), d);
         }
 
-        public float AngleDefect(Vert v) {
-            var sum = PI * 2;
-            foreach (var c in GetAdjacentConers(v)) sum -= Angle(c);
-            return sum;
-        }
 
         public double BarycentricDualArea(int id) => BarycentricDualArea(Verts[id]);
         public double BarycentricDualArea(Vert v) {

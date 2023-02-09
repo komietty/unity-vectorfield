@@ -14,25 +14,19 @@ namespace VectorField.Demo {
         void Start() {
             var filt = GetComponentInChildren<MeshFilter>();
             var rend = GetComponentInChildren<MeshRenderer>();
-            var mesh = HeComp.Weld(filt.sharedMesh);
+            var mesh = HeComp.Weld(filt.sharedMesh); 
+            //var m = GenMesh();
+            //var mesh = HeComp.Weld(m);
+            //filt.sharedMesh = mesh;
             geom = new HeGeom(mesh, transform);
             var vhmd = new VectorHeatMethod(geom);
             var bundle = new VectorBundle(geom);
 
             var s = new C[geom.nVerts];
-            for (var i = 0; i < geom.nVerts; i++) s[i] = 0;
             s[0] = new C(1, 0);
 
             var field = vhmd.GenField(V.Build.DenseOfArray(s));
             vertTangentArrows = bundle.GenVertTangentArrows(field);
-
-            foreach(var h in geom.halfedges) {
-                var a = Operator.TransportNoRotationComplex(geom, h);
-                var b = Operator.TransportNoRotationComplex(geom, h.twin);
-                if(Mathf.Abs(a.Imaginary + b.Imaginary) > 1e-5) {
-                    UnityEngine.Debug.Log(a.Imaginary + b.Imaginary);
-                };
-            }
         }
     
         void OnRenderObject() {
@@ -43,6 +37,18 @@ namespace VectorField.Demo {
 
         void OnDestroy() {
             vertTangentArrows?.Dispose();
+        }
+
+        Mesh GenMesh(){
+            var m = new Mesh();
+            m.SetVertices(new Vector3[]{
+                new Vector3(0, 0, 0),
+                new Vector3(1, 0, 0),
+                new Vector3(0.5f, Mathf.Sqrt(0.75f), 0),
+            });
+            m.SetIndices(new int[] { 0, 1, 2 }, MeshTopology.Triangles, 0);
+            m.RecalculateNormals();
+            return m;
         }
     }
 }
