@@ -424,7 +424,7 @@ PrefabInstance:
     - target: {fileID: -6400281290468069383, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: -2432090755550338912, guid: 12ae1263ce26c4e278e71d97ca1e9a85, type: 3}
+      objectReference: {fileID: -2432090755550338912, guid: 08f0115afb38748dfa1b4a8401bf4725, type: 3}
     - target: {fileID: 919132149155446097, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_Name
       value: torus
