@@ -40,35 +40,30 @@ namespace VectorField {
         
         //TODO: check what is the edge_cotan is...
         public float EdgeCotan(Edge e){
-            double cotSum = 0;
+            float cotSum = 0;
 
             { // First halfedge-- always real
                 var he = halfedges[e.hid];
-                var l_ij = Length(he);
-                he = he.next;
-                var l_jk = Length(he);
-                he = he.next;
-                var l_ki = Length(he);
-                he = he.next;
+                var l_ij = Length(he); he = he.next;
+                var l_jk = Length(he); he = he.next;
+                var l_ki = Length(he); he = he.next;
                 if (he != halfedges[e.hid]) throw new Exception("face must be triangle");
-                var area = Area(he.face);
-                var cotValue = (-l_ij * l_ij + l_jk * l_jk + l_ki * l_ki) / (4.0 * area);
+                var area = (float)Area(he.face);
+                var cotValue = (-l_ij * l_ij + l_jk * l_jk + l_ki * l_ki) / (4.0f * area);
                 cotSum += cotValue / 2;
             }
 
             if (!halfedges[e.hid].twin.onBoundary) { // Second halfedge
                 var he = halfedges[e.hid].twin;
-                var l_ij = Length(he.edge);
-                he = he.next;
-                var l_jk = Length(he.edge);
-                he = he.next;
+                var l_ij = Length(he.edge); he = he.next;
+                var l_jk = Length(he.edge); he = he.next;
                 var l_ki = Length(he.edge);
-                var area = Area(he.face);
-                var cotValue = (-l_ij * l_ij + l_jk * l_jk + l_ki * l_ki) / (4.0 * area);
+                var area = (float)Area(he.face);
+                var cotValue = (-l_ij * l_ij + l_jk * l_jk + l_ki * l_ki) / (4.0f * area);
                 cotSum += cotValue / 2;
             }
 
-            return (float)cotSum;
+            return cotSum;
         }
 
         public float3 Centroid(Face f){
@@ -81,10 +76,12 @@ namespace VectorField {
         }
 
         public (float3, float3) OrthonormalBasis(Vert v) {
+            var c = GetAdjacentConers(v).ToArray()[0];
+            //var vec = Vector(halfedges[c.hid].prev);
             var n = Nrm[v.vid];
             var vec = Vector(halfedges[v.hid]);
-            var e1 = normalize(vec - dot(vec, n));
-            var e2 = cross(n, e1);
+            var e1 = normalize(vec - dot(vec, n) * n);
+            var e2 = cross(e1, n);
             return (e1, e2);
         }
 

@@ -89,17 +89,19 @@ namespace VectorField {
                 transportVectorAlongHe[heB.id] = Divider(new float2(1, 0), rot);
             }
 
-            var dupcheck = new List<int>();
+            var diag = new float[geom.nVerts];
             foreach (var h in geom.halfedges) {
                 var iTail = h.vid;
                 var iTop  = h.twin.vid;
                 var weight = geom.EdgeCotan(h.edge);
                 var rot = transportVectorAlongHe[h.twin.id];
                 var val = -weight * rot;
-                if(!dupcheck.Contains(iTail))
-                    triplets.Add((iTail, iTail, new Complex32(weight, 0)));
+                diag[iTail] += weight;
                 triplets.Add((iTail, iTop, new Complex32(val.x, val.y)));
-                dupcheck.Add(iTail);
+            }
+
+            for (int i = 0; i < diag.Length; i++) {
+                triplets.Add((i, i, new Complex32(diag[i], 0)));
             }
 
             /*

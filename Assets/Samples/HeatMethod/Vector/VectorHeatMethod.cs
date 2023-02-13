@@ -26,21 +26,45 @@ namespace VectorField {
 
         public float3[] GenField(CV phi) {
             var field = new float3[geom.nVerts];
-            var laplace = Operator.ConnectionLaplace(geom);
             var t = pow(geom.MeanEdgeLength(), 2);
-            var F = Operator.MassComplex(geom) + laplace * t;
-            Debug.Log(laplace);
-            Debug.Log(F);
-            if (!F.IsHermitian()) {
-                Debug.LogWarning("the Connection Laplace Op is not hermitian");
-            }
+            var L = Operator.ConnectionLaplace(geom);
+            var F = Operator.MassComplex(geom) + L * t;
+            if (!F.IsHermitian()) Debug.LogWarning("Op should be hermitian");
+            
+/*
+            var FF = Matrix<Complex32>.Build.Dense(4, 4, new Complex32(0, 0));
+            // row  
+            FF[0, 0] = new Complex32(2.16506f,0);
+            FF[0, 1] = new Complex32(0.57735f,0);
+            FF[0, 2] = new Complex32(-0.288675f,-0.5f);
+            FF[0, 3] = new Complex32(-0.288675f,0.5f);
+            // row
+            FF[1, 0] = new Complex32(0.57735f,0);
+            FF[1, 1] = new Complex32(2.16506f,0);
+            FF[1, 2] = new Complex32(-0.288675f,-0.5f);
+            FF[1, 3] = new Complex32(-0.288675f,0.5f);
+            // row  
+            FF[2, 0] = new Complex32(-0.288675f,0.5f);
+            FF[2, 1] = new Complex32(-0.288675f,0.5f);
+            FF[2, 2] = new Complex32(2.16506f,0);
+            FF[2, 3] = new Complex32(-0.288675f,-0.5f);
+            // row  
+            FF[3, 0] = new Complex32(-0.288675f,-0.5f);
+            FF[3, 1] = new Complex32(-0.288675f,-0.5f);
+            FF[3, 2] = new Complex32(-0.288675f,0.5f);
+            FF[3, 3] = new Complex32(2.16506f,0);
+ */
 
             var llt = F.LU();
-            var conn = F.Solve(phi);
+            var conn = llt.Solve(phi);
+            Debug.Log(L);
+            Debug.Log(conn);
             foreach (var v in geom.Verts) {
                 var (e1, e2) = geom.OrthonormalBasis(v);
-                field[v.vid] = e1 * cos(conn[v.vid].Real)
-                             + e2 * sin(conn[v.vid].Imaginary);
+                field[v.vid] = normalize(
+                    e1 * conn[v.vid].Real +
+                    e2 * conn[v.vid].Imaginary
+                    );
             }
             return field;
         }

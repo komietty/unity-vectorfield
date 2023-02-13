@@ -412,7 +412,7 @@ PrefabInstance:
     - target: {fileID: -6400281290468069383, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: -2432090755550338912, guid: fc6c6f6d15bbf4a2eb7e7fcb6539f03c, type: 3}
+      objectReference: {fileID: -2432090755550338912, guid: 51f81cedd0e3347568a6b06335a3373c, type: 3}
     - target: {fileID: 919132149155446097, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_Name
       value: torus
@@ -438,6 +438,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   vectorSpaceMat: {fileID: 2100000, guid: 6df99629404484285b3ea1edba879bdf, type: 2}
+--- !u!114 &741813960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 741813958}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 249eb8f0120f842ac9daf77941f7065a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  vectorSpaceMat: {fileID: 2100000, guid: 6df99629404484285b3ea1edba879bdf, type: 2}
+  vectorSpaceType: 0
 --- !u!1 &924420045
 GameObject:
   m_ObjectHideFlags: 0
