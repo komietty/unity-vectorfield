@@ -14,7 +14,7 @@ namespace VectorField {
         [SerializeField] Color baseColor;
         [SerializeField] Color scalarColor;
         [SerializeField] Color vectorColor;
-        protected bool flag = false;
+        protected bool flag;
         protected V random;
         protected V exact;
         protected V coexact;
@@ -56,8 +56,8 @@ namespace VectorField {
             var sPots = sids.Select(i => geom.Pos[i]).ToArray();
             var vPots = vids.Select(i => geom.Pos[i]).ToArray();
             var q = Quaternion.identity;
-            foreach (var p in sPots) { var g = GameObject.Instantiate(point, p, q); g.transform.SetParent(sPotGo.transform); }
-            foreach (var p in vPots) { var g = GameObject.Instantiate(point, p, q); g.transform.SetParent(vPotGo.transform); }
+            foreach (var p in sPots) { var g = Instantiate(point, p, q); g.transform.SetParent(sPotGo.transform); }
+            foreach (var p in vPots) { var g = Instantiate(point, p, q); g.transform.SetParent(vPotGo.transform); }
             scalarPots.SetData(sPots);
             vectorPots.SetData(vPots);
 

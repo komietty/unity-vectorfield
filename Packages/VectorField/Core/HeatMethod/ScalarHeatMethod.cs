@@ -1,5 +1,6 @@
 using MathNet.Numerics.LinearAlgebra.Double;
 using Unity.Mathematics;
+using System.Collections.Generic;
 
 namespace VectorField {
     using RS = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
@@ -18,7 +19,7 @@ namespace VectorField {
             F = Operator.Mass(geom) + A * t;
         }
 
-        public RD ComputeVectorField(RV u) {
+        RD ComputeVectorField(IList<double> u) {
             var X = RD.Create(geom.nFaces, 3, 0);
             foreach (var f in geom.Faces) {
                 var n = geom.FaceNormal(f).n;
@@ -35,27 +36,26 @@ namespace VectorField {
             return X;
         }
 
-        public RV ComputeDivergence(DenseMatrix X) {
+        RV ComputeDivergence(DenseMatrix X) {
             var D = RV.Build.Dense(geom.nVerts);
             foreach(var v in geom.Verts) {
                 var sum = 0.0;
-                foreach( var h in geom.GetAdjacentHalfedges(v)) {
-                    if (!h.onBoundary) {
-                        var xm = X.Row(h.face.fid);
-                        var xj = new double3(xm[0], xm[1], xm[2]);
-                        var e1 = geom.Vector(h);
-                        var e2 = geom.Vector(h.prev.twin);
-                        var cotTheta1 = geom.Cotan(h);
-                        var cotTheta2 = geom.Cotan(h.prev);
-                        sum += cotTheta1 * math.dot(e1, xj) + cotTheta2 * math.dot(e2, xj);
-                    }
+                foreach (var h in geom.GetAdjacentHalfedges(v)) {
+                    if (h.onBoundary) continue;
+                    var xm = X.Row(h.face.fid);
+                    var xj = new double3(xm[0], xm[1], xm[2]);
+                    var e1 = geom.Vector(h);
+                    var e2 = geom.Vector(h.prev.twin);
+                    var cotTheta1 = geom.Cotan(h);
+                    var cotTheta2 = geom.Cotan(h.prev);
+                    sum += cotTheta1 * math.dot(e1, xj) + cotTheta2 * math.dot(e2, xj);
                 }
                 D[v.vid] = sum * 0.5;
             }
             return D;
         }
 
-        void SubtractMinDistance(RV phi) {
+        void SubtractMinDistance(IList<double> phi) {
             var min = double.PositiveInfinity;
             for (var i = 0; i < phi.Count; i++) min = math.min(phi[i], min);
             for (var i = 0; i < phi.Count; i++) phi[i] -= min;
