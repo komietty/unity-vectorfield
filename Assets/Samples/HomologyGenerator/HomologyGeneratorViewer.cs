@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
@@ -6,28 +5,26 @@ using System.Linq;
 
 namespace VectorField {
     public class HomologyGeneratorViewer : MonoBehaviour {
-        [SerializeField] protected Material treeMat;
-        [SerializeField] protected Material cotrMat;
-        [SerializeField] protected Material gensMat;
-        protected HeGeom geom;
-        protected HalfEdge[] gens;
+        public enum Mode { tree, cotree, generator }
+
+        [SerializeField] protected Material lineMat;
+        [SerializeField] protected Mode mode;
         protected GraphicsBuffer treeBuf, cotrBuf, gensBuf;
-        protected List<Vector3> tarr;
-        protected List<Vector3> carr;
-        protected List<Vector3> garr;
+        protected (int, int, int) buffLength;
             
         void Start() {
             var filt = GetComponentInChildren<MeshFilter>();
             var mesh = HeComp.Weld(filt.sharedMesh);
-            geom = new HeGeom(mesh, transform);
+            var geom = new HeGeom(mesh, transform);
             var h = new HomologyGenerator(geom);
             var gens = h.BuildGenerators();
             var tree = h.vertParent;
             var cotr = h.faceParent;
             var gnum = gens.Select(g => g.Count).ToArray();
-            tarr = new List<Vector3>(tree.Length * 2);
-            carr = new List<Vector3>(cotr.Length * 2);
-            garr = new List<Vector3>(gnum.Sum() * 4);
+            var tarr = new List<Vector3>(tree.Length * 2);
+            var carr = new List<Vector3>(cotr.Length * 2);
+            var garr = new List<Vector3>(gnum.Sum() * 4);
+            buffLength = (tarr.Count, carr.Count, garr.Count);
 
             for (var i = 0; i < tree.Length; i++) {
                 var v1 = i;
@@ -36,7 +33,6 @@ namespace VectorField {
                 tarr.Add(geom.Pos[v2]);
             }
 
-            //foreach(var item in cotr) {
             for (var i = 0; i < cotr.Length; i++) {
                 var fid1 = i;
                 var fid2 = cotr[i];
@@ -45,17 +41,17 @@ namespace VectorField {
             }
 
             foreach(var g in gens) {
-            foreach(var he in g) {
-                var c1 = geom.Centroid(he.face);
-                var c2 = geom.Centroid(he.twin.face);
-                var p1 = geom.Pos[he.vid];
-                var p2 = geom.Pos[he.twin.vid];
-                var m = (p1 + p2) * 0.5f;
-                garr.Add(c1);
-                garr.Add(m);
-                garr.Add(m);
-                garr.Add(c2);
-            }
+                foreach(var he in g) {
+                    var c1 = geom.Centroid(he.face);
+                    var c2 = geom.Centroid(he.twin.face);
+                    var p1 = geom.Pos[he.vid];
+                    var p2 = geom.Pos[he.twin.vid];
+                    var m = (p1 + p2) * 0.5f;
+                    garr.Add(c1);
+                    garr.Add(m);
+                    garr.Add(m);
+                    garr.Add(c2);
+                }
             }
 
             treeBuf = new GraphicsBuffer(Target.Structured, tree.Length * 2, sizeof(float) * 3);
@@ -64,18 +60,23 @@ namespace VectorField {
             treeBuf.SetData(tarr);
             cotrBuf.SetData(carr);
             gensBuf.SetData(garr);
-            treeMat.SetBuffer("_Line", treeBuf);
-            cotrMat.SetBuffer("_Line", cotrBuf);
-            gensMat.SetBuffer("_Line", gensBuf);
         }
 
         void OnRenderObject() {
-            treeMat.SetPass(0);
-            Graphics.DrawProceduralNow(MeshTopology.Lines, tarr.Count);
-            cotrMat.SetPass(0);
-            Graphics.DrawProceduralNow(MeshTopology.Lines, carr.Count);
-            gensMat.SetPass(0);
-            Graphics.DrawProceduralNow(MeshTopology.Lines, garr.Count);
+            if (mode == Mode.tree) {
+                lineMat.SetBuffer("_Line", treeBuf);
+                lineMat.SetPass(0);
+                Graphics.DrawProceduralNow(MeshTopology.Lines, buffLength.Item1);
+            } else if (mode == Mode.cotree) {
+                lineMat.SetBuffer("_Line", cotrBuf);
+                lineMat.SetPass(0);
+                Graphics.DrawProceduralNow(MeshTopology.Lines, buffLength.Item2);
+            } else if (mode == Mode.cotree) {
+                lineMat.SetBuffer("_Line", gensBuf);
+                lineMat.SetPass(0);
+                Graphics.DrawProceduralNow(MeshTopology.Lines, buffLength.Item3);
+            }
+
         }
 
         void OnDestroy() {
