@@ -10,6 +10,7 @@ namespace VectorField.Demo {
     public class VectorHeatMethodViewer : MonoBehaviour {
         protected GraphicsBuffer vertTangentArrows;
         [SerializeField] protected Material vectorSpaceMat;
+        [SerializeField] protected Gradient colScheme;
         protected HeGeom geom;
 
         void Start() {
@@ -24,7 +25,7 @@ namespace VectorField.Demo {
             
             var sources = new List<(int vid, float value)>();
             var i0 = 0;
-            var i1 = 300;
+            var i1 = 3;
             s[i0] = new C(1 / math.sqrt(2), 1 / math.sqrt(2));
             s[i1] = new C(1 / math.sqrt(2), 1 / math.sqrt(2));
             var g1 = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -33,12 +34,27 @@ namespace VectorField.Demo {
             g2.transform.position = geom.Pos[i1];
             g1.transform.localScale *= 0.01f;
             g2.transform.localScale *= 0.01f;
-            GameObject.CreatePrimitive(PrimitiveType.Cube);
-            sources.Add((i0, 3));
-            sources.Add((i1, 100));
+            sources.Add((i0, 1));
+            sources.Add((i1, 1));
 
-            var field = vhmd.GenField(V.Build.DenseOfArray(s), sources);
+            var connection = vhmd.ComputeVectorHeatFlow(V.Build.DenseOfArray(s));
+            var magnitude  = vhmd.ExtendScaler(sources);
+            var field = vhmd.GenField(connection, magnitude);
             vertTangentArrows = bundle.GenVertTangentArrows(field);
+            
+            //var vals = new Color[geom.nVerts];
+            //var max = 0.0;
+            //foreach(var v in geom.Verts) {
+            //    var i = v.vid;
+            //    max = math.max(max, magnitude[i]);
+            //}
+            //foreach(var v in geom.Verts) {
+            //    var i = v.vid;
+            //    //vals[i] = colScheme.Evaluate((float)(magnitude[i] / max));
+            //    vals[i] = colScheme.Evaluate((float)((int)magnitude[i]));
+            //}
+            //mesh.colors = vals;
+            //Debug.Log(magnitude);
         }
     
         void OnRenderObject() {

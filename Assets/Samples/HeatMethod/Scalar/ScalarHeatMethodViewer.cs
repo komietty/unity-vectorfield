@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,13 +15,12 @@ namespace VectorField.Demo {
         GraphicsBuffer tracerBuff;
         GraphicsBuffer colourBuff;
         GraphicsBuffer normalBuff;
-        List<Vector3> tracers = new List<Vector3>();
-        List<Vector3> colours = new List<Vector3>();
-        List<Vector3> normals = new List<Vector3>();
+        List<Vector3> tracers = new ();
+        List<Vector3> colours = new ();
+        List<Vector3> normals = new ();
 
         void Start() {
             var filt = GetComponentInChildren<MeshFilter>();
-            var rend = GetComponentInChildren<MeshRenderer>();
             var mesh = HeComp.Weld(filt.sharedMesh);
             var geom = new HeGeom(mesh, transform);
             filt.sharedMesh = mesh;
@@ -41,7 +41,7 @@ namespace VectorField.Demo {
             }
             foreach(var v in geom.Verts) {
                 var i = v.vid;
-                vals[i] = colScheme.Evaluate((float)((hd[i]) / max));
+                vals[i] = colScheme.Evaluate((float)(hd[i] / max));
             }
             mesh.colors = vals;
             
@@ -61,10 +61,10 @@ namespace VectorField.Demo {
         }
 
         protected void OnRenderObject() {
-            tracerMat.SetPass(0);
             tracerMat.SetBuffer("_Line", tracerBuff);
             tracerMat.SetBuffer("_Norm", normalBuff);
             tracerMat.SetBuffer("_Color", colourBuff);
+            tracerMat.SetPass(0);
             Graphics.DrawProceduralNow(MeshTopology.Lines, tracers.Count);
         }
     

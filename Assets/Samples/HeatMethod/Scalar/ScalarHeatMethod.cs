@@ -14,8 +14,8 @@ namespace VectorField {
         public ScalarHeatMethod(HeGeom geom) {
             this.geom = geom;
             var t = math.pow(geom.MeanEdgeLength(), 2);
-            this.A = Operator.Laplace(geom);
-            this.F = Operator.Mass(geom) + A * t;
+            A = Operator.Laplace(geom);
+            F = Operator.Mass(geom) + A * t;
         }
 
         public RD ComputeVectorField(RV u) {
@@ -30,7 +30,7 @@ namespace VectorField {
                     g += (double3)math.cross(n, ei) * ui;
                 }
                 var xi = -math.normalize(g / (2 * a));
-                X.SetRow(f.fid, RV.Build.DenseOfArray(new double[] { xi.x, xi.y, xi.z }));
+                X.SetRow(f.fid, RV.Build.DenseOfArray(new [] { xi.x, xi.y, xi.z }));
             }
             return X;
         }

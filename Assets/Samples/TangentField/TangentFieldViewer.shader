@@ -44,7 +44,8 @@ Shader "VectorField/TangentFieldViewer" {
                 float4 o = _C0;
                 o = _M != 2 ? lerp(o, _C1, i.dist.x * _C) : o;
                 o = _M != 1 ? lerp(o, _C2, i.dist.y * _C) : o;
-                o.w =  1 - v * 0.8;
+                //o.w =  1 - v * 0.8;
+                o.w =  1;
                 return clamp(o, 0, 1);
             }
             ENDCG

@@ -23,7 +23,7 @@ namespace VectorField {
                         var t = region1 < region2 ?
                         (float)((region2 * interval - phi[i]) / (phi[j] - phi[i])):
                         (float)((region1 * interval - phi[i]) / (phi[j] - phi[i]));
-                        sgmts.Add(geom.Pos[i] * (1 - t) + geom.Pos[j] * t + geom.FaceNormal(f).n * 0.01f);
+                        sgmts.Add(geom.Pos[i] * (1 - t) + geom.Pos[j] * t + geom.FaceNormal(f).n * 0.005f);
                     }
                 }
                 if (sgmts.Count == 2) lines.AddRange(sgmts);

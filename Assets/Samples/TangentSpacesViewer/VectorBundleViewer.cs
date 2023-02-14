@@ -15,7 +15,6 @@ namespace VectorField {
 
         void Start() {
             var fltr = GetComponentInChildren<MeshFilter>();
-            var rndr = GetComponentInChildren<MeshRenderer>();
             geom = new HeGeom(HeComp.Weld(fltr.sharedMesh), transform);
             var bundle = new VectorBundle(geom);
             vertTangentSpaces = bundle.GenVertTangeSpaces();

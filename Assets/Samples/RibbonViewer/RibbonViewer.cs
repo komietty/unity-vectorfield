@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
@@ -12,9 +13,9 @@ namespace VectorField.Demo {
         GraphicsBuffer tracerBuff;
         GraphicsBuffer colourBuff;
         GraphicsBuffer normalBuff;
-        List<Vector3> tracers = new List<Vector3>();
-        List<Vector3> colours = new List<Vector3>();
-        List<Vector3> normals = new List<Vector3>();
+        List<Vector3> tracers = new ();
+        List<Vector3> colours = new ();
+        List<Vector3> normals = new ();
     
         protected override void Start() {
             base.Start();
@@ -40,8 +41,6 @@ namespace VectorField.Demo {
                 for (var j = 0; j < r.Count - 1; j++) {
                     var tr0 = r[j];
                     var tr1 = r[j + 1];
-                    var bt0 = math.cross(tr1.p - tr0.p, tr0.n); 
-                    var bt1 = math.cross(tr1.p - tr0.p, tr1.n); 
                     tracers.Add(tr0.p + tr0.n * tracerOffset);
                     tracers.Add(tr1.p + tr1.n * tracerOffset);
                     normals.Add(tr0.n);
@@ -57,13 +56,13 @@ namespace VectorField.Demo {
             normalBuff.SetData(normals);
             colourBuff.SetData(colours);
         }
-    
+
         protected override void OnRenderObject() {
             base.OnRenderObject();
-            tracerMat.SetPass(0);
             tracerMat.SetBuffer("_Line", tracerBuff);
             tracerMat.SetBuffer("_Norm", normalBuff);
             tracerMat.SetBuffer("_Color", colourBuff);
+            tracerMat.SetPass(0);
             Graphics.DrawProceduralNow(MeshTopology.Lines, tracers.Count);
         }
     
