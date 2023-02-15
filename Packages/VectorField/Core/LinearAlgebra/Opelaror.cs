@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using MathNet.Numerics;
 using Unity.Mathematics;
+using System.Numerics;
 
 namespace VectorField {
     using static math;
@@ -61,7 +62,8 @@ namespace VectorField {
             return new float2(u.x * v.x + u.y * v.y, u.y * v.x - u.x * v.y) / denom;
         }
 
-        public static CSprs ConnectionLaplace(HeGeom geom){
+        public static CSprs ConnectionLaplace(HeGeom geom) {
+            var aaa = new Complex(1, 0);
             var triplets = new List<(int, int, Complex32)>();
             var n = geom.nVerts;
             var halfedgeVectorInVertex = new float2[geom.halfedges.Length];

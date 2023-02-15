@@ -19,14 +19,8 @@ namespace VectorField.Demo {
     
         protected override void Start() {
             base.Start();
-            //var t = new TrivialConnection(geom, new HodgeDecomposition(geom));
-            //var s = new float[geom.nVerts];
-            //for (var i = 0; i < geom.nVerts; i++) s[i] = 0;
-            //s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
-            //s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
-            //var tngs = t.GenField(t.ComputeConnections(s));
             var h = new HodgeDecomposition(geom);
-            var (omega, sids, vids) = TangentField.GenRandomOneForm(geom);
+            var omega = TangentField.GenRandomOneForm(geom).oneForm;
             var exact = h.Exact(omega);
             var coexact = h.CoExact(omega);
             var hamonic = h.Harmonic(omega, exact, coexact);

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace VectorField {
     public class VectorBundleViewer : MonoBehaviour {
-        public enum VectorSpaceType { VertSpace, FaceSpace, VertArrow, FaceArrow }
+        public enum VectorSpaceType { None, VertSpace, FaceSpace, VertArrow, FaceArrow }
         [SerializeField] protected Material vectorSpaceMat;
         [SerializeField] protected VectorSpaceType vectorSpaceType;
         protected GraphicsBuffer vertTangentSpaces;
@@ -31,25 +31,28 @@ namespace VectorField {
     
 
         void OnRenderObject() {
-            if (vectorSpaceType == VectorSpaceType.VertSpace) {
-                vectorSpaceMat.SetPass(0);
-                vectorSpaceMat.SetBuffer("_Lines", vertTangentSpaces);
-                Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nVerts * 6);
-            }
-            if (vectorSpaceType == VectorSpaceType.FaceSpace) {
-                vectorSpaceMat.SetPass(0);
-                vectorSpaceMat.SetBuffer("_Lines", faceTangentSpaces);
-                Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nFaces * 6);
-            }
-            if (vectorSpaceType == VectorSpaceType.FaceArrow) {
-                vectorSpaceMat.SetPass(1);
-                vectorSpaceMat.SetBuffer("_Lines", faceTangentArrows);
-                Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nFaces * 6);
-            }
-            if (vectorSpaceType == VectorSpaceType.VertArrow) {
-                vectorSpaceMat.SetPass(1);
-                vectorSpaceMat.SetBuffer("_Lines",vertTangentArrows);
-                Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nVerts * 6);
+            switch (vectorSpaceType) {
+                case VectorSpaceType.VertSpace: 
+                    vectorSpaceMat.SetBuffer("_Lines", vertTangentSpaces);
+                    vectorSpaceMat.SetPass(0);
+                    Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nVerts * 6);
+                    break;
+                case VectorSpaceType.FaceSpace:
+                    vectorSpaceMat.SetBuffer("_Lines", faceTangentSpaces);
+                    vectorSpaceMat.SetPass(0);
+                    Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nFaces * 6);
+                    break;
+                case VectorSpaceType.FaceArrow:
+                    vectorSpaceMat.SetBuffer("_Lines", faceTangentArrows);
+                    vectorSpaceMat.SetPass(1);
+                    Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nFaces * 6);
+                    break;
+                case VectorSpaceType.VertArrow: 
+                    vectorSpaceMat.SetBuffer("_Lines",vertTangentArrows);
+                    vectorSpaceMat.SetPass(1);
+                    Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nVerts * 6);
+                    break;
+                case VectorSpaceType.None: break;
             }
         }
 
