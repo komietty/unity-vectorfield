@@ -1,11 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
 namespace VectorField.Demo {
-    using C = MathNet.Numerics.Complex32;
-    using V = MathNet.Numerics.LinearAlgebra.Vector<MathNet.Numerics.Complex32>;
+    using C = System.Numerics.Complex;
+    using V = MathNet.Numerics.LinearAlgebra.Vector<System.Numerics.Complex>;
 
     public class VectorHeatMethodViewer : MonoBehaviour {
         protected GraphicsBuffer vertTangentArrows;
@@ -23,9 +22,9 @@ namespace VectorField.Demo {
 
             var s = new C[geom.nVerts];
             
-            var sources = new List<(int vid, float value)>();
+            var sources = new List<(int vid, double value)>();
             var i0 = 0;
-            var i1 = 3;
+            var i1 = 1000;
             s[i0] = new C(1 / math.sqrt(2), 1 / math.sqrt(2));
             s[i1] = new C(1 / math.sqrt(2), 1 / math.sqrt(2));
             var g1 = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -58,8 +57,8 @@ namespace VectorField.Demo {
         }
     
         void OnRenderObject() {
-            vectorSpaceMat.SetPass(1);
             vectorSpaceMat.SetBuffer("_Lines",vertTangentArrows);
+            vectorSpaceMat.SetPass(1);
             Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nVerts * 6);
         }
 

@@ -1,20 +1,20 @@
-using MathNet.Numerics.LinearAlgebra.Double;
 using Unity.Mathematics;
 using System.Collections.Generic;
 
 namespace VectorField {
+    using static math;
     using RS = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
     using RD = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix;
     using RV = MathNet.Numerics.LinearAlgebra.Vector<double>;
 
     public class ScalarHeatMethod {
-        protected HeGeom geom; 
-        protected RS A; // The laplace matrix of the input mesh
-        protected RS F; // The mean curvature flow oparator built on the input mesh
+        HeGeom geom; 
+        RS A; // The laplace matrix of the input mesh
+        RS F; // The mean curvature flow oparator built on the input mesh
 
         public ScalarHeatMethod(HeGeom geom) {
             this.geom = geom;
-            var t = math.pow(geom.MeanEdgeLength(), 2);
+            var t = pow(geom.MeanEdgeLength(), 2);
             A = Operator.Laplace(geom);
             F = Operator.Mass(geom) + A * t;
         }
@@ -28,15 +28,15 @@ namespace VectorField {
                 foreach (var h in geom.GetAdjacentHalfedges(f)) {
                     var ui = u[h.prev.vid];
                     var ei = geom.Vector(h);
-                    g += (double3)math.cross(n, ei) * ui;
+                    g += (double3)cross(n, ei) * ui;
                 }
-                var xi = -math.normalize(g / (2 * a));
+                var xi = -normalize(g / (2 * a));
                 X.SetRow(f.fid, RV.Build.DenseOfArray(new [] { xi.x, xi.y, xi.z }));
             }
             return X;
         }
 
-        RV ComputeDivergence(DenseMatrix X) {
+        RV ComputeDivergence(RD X) {
             var D = RV.Build.Dense(geom.nVerts);
             foreach(var v in geom.Verts) {
                 var sum = 0.0;
@@ -48,7 +48,7 @@ namespace VectorField {
                     var e2 = geom.Vector(h.prev.twin);
                     var cotTheta1 = geom.Cotan(h);
                     var cotTheta2 = geom.Cotan(h.prev);
-                    sum += cotTheta1 * math.dot(e1, xj) + cotTheta2 * math.dot(e2, xj);
+                    sum += cotTheta1 * dot(e1, xj) + cotTheta2 * dot(e2, xj);
                 }
                 D[v.vid] = sum * 0.5;
             }

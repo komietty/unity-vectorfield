@@ -8,6 +8,7 @@ namespace VectorField {
     using M = UnityEngine.Mesh;
     using T = UnityEngine.Transform;
     using f3 = float3;
+    using d3 = double3;
 
     public class HeGeom: HeComp {
         public Span<f3> Pos => pos.AsSpan();
@@ -38,32 +39,10 @@ namespace VectorField {
             return dot(p, n) / length(cross(p, n));
         }
         
-        //TODO: check what is the edge_cotan is...
-        public float EdgeCotan(Edge e){
-            float cotSum = 0;
-
-            { // First halfedge-- always real
-                var he = halfedges[e.hid];
-                var l_ij = Length(he); he = he.next;
-                var l_jk = Length(he); he = he.next;
-                var l_ki = Length(he); he = he.next;
-                if (he != halfedges[e.hid]) throw new Exception("face must be triangle");
-                var area = (float)Area(he.face);
-                var cotValue = (-l_ij * l_ij + l_jk * l_jk + l_ki * l_ki) / (4.0f * area);
-                cotSum += cotValue / 2;
-            }
-
-            if (!halfedges[e.hid].twin.onBoundary) { // Second halfedge
-                var he = halfedges[e.hid].twin;
-                var l_ij = Length(he.edge); he = he.next;
-                var l_jk = Length(he.edge); he = he.next;
-                var l_ki = Length(he.edge);
-                var area = (float)Area(he.face);
-                var cotValue = (-l_ij * l_ij + l_jk * l_jk + l_ki * l_ki) / (4.0f * area);
-                cotSum += cotValue / 2;
-            }
-
-            return cotSum;
+        public float EdgeCotan(Edge e) {
+            var a = Cotan(halfedges[e.hid]);
+            var b = Cotan(halfedges[e.hid].twin);
+            return (a + b) * 0.5f;
         }
 
         public float3 Centroid(Face f){
@@ -76,11 +55,9 @@ namespace VectorField {
         }
 
         public (float3, float3) OrthonormalBasis(Vert v) {
-            var c = GetAdjacentConers(v).ToArray()[0];
-            //var vec = Vector(halfedges[c.hid].prev);
             var n = Nrm[v.vid];
-            var vec = Vector(halfedges[v.hid]);
-            var e1 = normalize(vec - dot(vec, n) * n);
+            var vc = Vector(halfedges[v.hid]);
+            var e1 = normalize(vc - dot(vc, n) * n);
             var e2 = cross(e1, n);
             return (e1, e2);
         }
@@ -101,14 +78,14 @@ namespace VectorField {
         
         public double TotalArea(){
             var sum = 0.0;
-            foreach (var f in this.Faces) sum += Area(f);
+            foreach (var f in Faces) sum += Area(f);
             return sum;
         }
 
         public float MeanEdgeLength(){
             var sum = 0f;
-            foreach (var e in this.Edges) sum += Length(e);
-            return sum / this.nEdges;
+            foreach (var e in Edges) sum += Length(e);
+            return sum / nEdges;
         }
 
         public (bool b, float3 n) FaceNormal(Face f){
@@ -140,8 +117,8 @@ namespace VectorField {
         }
 
         public float DihedralAngle(HalfEdge h) {
-            var (_, n_ijk) = FaceNormal(h.face);
-            var (_, n_jil) = FaceNormal(h.twin.face);
+            var n_ijk = FaceNormal(h.face).n;
+            var n_jil = FaceNormal(h.twin.face).n;
             var v = Vector(h) / Length(h);
             var c = cross(n_ijk, n_jil);
             var d = dot(n_ijk, n_jil);

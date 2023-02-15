@@ -1,7 +1,6 @@
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Mathematics;
 using static Unity.Mathematics.math;
 
@@ -11,16 +10,15 @@ namespace VectorField {
 
     public class TrivialConnection {
         protected HeGeom geom;
-        protected S P;
         protected S A;
         protected S h1;
         protected S d0;
 
-        public TrivialConnection(HeGeom geom, HodgeDecomposition hodge) {
-            this.geom = geom;
-            this.A  = hodge.A;
-            this.h1 = hodge.h1;
-            this.d0 = hodge.d0;
+        public TrivialConnection(HeGeom g, HodgeDecomposition h) {
+            geom = g;
+            A  = h.A;
+            h1 = h.h1;
+            d0 = h.d0;
         }
         
         bool SatisfyGaussBonnet(float[] singularity){
