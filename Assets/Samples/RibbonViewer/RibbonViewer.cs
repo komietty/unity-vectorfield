@@ -1,14 +1,13 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.Mathematics;
+using Random = UnityEngine.Random;
 
 namespace VectorField.Demo {
-    public class RibbonViewer : TangentBundle {
+    public class RibbonViewer : MonoBehaviour {
+        [SerializeField] protected Gradient colScheme;
         [SerializeField] protected Material tracerMat;
         [SerializeField] protected int tracerNum;
         [SerializeField] protected int tracerLen;
-        [SerializeField] protected float tracerOffset;
         TangentTracer tracer;
         GraphicsBuffer tracerBuff;
         GraphicsBuffer colourBuff;
@@ -17,26 +16,26 @@ namespace VectorField.Demo {
         List<Vector3> colours = new ();
         List<Vector3> normals = new ();
     
-        protected override void Start() {
-            base.Start();
-            var h = new HodgeDecomposition(geom);
+        void Start() {
+            var geom = GetComponent<GeomContainer>().geom;
+            var hodge = new HodgeDecomposition(geom);
             var omega = TangentField.GenRandomOneForm(geom).oneForm;
-            var exact = h.Exact(omega);
-            var coexact = h.CoExact(omega);
-            var hamonic = h.Harmonic(omega, exact, coexact);
+            var exact = hodge.Exact(omega);
+            var coexact = hodge.CoExact(omega);
+            var hamonic = hodge.Harmonic(omega, exact, coexact);
             var tngs = TangentField.InterpolateWhitney(hamonic, geom);
             tracer = new TangentTracer(geom, tngs, tracerLen);
-            UpdateTng(tngs);
     
             for (var i = 0; i < tracerNum; i++) {
-                var f = geom.Faces[UnityEngine.Random.Range(0, geom.nFaces)];
+                var f = geom.Faces[Random.Range(0, geom.nFaces)];
+                var m = geom.MeanEdgeLength();
                 var r = tracer.GenTracer(f);
-                var c = Color.HSVToRGB(0.0f + (i % 10) * 0.01f, UnityEngine.Random.Range(0.5f, 1f), 1);
+                var c = colScheme.Evaluate(Random.Range(0, 1f));
                 for (var j = 0; j < r.Count - 1; j++) {
                     var tr0 = r[j];
                     var tr1 = r[j + 1];
-                    tracers.Add(tr0.p + tr0.n * tracerOffset);
-                    tracers.Add(tr1.p + tr1.n * tracerOffset);
+                    tracers.Add(tr0.p + tr0.n * m / 3);
+                    tracers.Add(tr1.p + tr1.n * m / 3);
                     normals.Add(tr0.n);
                     normals.Add(tr1.n);
                     colours.Add((Vector4)c);
@@ -51,17 +50,15 @@ namespace VectorField.Demo {
             colourBuff.SetData(colours);
         }
 
-        protected override void OnRenderObject() {
-            base.OnRenderObject();
+        void OnRenderObject() {
             tracerMat.SetBuffer("_Line", tracerBuff);
             tracerMat.SetBuffer("_Norm", normalBuff);
-            tracerMat.SetBuffer("_Color", colourBuff);
+            tracerMat.SetBuffer("_Col",  colourBuff);
             tracerMat.SetPass(0);
             Graphics.DrawProceduralNow(MeshTopology.Lines, tracers.Count);
         }
     
-        protected override void OnDestroy() {
-            base.OnDestroy();
+        void OnDestroy() {
             tracerBuff.Dispose();
             colourBuff.Dispose();
         }

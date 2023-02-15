@@ -24,7 +24,7 @@ Shader "Unlit/LinesShaded" {
             #pragma fragment frag
             StructuredBuffer<float3> _Line;
             StructuredBuffer<float3> _Norm;
-            StructuredBuffer<float3> _Color;
+            StructuredBuffer<float3> _Col;
 
             // Universal Render Pipeline keywords
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
@@ -83,7 +83,7 @@ Shader "Unlit/LinesShaded" {
             Varyings vert(uint vid: SV_VertexID, Attributes input) {
                 Varyings output;
                 
-                output.vertexColor = _Color[vid];
+                output.vertexColor = _Col[vid];
                 output.positionWS = _Line[vid];
                 output.positionHCS = TransformWorldToHClip(output.positionWS);
                 output.viewDirWS = GetWorldSpaceViewDir(output.positionWS);

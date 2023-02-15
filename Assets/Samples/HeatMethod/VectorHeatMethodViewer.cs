@@ -18,7 +18,6 @@ namespace VectorField.Demo {
             filt.sharedMesh = mesh;
             geom = new HeGeom(mesh, transform);
             var vhmd = new VectorHeatMethod(geom);
-            var bundle = new VectorBundle(geom);
 
             var s = new C[geom.nVerts];
             
@@ -39,7 +38,7 @@ namespace VectorField.Demo {
             var connection = vhmd.ComputeVectorHeatFlow(V.Build.DenseOfArray(s));
             var magnitude  = vhmd.ExtendScaler(sources);
             var field = vhmd.GenField(connection, magnitude);
-            vertTangentArrows = bundle.GenVertTangentArrows(field);
+            vertTangentArrows = VectorFieldUtility.GenVertTangentArrowsBuffer(geom, field);
             
             //var vals = new Color[geom.nVerts];
             //var max = 0.0;

@@ -15,7 +15,6 @@ namespace VectorField {
 
         protected virtual void Start() {
             var filt = GetComponentInChildren<MeshFilter>();
-            var rend = GetComponentInChildren<MeshRenderer>();
             mesh = HeComp.Weld(filt.sharedMesh);
             geom = new HeGeom(mesh, transform);
             filt.sharedMesh = mesh;
@@ -29,7 +28,7 @@ namespace VectorField {
             for(var i = 0; i < n; i++){
                 var face = geom.Faces[i];
                 var field = omega[i] * mlen;
-                var C = (float3)geom.Centroid(face);
+                var C = geom.Centroid(face);
                 var (_, N) = geom.FaceNormal(face);
                 field = ClampFieldLength(field, mlen);
                 var fc1 = C - field + N * 0.005f;

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using MathNet.Numerics.LinearAlgebra;
 using UnityEngine;
 using Unity.Mathematics;
@@ -7,69 +5,64 @@ using static Unity.Mathematics.math;
 using static UnityEngine.GraphicsBuffer;
 
 namespace VectorField {
-    using V = Vector<double>;
-    using R = UnityEngine.Random;
+    using RV = Vector<double>;
 
-    public class VectorBundle {
-        protected HeGeom geom;
-        protected float meanLength;
+    public static class VectorFieldUtility {
 
-        public VectorBundle(HeGeom geom) {
-            this.geom = geom;
-            this.meanLength = geom.MeanEdgeLength();
-        }
-
-        public GraphicsBuffer GenVertTangeSpaces() {
-            var l = geom.nVerts;
+        public static GraphicsBuffer GenVertTangeSpacesBuffer(HeGeom g) {
+            var l = g.nVerts;
             var b = new GraphicsBuffer(Target.Structured, l * 6, 12);
             var a = new Vector3[l * 6];
+            var m = g.MeanEdgeLength();
             for (var i = 0; i < l; i++)
             {
-                var n = geom.Nrm[i];
-                var p = geom.Pos[i] + n * meanLength * 0.01f;
-                var (ta, tb) = geom.OrthonormalBasis(geom.Verts[i]);
+                var n = g.Nrm[i];
+                var p = g.Pos[i] + n * m * 0.01f;
+                var (ta, tb) = g.OrthonormalBasis(g.Verts[i]);
                 a[i * 6 + 0] = p;
                 a[i * 6 + 2] = p;
                 a[i * 6 + 4] = p;
-                a[i * 6 + 1] = p + ta * meanLength * 0.3f;
-                a[i * 6 + 3] = p + tb * meanLength * 0.3f;
-                a[i * 6 + 5] = p + n * meanLength * 0.3f;
+                a[i * 6 + 1] = p + ta * m * 0.3f;
+                a[i * 6 + 3] = p + tb * m * 0.3f;
+                a[i * 6 + 5] = p + n * m * 0.3f;
             }
 
             b.SetData(a);
             return b;
         }
 
-        public GraphicsBuffer GenFaceTangeSpaces() {
-            var l = geom.nFaces;
+        public static GraphicsBuffer GenFaceTangeSpacesBuffer(HeGeom g) {
+            var l = g.nFaces;
             var b = new GraphicsBuffer(Target.Structured, l * 6, 12);
             var a = new Vector3[l * 6];
+            var m = g.MeanEdgeLength();
             for (var i = 0; i < l; i++)
             {
-                var f = geom.Faces[i];
-                var n = geom.FaceNormal(f).n;
-                var p = geom.Centroid(f) + n * meanLength * 0.01f;
-                var (ta, tb) = geom.OrthonormalBasis(f);
+                var f = g.Faces[i];
+                var n = g.FaceNormal(f).n;
+                var p = g.Centroid(f) + n * m * 0.01f;
+                var (ta, tb) = g.OrthonormalBasis(f);
                 a[i * 6 + 0] = p;
                 a[i * 6 + 2] = p;
                 a[i * 6 + 4] = p;
-                a[i * 6 + 1] = p + ta * meanLength * 0.3f;
-                a[i * 6 + 3] = p + tb * meanLength * 0.3f;
-                a[i * 6 + 5] = p + n * meanLength * 0.3f;
+                a[i * 6 + 1] = p + ta * m * 0.3f;
+                a[i * 6 + 3] = p + tb * m * 0.3f;
+                a[i * 6 + 5] = p + n * m * 0.3f;
             }
 
             b.SetData(a);
             return b;
         }
 
-        public GraphicsBuffer GenVertTangentArrows(float3[] omega) {
-            var l = geom.nVerts;
+        public static GraphicsBuffer GenVertTangentArrowsBuffer(HeGeom g, float3[] omega) {
+            var l = g.nVerts;
             var b = new GraphicsBuffer(Target.Structured, l * 6, 12);
             var a = new Vector3[l * 6];
+            var m = g.MeanEdgeLength();
             for (var i = 0; i < l; i++) {
-                var n = geom.Nrm[i];
-                var p = geom.Pos[i] + n * meanLength * 0.01f;
-                var field = (float3)ClampFieldLength(omega[i], 1) * meanLength * 0.3f;
+                var n = g.Nrm[i];
+                var p = g.Pos[i] + n * m * 0.01f;
+                var field = (float3)ClampFieldLength(omega[i], 1) * m * 0.3f;
                 var fc1 = p - field;
                 var fc2 = p + field;
                 var v = fc2 - fc1;
@@ -86,15 +79,16 @@ namespace VectorField {
             return b;
         }
 
-        public GraphicsBuffer GenFaceTangentArrows(float3[] omega) {
-            var l = geom.nFaces;
+        public static GraphicsBuffer GenFaceTangentArrowsBuffer(HeGeom g, float3[] omega) {
+            var l = g.nFaces;
             var b = new GraphicsBuffer(Target.Structured, l * 6, 12);
             var a = new Vector3[l * 6];
+            var m = g.MeanEdgeLength();
             for (var i = 0; i < l; i++) {
-                var f = geom.Faces[i];
-                var n = geom.FaceNormal(f).n;
-                var p = geom.Centroid(f) + n * meanLength * 0.01f;
-                var field = (float3)ClampFieldLength(omega[i], 1) * meanLength * 0.3f;
+                var f = g.Faces[i];
+                var n = g.FaceNormal(f).n;
+                var p = g.Centroid(f) + n * m * 0.01f;
+                var field = (float3)ClampFieldLength(omega[i], 1) * m * 0.3f;
                 var fc1 = p - field;
                 var fc2 = p + field;
                 var v = fc2 - fc1;
@@ -111,7 +105,7 @@ namespace VectorField {
             return b;
         }
 
-        Vector3 ClampFieldLength(Vector3 field, float len) {
+        static Vector3 ClampFieldLength(Vector3 field, float len) {
             var m = field.magnitude;
             return m > len ? field * len / m : field;
         }

@@ -210,13 +210,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 691971452}
-  m_LocalRotation: {x: 0.042809047, y: 0.13126875, z: -0.0056739273, w: 0.99040586}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0.034114342, y: 0.89026254, z: -0.32944906, w: -0.31262165}
+  m_LocalPosition: {x: 2.14, y: 4.48, z: 4.73}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 924420048}
-  m_RootOrder: -1
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 4.95, y: 15.1, z: 0}
 --- !u!114 &691971455
 MonoBehaviour:
@@ -338,12 +338,50 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cadb8b0ecfa64654867bc99c01379ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tngtMat: {fileID: 2100000, guid: f06181c810ac942b99541d77166a8dcf, type: 2}
-  showTangent: 0
+  colScheme:
+    serializedVersion: 2
+    key0: {r: 1, g: 0, b: 0, a: 1}
+    key1: {r: 0.17243624, g: 0, b: 1, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 1}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 47224
+    atime2: 65535
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 3
   tracerMat: {fileID: 2100000, guid: 853e24a2948fb495784ae01f9b3ef2c4, type: 2}
   tracerNum: 5000
   tracerLen: 200
-  tracerOffset: 0.01
+--- !u!114 &741813960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 741813958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 353a80dee1b404979a0ed3dbada9b60c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &924420045
 GameObject:
   m_ObjectHideFlags: 0
@@ -426,7 +464,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 691971454}
   - {fileID: 1326472362}
   m_Father: {fileID: 0}
   m_RootOrder: 0
