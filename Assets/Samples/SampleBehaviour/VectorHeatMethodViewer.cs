@@ -13,17 +13,15 @@ namespace VectorField.Demo {
         protected HeGeom geom;
 
         void Start() {
-            var filt = GetComponentInChildren<MeshFilter>();
-            var mesh = HeComp.Weld(filt.sharedMesh); 
-            filt.sharedMesh = mesh;
-            geom = new HeGeom(mesh, transform);
+            var container = GetComponent<GeomContainer>();
+            geom = container.geom;
             var vhmd = new VectorHeatMethod(geom);
 
             var s = new C[geom.nVerts];
             
             var sources = new List<(int vid, double value)>();
             var i0 = 0;
-            var i1 = 1000;
+            var i1 = 2;
             s[i0] = new C(1 / math.sqrt(2), 1 / math.sqrt(2));
             s[i1] = new C(1 / math.sqrt(2), 1 / math.sqrt(2));
             var g1 = GameObject.CreatePrimitive(PrimitiveType.Cube);

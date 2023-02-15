@@ -20,10 +20,9 @@ namespace VectorField.Demo {
         List<Vector3> normals = new ();
 
         void Start() {
-            var filt = GetComponentInChildren<MeshFilter>();
-            var mesh = HeComp.Weld(filt.sharedMesh);
-            var geom = new HeGeom(mesh, transform);
-            filt.sharedMesh = mesh;
+            var container = GetComponent<GeomContainer>();
+            var geom = container.geom;
+            var mesh = container.mesh;
 
             var s = new double[geom.nVerts];
             for (var i = 0; i < geom.nVerts; i++) s[i] = 0;
@@ -69,9 +68,9 @@ namespace VectorField.Demo {
         }
     
         protected void OnDestroy() {
-            tracerBuff.Dispose();
-            colourBuff.Dispose();
-            normalBuff.Dispose();
+            tracerBuff?.Dispose();
+            colourBuff?.Dispose();
+            normalBuff?.Dispose();
         }
     }
 

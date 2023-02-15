@@ -1,4 +1,4 @@
-Shader "Unlit/LinesShaded" {
+Shader "VectorField/LinesShaded" {
     Properties {
         _BaseMap("Base Map", 2D) = "white" {}
         _BaseColor("Base Color", Color) = (1, 1, 1, 1)
@@ -139,10 +139,9 @@ Shader "Unlit/LinesShaded" {
 
                 // PBRのライティング計算
                 half4 color = UniversalFragmentPBR(inputData, surfaceData);
-
-                // フォグを適用
                 color.rgb = MixFog(color.rgb, inputData.fogCoord);
-                
+
+                // if the color doesn't show up, try toggle wire/shaded on the scene view
                 return color;
             }
             ENDHLSL

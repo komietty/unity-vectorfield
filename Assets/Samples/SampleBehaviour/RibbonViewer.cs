@@ -12,9 +12,9 @@ namespace VectorField.Demo {
         GraphicsBuffer tracerBuff;
         GraphicsBuffer colourBuff;
         GraphicsBuffer normalBuff;
-        List<Vector3> tracers = new ();
-        List<Vector3> colours = new ();
-        List<Vector3> normals = new ();
+        List<Vector3> tracers = new List<Vector3>();
+        List<Vector3> colours = new List<Vector3>();
+        List<Vector3> normals = new List<Vector3>();
     
         void Start() {
             var geom = GetComponent<GeomContainer>().geom;
@@ -59,8 +59,8 @@ namespace VectorField.Demo {
         }
     
         void OnDestroy() {
-            tracerBuff.Dispose();
-            colourBuff.Dispose();
+            tracerBuff?.Dispose();
+            colourBuff?.Dispose();
         }
     }
 }

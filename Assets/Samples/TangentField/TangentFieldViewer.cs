@@ -92,9 +92,9 @@ namespace VectorField {
 
         protected override void OnDestroy() {
             base.OnDestroy();
-            distances.Dispose();
-            scalarPots.Dispose();
-            vectorPots.Dispose();
+            distances?.Dispose();
+            scalarPots?.Dispose();
+            vectorPots?.Dispose();
         }
     }
 }
