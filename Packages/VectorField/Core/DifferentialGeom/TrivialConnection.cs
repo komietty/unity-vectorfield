@@ -1,24 +1,51 @@
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Mathematics;
 using static Unity.Mathematics.math;
 
 namespace VectorField {
     using S = SparseMatrix;
     using V = Vector<double>;
+    using E = ExteriorDerivatives;
 
     public class TrivialConnection {
         protected HeGeom geom;
         protected S A;
+        protected S altA;
         protected S h1;
         protected S d0;
+        protected List<List<HalfEdge>> generators; 
 
-        public TrivialConnection(HeGeom g, HodgeDecomposition h) {
+        public TrivialConnection(HeGeom g) {
             geom = g;
-            A  = h.A;
-            h1 = h.h1;
-            d0 = h.d0;
+            h1  = E.BuildHodgeStar1Form(g);
+            d0  = E.BuildExteriorDerivative0Form(g);
+            var d0t = S.OfMatrix(d0.Transpose());
+            var n = d0t.RowCount;
+            A = d0t * h1 * d0 + S.CreateDiagonal(n, n, 1e-8);
+
+            // alt start
+            var homologygen = new HomologyGenerator(geom);
+            generators = homologygen.BuildGenerators();
+
+            //TODO: A is really "dual edge i is contained in dual cell j"? - no
+            var storageContractable = A.Storage.EnumerateNonZeroIndexed();
+            var storageOnGenerators = new List<(int, int, double)>();
+            var row = geom.nVerts;
+            foreach (var gen in generators) {
+                var signs = SignsAroundGenerator(gen);
+                //TODO: use linq joint
+                storageOnGenerators.AddRange(signs.Select(s => (row, s.i, s.v)));
+                row++;
+            }
+            altA = S.OfIndexed(
+                geom.nVerts + generators.Count,
+                geom.nEdges,
+                storageContractable.Concat(storageOnGenerators)
+                );
         }
         
         bool SatisfyGaussBonnet(float[] singularity){
@@ -42,10 +69,31 @@ namespace VectorField {
                 rhs[v.vid] = -geom.AngleDefect(v) + 2 * PI * singularity[v.vid];
             return h1 * d0 * Solver.Cholesky(A, rhs);
         }
+        
+        V ComputeCoExactComponentAlt(float[] singularity) {
+            var rhs = new double[geom.nVerts + generators.Count];
+            foreach (var v in geom.Verts)
+                rhs[v.vid] = -geom.AngleDefect(v) + 2 * PI * singularity[v.vid];
+            for(var i =0; i < generators.Count; i++) {
+                rhs[geom.nVerts + i] = AngleDefectAroundGenerator(generators[i]);
+            }
+            return altA.Solve(V.Build.DenseOfArray(rhs));
+        }
 
         public V ComputeConnections(float[] singularity) {
             if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
             return  ComputeCoExactComponent(singularity);
+        }
+
+        IEnumerable<(int i, double v)> SignsAroundGenerator(IEnumerable<HalfEdge> generator) {
+            return generator.Select(h => (h.edge.eid, h.edge.hid == h.id ? 1d : -1d)); 
+        }
+        
+        double AngleDefectAroundGenerator(List<HalfEdge> generator) {
+            var angle = 0d;
+            foreach (var h in generator) { angle = TransportNoRotation(h, angle); }
+            // TODO: check whether + or -
+            return angle;
         }
 
         public float3[] GenField(V phi) {

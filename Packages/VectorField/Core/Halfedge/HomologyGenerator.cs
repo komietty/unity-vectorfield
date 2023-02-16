@@ -4,8 +4,8 @@ namespace VectorField {
     public class HomologyGenerator {
 
         protected HeGeom geom;
-        public int[] vertParent { get; private set; }
-        public int[] faceParent { get; private set; }
+        public int[] vertParent { get; }
+        public int[] faceParent { get; }
 
         public HomologyGenerator(HeGeom geom) {
             this.geom = geom;
@@ -72,7 +72,7 @@ namespace VectorField {
             BuildDualSpanningCotree();
             var gens = new List<List<HalfEdge>>();
 
-            foreach (var e in this.geom.Edges) {
+            foreach (var e in geom.Edges) {
                 var h = geom.halfedges[e.hid]; 
                 if (!InPrimalSpanningTree(h) && !InDualSpanningTree(h)) {
                     var tmp1 = new List<HalfEdge>();
