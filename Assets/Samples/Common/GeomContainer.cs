@@ -4,9 +4,10 @@ using UnityEngine;
 
 namespace  VectorField {
     public class GeomContainer : MonoBehaviour {
-        [SerializeField] protected Material tracer;
+        [SerializeField] protected Material lineMat;
         public HeGeom geom { get; private set; }
         public Mesh mesh { get; private set; }
+        public Material LineMat => lineMat;
 
         void Awake() {
             var f = GetComponentInChildren<MeshFilter>();

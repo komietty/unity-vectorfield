@@ -10,7 +10,6 @@ namespace VectorField.Demo {
     using V = Vector<double>;
 
     public class ScalarHeatMethodViewer : MonoBehaviour {
-        [SerializeField] protected Material tracerMat;
         [SerializeField] protected Gradient colScheme;
         GraphicsBuffer tracerBuff;
         GraphicsBuffer colourBuff;
@@ -18,11 +17,13 @@ namespace VectorField.Demo {
         List<Vector3> tracers = new ();
         List<Vector3> colours = new ();
         List<Vector3> normals = new ();
+        Material lineMat;
 
         void Start() {
             var container = GetComponent<GeomContainer>();
             var geom = container.geom;
             var mesh = container.mesh;
+            lineMat = new Material(container.LineMat);
 
             var s = new double[geom.nVerts];
             for (var i = 0; i < geom.nVerts; i++) s[i] = 0;
@@ -60,10 +61,10 @@ namespace VectorField.Demo {
         }
 
         protected void OnRenderObject() {
-            tracerMat.SetBuffer("_Line", tracerBuff);
-            tracerMat.SetBuffer("_Norm", normalBuff);
-            tracerMat.SetBuffer("_Color", colourBuff);
-            tracerMat.SetPass(0);
+            lineMat.SetBuffer("_Line", tracerBuff);
+            lineMat.SetBuffer("_Norm", normalBuff);
+            lineMat.SetBuffer("_Color", colourBuff);
+            lineMat.SetPass(0);
             Graphics.DrawProceduralNow(MeshTopology.Lines, tracers.Count);
         }
     

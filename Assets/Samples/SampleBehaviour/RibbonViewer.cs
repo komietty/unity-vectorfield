@@ -5,19 +5,20 @@ using Random = UnityEngine.Random;
 namespace VectorField.Demo {
     public class RibbonViewer : MonoBehaviour {
         [SerializeField] protected Gradient colScheme;
-        [SerializeField] protected Material tracerMat;
         [SerializeField] protected int tracerNum;
         [SerializeField] protected int tracerLen;
+        Material lineMat;
         TangentTracer tracer;
         GraphicsBuffer tracerBuff;
         GraphicsBuffer colourBuff;
         GraphicsBuffer normalBuff;
-        List<Vector3> tracers = new List<Vector3>();
-        List<Vector3> colours = new List<Vector3>();
-        List<Vector3> normals = new List<Vector3>();
+        List<Vector3> tracers = new ();
+        List<Vector3> colours = new ();
+        List<Vector3> normals = new ();
     
         void Start() {
-            var geom = GetComponent<GeomContainer>().geom;
+            var container = GetComponent<GeomContainer>();
+            var geom = container.geom;
             var hodge = new HodgeDecomposition(geom);
             var omega = TangentField.GenRandomOneForm(geom).oneForm;
             var exact = hodge.Exact(omega);
@@ -25,6 +26,8 @@ namespace VectorField.Demo {
             var hamonic = hodge.Harmonic(omega, exact, coexact);
             var tngs = TangentField.InterpolateWhitney(hamonic, geom);
             tracer = new TangentTracer(geom, tngs, tracerLen);
+            lineMat = new Material(container.LineMat);
+            
     
             for (var i = 0; i < tracerNum; i++) {
                 var f = geom.Faces[Random.Range(0, geom.nFaces)];
@@ -51,14 +54,15 @@ namespace VectorField.Demo {
         }
 
         void OnRenderObject() {
-            tracerMat.SetBuffer("_Line", tracerBuff);
-            tracerMat.SetBuffer("_Norm", normalBuff);
-            tracerMat.SetBuffer("_Col",  colourBuff);
-            tracerMat.SetPass(0);
+            lineMat.SetBuffer("_Line", tracerBuff);
+            lineMat.SetBuffer("_Norm", normalBuff);
+            lineMat.SetBuffer("_Col",  colourBuff);
+            lineMat.SetPass(0);
             Graphics.DrawProceduralNow(MeshTopology.Lines, tracers.Count);
         }
     
         void OnDestroy() {
+            Destroy(lineMat);
             tracerBuff?.Dispose();
             colourBuff?.Dispose();
         }
