@@ -653,4 +653,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lineMat: {fileID: 2100000, guid: 25850dda579cd44839e6724a0f1f1eb4, type: 2}
-  mode: 0
+  mode: 2

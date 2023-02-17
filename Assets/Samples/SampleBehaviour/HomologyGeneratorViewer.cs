@@ -24,7 +24,6 @@ namespace VectorField {
             var tarr = new List<Vector3>(tree.Length * 2);
             var carr = new List<Vector3>(cotr.Length * 2);
             var garr = new List<Vector3>(gnum.Sum() * 4);
-            buffLength = (tarr.Count, carr.Count, garr.Count);
 
             for (var i = 0; i < tree.Length; i++) {
                 var v1 = i;
@@ -54,6 +53,7 @@ namespace VectorField {
                 }
             }
 
+            buffLength = (tarr.Count, carr.Count, garr.Count);
             treeBuf = new GraphicsBuffer(Target.Structured, tree.Length * 2, sizeof(float) * 3);
             cotrBuf = new GraphicsBuffer(Target.Structured, cotr.Length * 2, sizeof(float) * 3);
             gensBuf = new GraphicsBuffer(Target.Structured, gnum.Sum() * 4,  sizeof(float) * 3);
@@ -71,7 +71,7 @@ namespace VectorField {
                 lineMat.SetBuffer("_Line", cotrBuf);
                 lineMat.SetPass(0);
                 Graphics.DrawProceduralNow(MeshTopology.Lines, buffLength.Item2);
-            } else if (mode == Mode.cotree) {
+            } else if (mode == Mode.generator) {
                 lineMat.SetBuffer("_Line", gensBuf);
                 lineMat.SetPass(0);
                 Graphics.DrawProceduralNow(MeshTopology.Lines, buffLength.Item3);

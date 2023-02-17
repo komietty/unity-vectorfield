@@ -1,6 +1,5 @@
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Mathematics;
@@ -17,36 +16,49 @@ namespace VectorField {
         protected S altA;
         protected S h1;
         protected S d0;
-        protected List<List<HalfEdge>> generators; 
+        protected S d0t;
+        protected List<List<HalfEdge>> generators;
+        protected List<V> bases;
+        protected S P;
 
         public TrivialConnection(HeGeom g) {
             geom = g;
             h1  = E.BuildHodgeStar1Form(g);
             d0  = E.BuildExteriorDerivative0Form(g);
-            var d0t = S.OfMatrix(d0.Transpose());
+            d0t = S.OfMatrix(d0.Transpose());
             var n = d0t.RowCount;
             A = d0t * h1 * d0 + S.CreateDiagonal(n, n, 1e-8);
 
+
             // alt start
+            var contractable = d0t;
             var homologygen = new HomologyGenerator(geom);
             generators = homologygen.BuildGenerators();
+            
+            var hb = new HamonicBasis(geom);
+            bases = hb.Compute(new HodgeDecomposition(geom), generators);
+            P = BuildPeriodMatrix();
 
-            //TODO: A is really "dual edge i is contained in dual cell j"? - no
-            var storageContractable = A.Storage.EnumerateNonZeroIndexed();
-            var storageOnGenerators = new List<(int, int, double)>();
-            var row = geom.nVerts;
-            foreach (var gen in generators) {
-                var signs = SignsAroundGenerator(gen);
-                //TODO: use linq joint
-                storageOnGenerators.AddRange(signs.Select(s => (row, s.i, s.v)));
-                row++;
-            }
-            altA = S.OfIndexed(
-                geom.nVerts + generators.Count,
-                geom.nEdges,
-                storageContractable.Concat(storageOnGenerators)
-                );
+            //TODO: contractable is really "dual edge i is contained in dual cell j"?
+            var storageContractable = contractable.Storage.EnumerateNonZeroIndexed();
+            //var storageOnGenerators = new List<(int, int, double)>();
+            //var row = geom.nVerts;
+            //foreach (var gen in generators) {
+            //    var signs = SignsAroundGenerator(gen);
+            //    //TODO: use linq joint
+            //    storageOnGenerators.AddRange(signs.Select(s => (row, s.i, s.v)));
+            //    row++;
+            //}
+            //altA = S.OfIndexed(
+            //    geom.nEdges,
+            //    geom.nVerts + generators.Count,
+            //    storageContractable
+            //    //storageContractable.Concat(storageOnGenerators)
+            //    );
+            altA = d0t;
         }
+        
+        
         
         bool SatisfyGaussBonnet(float[] singularity){
             var sum = 0f;
@@ -63,26 +75,32 @@ namespace VectorField {
             return alphaI - thetaIJ + thetaJI;
         }
 
-        V ComputeCoExactComponent(float[] singularity) {
+        public V ComputeCoExactComponent(float[] singularity) {
             var rhs = new double[geom.nVerts];
             foreach (var v in geom.Verts)
                 rhs[v.vid] = -geom.AngleDefect(v) + 2 * PI * singularity[v.vid];
             return h1 * d0 * Solver.Cholesky(A, rhs);
         }
         
-        V ComputeCoExactComponentAlt(float[] singularity) {
-            var rhs = new double[geom.nVerts + generators.Count];
+        public V ComputeCoExactComponentAlt(float[] singularity) {
+            var rhs = new double[geom.nVerts];
             foreach (var v in geom.Verts)
                 rhs[v.vid] = -geom.AngleDefect(v) + 2 * PI * singularity[v.vid];
-            for(var i =0; i < generators.Count; i++) {
-                rhs[geom.nVerts + i] = AngleDefectAroundGenerator(generators[i]);
-            }
-            return altA.Solve(V.Build.DenseOfArray(rhs));
+            //var rhs = new double[geom.nVerts + generators.Count];
+            //foreach (var v in geom.Verts)
+            //    rhs[v.vid] = -geom.AngleDefect(v) + 2 * PI * singularity[v.vid];
+            //for(var i =0; i < generators.Count; i++) {
+            //    rhs[geom.nVerts + i] = AngleDefectAroundGenerator(generators[i]);
+            //}
+            var svd = d0t.Svd();
+            return svd.Solve(V.Build.DenseOfArray(rhs));
         }
 
         public V ComputeConnections(float[] singularity) {
             if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
-            return  ComputeCoExactComponent(singularity);
+            var deltaBeta =  ComputeCoExactComponent(singularity);
+            var gamma = ComputeHamonicComponent(deltaBeta);
+            return gamma;
         }
 
         IEnumerable<(int i, double v)> SignsAroundGenerator(IEnumerable<HalfEdge> generator) {
@@ -124,10 +142,7 @@ namespace VectorField {
             }
             return field;
         }
-    }
-}
 
-/*
         SparseMatrix BuildPeriodMatrix() {
             var n = bases.Count;
             var t = new List<(int, int, double)>();
@@ -139,7 +154,7 @@ namespace VectorField {
                     foreach (var h in g) {
                         var k = h.edge.eid;
                         var s = h.edge.hid == h.id ? 1 : -1;
-                        sum += s * bases[k, 0];
+                        sum += s * bases[k];
                     }
                     t.Add((i, j, sum));
                 }
@@ -147,14 +162,14 @@ namespace VectorField {
             return SparseMatrix.OfIndexed(n, n, t);
         }
 
-        DenseMatrix ComputeHamonicComponent(DenseMatrix deltaBeta) {
+        V ComputeHamonicComponent(V deltaBeta) {
             var N = bases.Count;
             var E = geom.nEdges;
-            var gamma = DenseMatrix.Create(E, 1, 0);
+            var gamma = V.Build.Dense(E, 0);
 
             if (N > 0) {
                 // construct right hand side
-                var rhs = DenseMatrix.Create(N, 1, 0);
+                var rhs = V.Build.Dense(N, 0);
                 for (var i = 0; i < N; i++) {
                     var generator = generators[i];
                     var sum = 0.0;
@@ -163,22 +178,24 @@ namespace VectorField {
                         var k = h.edge.eid;
                         var s = h.edge.hid == h.id ? 1 : -1;
                         sum += TransportNoRotation(h);
-                        sum -= s * deltaBeta[k, 0];
+                        sum -= s * deltaBeta[k];
                     }
 
                     // normalize sum between -π and π
-                    while (sum < -Mathf.PI) sum += 2 * Mathf.PI;
-                    while (sum >= Mathf.PI) sum -= 2 * Mathf.PI;
+                    while (sum < -PI) sum += 2 * PI;
+                    while (sum >= PI) sum -= 2 * PI;
 
-                    rhs[i, 0] = sum;
+                    rhs[i] = sum;
                 }
 
-                var outs = new double[rhs.RowCount];
-                var trps = P.Storage.EnumerateNonZeroIndexed().Select(t => new Triplet(t.Item3, t.Item1, t.Item2)).ToArray();
-                Solver.DecompAndSolveLU(trps.Length, rhs.RowCount, trps, rhs.Column(0).ToArray(), outs);
+                //var outs = new double[rhs.RowCount];
+                //var trps = P.Storage.EnumerateNonZeroIndexed().Select(t => new Triplet(t.Item3, t.Item1, t.Item2)).ToArray();
+                //Solver.DecompAndSolveLU(trps.Length, rhs.RowCount, trps, rhs.Column(0).ToArray(), outs);
+                var outs = Solver.LU(P,rhs);
                 // compute γ
-                for (var i = 0; i < N; i++) { gamma += this.bases[i] * outs[i]; }
+                for (var i = 0; i < N; i++) { gamma += bases[i] * outs[i]; }
             }
             return gamma;
         }
-*/
+    }
+}
