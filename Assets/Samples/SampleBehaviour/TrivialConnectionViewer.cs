@@ -33,9 +33,9 @@ namespace VectorField {
             //var phi1 = t.ComputeConnections(sings);
             var phi1 = t.ComputeCoExactComponent(sings);
             //var phi2 = t.ComputeCoExactComponentAlt(s);
-            //var tt = new TrivialConnectionAlt(geom);
-            //var phi3 = tt.Compute(sings);
-            UpdateTng(t.GenField(phi1));
+            var tt = new TrivialConnectionAlt(geom);
+            var phi3 = tt.ComputeCoExactComponent(sings);
+            UpdateTng(t.GenField(phi3));
         }
         
         protected void UpdateTng(float3[] omega) {

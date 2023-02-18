@@ -81,37 +81,12 @@ namespace VectorField {
             //return h1 * d0 * Solver.Cholesky(A, rhs);
             return d0 * Solver.Cholesky(A, rhs);
         }
-        
-        public V ComputeCoExactComponentAlt(float[] singularity) {
-            var rhs = new double[geom.nVerts];
-            foreach (var v in geom.Verts)
-                rhs[v.vid] = -geom.AngleDefect(v) + 2 * PI * singularity[v.vid];
-            //var rhs = new double[geom.nVerts + generators.Count];
-            //foreach (var v in geom.Verts)
-            //    rhs[v.vid] = -geom.AngleDefect(v) + 2 * PI * singularity[v.vid];
-            //for(var i =0; i < generators.Count; i++) {
-            //    rhs[geom.nVerts + i] = AngleDefectAroundGenerator(generators[i]);
-            //}
-            var svd = d0t.Svd();
-            return svd.Solve(V.Build.DenseOfArray(rhs));
-        }
 
         public V ComputeConnections(float[] singularity) {
             if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
             var deltaBeta =  ComputeCoExactComponent(singularity);
             var gamma = ComputeHamonicComponent(deltaBeta);
             return gamma;
-        }
-
-        IEnumerable<(int i, double v)> SignsAroundGenerator(IEnumerable<HalfEdge> generator) {
-            return generator.Select(h => (h.edge.eid, h.edge.hid == h.id ? 1d : -1d)); 
-        }
-        
-        double AngleDefectAroundGenerator(List<HalfEdge> generator) {
-            var angle = 0d;
-            foreach (var h in generator) { angle = TransportNoRotation(h, angle); }
-            // TODO: check whether + or -
-            return angle;
         }
 
         public float3[] GenField(V phi) {
@@ -143,7 +118,7 @@ namespace VectorField {
             return field;
         }
 
-        SparseMatrix BuildPeriodMatrix() {
+        S BuildPeriodMatrix() {
             var n = bases.Count;
             var t = new List<(int, int, double)>();
             for (var i = 0; i < n; i++) {
