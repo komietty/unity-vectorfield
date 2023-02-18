@@ -24,15 +24,17 @@ namespace VectorField {
             foreach (var s in singularities) {
                 var i = UnityEngine.Random.Range(0, geom.nVerts); 
                 sings[i] = s;
-                var g = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                g.transform.position = geom.Pos[i];
-                g.transform.localScale *= 0.05f;
+                if (s != 0) {
+                    var g = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    g.transform.position = geom.Pos[i];
+                    g.transform.localScale *= 0.05f;
+                }
             }
             //var phi1 = t.ComputeConnections(sings);
             var phi1 = t.ComputeCoExactComponent(sings);
             //var phi2 = t.ComputeCoExactComponentAlt(s);
-            var tt = new TrivialConnectionAlt(geom);
-            var phi3 = tt.Compute(sings);
+            //var tt = new TrivialConnectionAlt(geom);
+            //var phi3 = tt.Compute(sings);
             UpdateTng(t.GenField(phi1));
         }
         

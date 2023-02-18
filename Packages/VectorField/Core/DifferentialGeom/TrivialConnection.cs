@@ -27,7 +27,8 @@ namespace VectorField {
             d0  = E.BuildExteriorDerivative0Form(g);
             d0t = S.OfMatrix(d0.Transpose());
             var n = d0t.RowCount;
-            A = d0t * h1 * d0 + S.CreateDiagonal(n, n, 1e-8);
+            //A = d0t * h1 * d0 + S.CreateDiagonal(n, n, 1e-8);
+            A = d0t * d0 + S.CreateDiagonal(n, n, 1e-8);
 
 
             // alt start
@@ -58,8 +59,6 @@ namespace VectorField {
             altA = d0t;
         }
         
-        
-        
         bool SatisfyGaussBonnet(float[] singularity){
             var sum = 0f;
             foreach (var v in geom.Verts) sum += singularity[v.vid];
@@ -79,7 +78,8 @@ namespace VectorField {
             var rhs = new double[geom.nVerts];
             foreach (var v in geom.Verts)
                 rhs[v.vid] = -geom.AngleDefect(v) + 2 * PI * singularity[v.vid];
-            return h1 * d0 * Solver.Cholesky(A, rhs);
+            //return h1 * d0 * Solver.Cholesky(A, rhs);
+            return d0 * Solver.Cholesky(A, rhs);
         }
         
         public V ComputeCoExactComponentAlt(float[] singularity) {
