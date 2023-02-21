@@ -23,17 +23,10 @@ namespace VectorField {
 
         public TrivialConnectionAlt(HeGeom geom) {
             this.geom = geom;
-            var homologygen = new HomologyGenerator(geom);
-            generators = homologygen.BuildGenerators();
-            var d0  = E.BuildExteriorDerivative0Form(geom);
+            generators = new HomologyGenerator(geom).BuildGenerators();
             HeterA = BuildCycleMatrix();
             TransA = S.OfMatrix(HeterA.Transpose());
             SqareA = TransA * HeterA;
-            Debug.Log(HeterA);
-            Debug.Log(d0);
-            Debug.Log(SqareA);
-            //var inverse = (d1 * d1t).Inverse();
-            //nullSpaceCoef = S.OfMatrix(d1t * inverse * d1);
         }
         
         public V ComputeCoExactComponent(float[] singularity) {
