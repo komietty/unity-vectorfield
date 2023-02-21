@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MathNet.Numerics.LinearAlgebra;
 using UnityEngine;
 using System.Linq;
@@ -11,19 +12,25 @@ namespace VectorField {
         [SerializeField] protected GameObject point;
         [SerializeField] protected ComputeShader cs;
         [SerializeField, Range(0, 10)] float potentialColor;
+        [SerializeField, Range(0, 10)] int hamonicBasisNum;
         [SerializeField] Color baseColor;
         [SerializeField] Color scalarColor;
         [SerializeField] Color vectorColor;
-        protected bool flag;
-        protected V random;
-        protected V exact;
-        protected V coexact;
-        protected V harmonic;
-        protected GraphicsBuffer scalarPots;
-        protected GraphicsBuffer vectorPots;
-        protected GraphicsBuffer distances;
-        protected GameObject sPotGo;
-        protected GameObject vPotGo;
+        
+        bool flag;
+        V random;
+        V exact;
+        V coexact;
+        V harmonic;
+        HodgeDecomposition hd;
+        HamonicBasis hb;
+        HomologyGenerator hm;
+        List<V> bs;
+        GraphicsBuffer scalarPots;
+        GraphicsBuffer vectorPots;
+        GraphicsBuffer distances;
+        GameObject sPotGo;
+        GameObject vPotGo;
 
         void OnValidate(){
             if (!flag) return;
@@ -31,18 +38,23 @@ namespace VectorField {
                 case Field.Random:   UpdateTng(random);   break;
                 case Field.Exact:    UpdateTng(exact);    break;
                 case Field.CoExact:  UpdateTng(coexact);  break;
-                case Field.Harmonic: UpdateTng(harmonic); break;
+                case Field.Harmonic:
+                    var f = hamonicBasisNum < bs.Count;
+                    UpdateTng(f ? bs[hamonicBasisNum] : harmonic); break;
             }
         }
 
         protected override void Start() {
             base.Start();
-            var h = new HodgeDecomposition(geom);
+            hd = new HodgeDecomposition(geom);
+            hb = new HamonicBasis(geom);
+            hm = new HomologyGenerator(geom);
+            bs = hb.Compute(hd, hm.BuildGenerators());
             var (omega, sids, vids) = TangentField.GenRandomOneForm(geom);
             random   = omega;
-            exact    = h.Exact(omega);
-            coexact  = h.CoExact(omega);
-            harmonic = h.Harmonic(omega, exact, coexact);
+            exact    = hd.Exact(omega);
+            coexact  = hd.CoExact(omega);
+            harmonic = hd.Harmonic(omega, exact, coexact);
             UpdateTng(random);
             
             var t = GraphicsBuffer.Target.Structured;

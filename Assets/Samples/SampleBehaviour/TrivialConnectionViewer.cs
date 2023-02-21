@@ -30,14 +30,12 @@ namespace VectorField {
                     g.transform.localScale *= 0.05f;
                 }
             }
-            //var phi1 = t.ComputeConnections(sings);
-            var phi1 = t.ComputeCoExactComponent(sings);
             var tt = new TrivialConnectionAlt(geom);
             var phi3 = tt.ComputeCoExactComponent(sings);
             UpdateTng(t.GenField(phi3));
         }
         
-        protected void UpdateTng(float3[] omega) {
+        void UpdateTng(float3[] omega) {
             var n = geom.nFaces;
             var tngs = new Vector3[n * 6];
             var mlen = 0.3f * geom.MeanEdgeLength();
@@ -62,17 +60,17 @@ namespace VectorField {
             tngtMat.SetBuffer("_Line", tngBuf);
         }
     
-        protected Vector3 ClampFieldLength(Vector3 field, float len) {
+        Vector3 ClampFieldLength(Vector3 field, float len) {
             var m = field.magnitude;
             return m > len ? field * len / m : field;
         }
 
-        protected virtual void OnRenderObject() {
+        void OnRenderObject() {
             tngtMat.SetPass(0);
             Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nFaces * 6);
         }
 
-        protected virtual void OnDestroy() {
+        void OnDestroy() {
             tngBuf?.Dispose();
         }
     }

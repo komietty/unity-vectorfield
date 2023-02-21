@@ -13,7 +13,6 @@ namespace VectorField {
     public class TrivialConnection {
         protected HeGeom geom;
         protected S A;
-        protected S altA;
         protected S h1;
         protected S d0;
         protected S d0t;
@@ -31,32 +30,6 @@ namespace VectorField {
             A = d0t * d0 + S.CreateDiagonal(n, n, 1e-8);
 
 
-            // alt start
-            var contractable = d0t;
-            var homologygen = new HomologyGenerator(geom);
-            generators = homologygen.BuildGenerators();
-            
-            var hb = new HamonicBasis(geom);
-            bases = hb.Compute(new HodgeDecomposition(geom), generators);
-            P = BuildPeriodMatrix();
-
-            //TODO: contractable is really "dual edge i is contained in dual cell j"?
-            var storageContractable = contractable.Storage.EnumerateNonZeroIndexed();
-            //var storageOnGenerators = new List<(int, int, double)>();
-            //var row = geom.nVerts;
-            //foreach (var gen in generators) {
-            //    var signs = SignsAroundGenerator(gen);
-            //    //TODO: use linq joint
-            //    storageOnGenerators.AddRange(signs.Select(s => (row, s.i, s.v)));
-            //    row++;
-            //}
-            //altA = S.OfIndexed(
-            //    geom.nEdges,
-            //    geom.nVerts + generators.Count,
-            //    storageContractable
-            //    //storageContractable.Concat(storageOnGenerators)
-            //    );
-            altA = d0t;
         }
         
         bool SatisfyGaussBonnet(float[] singularity){
@@ -78,7 +51,6 @@ namespace VectorField {
             var rhs = new double[geom.nVerts];
             foreach (var v in geom.Verts)
                 rhs[v.vid] = -geom.AngleDefect(v) + 2 * PI * singularity[v.vid];
-            //return h1 * d0 * Solver.Cholesky(A, rhs);
             return d0 * Solver.Cholesky(A, rhs);
         }
 

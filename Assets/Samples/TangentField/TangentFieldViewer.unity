@@ -327,48 +327,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tngtMat: {fileID: 2100000, guid: 6dd285232008d44fdb3f388c2ec44785, type: 2}
-  showTangent: 1
   field: 0
   point: {fileID: 6656469689329903998, guid: a9a0b1a78d24b4053aff7e0550903ed9, type: 3}
   cs: {fileID: 7200000, guid: 37db18243e83a4d44afcf6fb30cc2fa3, type: 3}
   potentialColor: 6.54
+  hamonicBasisNum: 0
   baseColor: {r: 1, g: 0.995283, b: 0.995283, a: 1}
   scalarColor: {r: 1, g: 0.4448824, b: 0, a: 1}
   vectorColor: {r: 0, g: 0.5804844, b: 1, a: 1}
---- !u!114 &820121594
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 820121592}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 007f12c427ed0473f9e5a36d17720825, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tngtMat: {fileID: 2100000, guid: 6dd285232008d44fdb3f388c2ec44785, type: 2}
-  singularities:
-  - -1
-  - -1
-  - -1
-  - -1
-  - 1.5
-  - 0.5
---- !u!114 &820121596
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 820121592}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7bf9b72e9a9914eefaa25981fe7a0cf0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lineMat: {fileID: 2100000, guid: 25850dda579cd44839e6724a0f1f1eb4, type: 2}
-  mode: 2
 --- !u!1 &924420045
 GameObject:
   m_ObjectHideFlags: 0
