@@ -80,9 +80,9 @@ namespace VectorField {
         }
 
         void OnDestroy() {
-            treeBuf.Dispose();
-            cotrBuf.Dispose();
-            gensBuf.Dispose();
+            treeBuf?.Dispose();
+            cotrBuf?.Dispose();
+            gensBuf?.Dispose();
         }
     }
 }

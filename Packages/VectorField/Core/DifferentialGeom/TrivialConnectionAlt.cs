@@ -26,23 +26,12 @@ namespace VectorField {
             var homologygen = new HomologyGenerator(geom);
             generators = homologygen.BuildGenerators();
             var d0  = E.BuildExteriorDerivative0Form(geom);
-            //d0 = BuildCycleMatrix();
-            var storage = new List<(int, int, double)>();
-            foreach (var v in d0.Storage.EnumerateNonZeroIndexed()) {
-                storage.Add((v.Item2, v.Item1, v.Item3));
-            }
-            for (var i =0; i < generators.Count; i++) {
-                foreach (var v in SignsAroundGenerator(generators[i])) {
-                    storage.Add((geom.nVerts + i, v.i, v.v));
-                }
-            }
-            HeterA = S.OfIndexed(
-                this.geom.nVerts + generators.Count,
-                this.geom.nEdges,
-                storage);
-
+            HeterA = BuildCycleMatrix();
             TransA = S.OfMatrix(HeterA.Transpose());
-            SqareA = HeterA * TransA;
+            SqareA = TransA * HeterA;
+            Debug.Log(HeterA);
+            Debug.Log(d0);
+            Debug.Log(SqareA);
             //var inverse = (d1 * d1t).Inverse();
             //nullSpaceCoef = S.OfMatrix(d1t * inverse * d1);
         }
@@ -52,36 +41,33 @@ namespace VectorField {
             foreach (var v in geom.Verts)
                 rhs[v.vid] = -geom.AngleDefect(v) + 2 * PI * singularity[v.vid];
             for(var i =0; i < generators.Count; i++) {
-                rhs[geom.nVerts + i] = AngleDefectAroundGenerator(generators[i]);
+                rhs[geom.nVerts + i] = -AngleDefectAroundGenerator(generators[i]);
             }
 
-            //throw new Exception();
-            return TransA * Solver.Cholesky(SqareA, rhs);
-        }
-        
-        IEnumerable<(int i, double v)> SignsAroundGenerator(IEnumerable<HalfEdge> generator) {
-            return generator.Select(h => (h.edge.eid, h.edge.hid == h.id ? 1d : -1d)); 
+            return HeterA * Solver.Cholesky(SqareA, rhs);
         }
         
         double AngleDefectAroundGenerator(List<HalfEdge> generator) {
-            var angle = 0d;
-            foreach (var h in generator) angle = TransportNoRotation(h, angle);
-            // TODO: check whether + or -
-            return angle - 2 * PI;
+            var theta = 0d;
+            foreach (var h in generator) theta = TransportNoRotation(h, theta);
+            while( theta >=  PI ) theta -= 2 * PI;
+            while( theta <  -PI ) theta += 2 * PI;
+            return -theta;
         }
 
 
         S BuildCycleMatrix() {
-            var triplets = new List<(int i, int j, double v)>();
-            foreach (var v in geom.Verts) {
-                foreach (var h in geom.GetAdjacentHalfedges(v)) {
-                    var k = h.edge.eid;
-                    var i = h.vid;
-                    var j = h.twin.vid;
-                    triplets.Add((k, v.vid, h.IsEdgeDir()? 1d : -1d));
-                }
+            var T = new List<(int i, int j, double v)>();
+            foreach (var v in geom.Verts) 
+            foreach (var h in geom.GetAdjacentHalfedges(v)) {
+                T.Add((h.edge.eid, v.vid, h.IsEdgeDir()? -1 : 1));
             }
-            return S.OfIndexed(geom.nEdges, geom.nVerts, triplets);
+            for (var i = 0; i < generators.Count; i++) 
+                foreach (var h in generators[i]) {
+                    T.Add((h.edge.eid, geom.nVerts + i, h.IsEdgeDir() ? -1 : 1));
+                }
+            
+            return S.OfIndexed(geom.nEdges, geom.nVerts + generators.Count, T);
         }
         
         double TransportNoRotation(HalfEdge h, double alphaI = 0) {
