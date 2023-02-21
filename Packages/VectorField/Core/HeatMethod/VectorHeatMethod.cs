@@ -44,7 +44,9 @@ namespace VectorField {
             var t = pow(geom.MeanEdgeLength(), 2);
             var L = Operator.ConnectionLaplace(geom);
             var F = Operator.MassComplex(geom) + L * t;
-            var C = Solver.LUComp(F,phi);
+            var lu = F.LU();
+            var C = lu.Solve(phi);
+            //var C = Solver.LUComp(F,phi);
             return CV.Build.DenseOfEnumerable(C.Select(c => c / c.Norm()));
         }
 

@@ -46,7 +46,7 @@ namespace VectorField {
             }
             var M = RSprs.OfIndexed(n, n, t);
             var C = RSprs.CreateDiagonal(n, n, 1e-8);
-            return M + C;
+            return M;// + C;
         }
 
         /*

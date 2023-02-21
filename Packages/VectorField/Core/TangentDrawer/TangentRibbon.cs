@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Unity.Mathematics;
+using Random = Unity.Mathematics.Random;
 
 namespace VectorField {
     public class TangentRibbon: System.IDisposable {
@@ -9,21 +11,22 @@ namespace VectorField {
         public GraphicsBuffer normalBuff { get; }
         public int nTracers { get; }
         
-        public TangentRibbon(float3[] tangents, HeGeom geom, int num, int len, Gradient col) {
-            var tracer = new TangentTracer(geom, tangents, len);
+        public TangentRibbon(float3[] faceVector, HeGeom geom, int num, int len, Gradient col) {
+            var tracer = new TangentTracer(geom, faceVector, len);
             var tracers = new List<Vector3>();
             var colours = new List<Vector3>();
             var normals = new List<Vector3>();
-            for (var i = 0; i < num; i++) {
-                var f = geom.Faces[UnityEngine.Random.Range(0, geom.nFaces)];
+            var ids = Enumerable.Range(0, geom.nFaces).OrderBy(_ => UnityEngine.Random.value);
+            foreach (var i in ids) {
+                var f = geom.Faces[i];
                 var m = geom.MeanEdgeLength();
                 var r = tracer.GenTracer(f);
                 var c = col.Evaluate(UnityEngine.Random.Range(0, 1f));
                 for (var j = 0; j < r.Count - 1; j++) {
                     var tr0 = r[j];
                     var tr1 = r[j + 1];
-                    tracers.Add(tr0.p + tr0.n * m / 3);
-                    tracers.Add(tr1.p + tr1.n * m / 3);
+                    tracers.Add(tr0.p + tr0.n * m * 0.1f);
+                    tracers.Add(tr1.p + tr1.n * m * 0.1f);
                     normals.Add(tr0.n);
                     normals.Add(tr1.n);
                     colours.Add((Vector4)c);

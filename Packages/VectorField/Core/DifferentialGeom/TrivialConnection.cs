@@ -13,7 +13,6 @@ namespace VectorField {
     public class TrivialConnection {
         protected HeGeom geom;
         protected S A;
-        protected S h1;
         protected S d0;
         protected S d0t;
         protected List<List<HalfEdge>> generators;
@@ -22,14 +21,10 @@ namespace VectorField {
 
         public TrivialConnection(HeGeom g) {
             geom = g;
-            h1  = E.BuildHodgeStar1Form(g);
             d0  = E.BuildExteriorDerivative0Form(g);
             d0t = S.OfMatrix(d0.Transpose());
-            var n = d0t.RowCount;
-            //A = d0t * h1 * d0 + S.CreateDiagonal(n, n, 1e-8);
+            var n = d0.ColumnCount;
             A = d0t * d0 + S.CreateDiagonal(n, n, 1e-8);
-
-
         }
         
         bool SatisfyGaussBonnet(float[] singularity){
@@ -61,7 +56,7 @@ namespace VectorField {
             return gamma;
         }
 
-        public float3[] GenField(V phi) {
+        public float3[] GetFaceVectorFromConnection(V phi) {
             var visit = new bool[geom.nFaces];
             var alpha = new double[geom.nFaces];
             var field = new float3[geom.nFaces];
