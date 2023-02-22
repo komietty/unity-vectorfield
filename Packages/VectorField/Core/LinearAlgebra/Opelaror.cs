@@ -66,7 +66,12 @@ namespace VectorField {
                 foreach (var c in g.GetAdjacentConers(v)) {
                     var h = g.halfedges[c.hid].prev;
                     halfedgeVectorInVertex[h.id] = new double2(cos(a), sin(a)) * g.Length(h);
-                    a += g.Angle(c) * rate;
+                    // TODO: Angle(c) does calc h and h.prev.twin. Fix it so as to reasoable.
+                    var v1 = normalize(g.Vector(h));
+                    var v2 = normalize(g.Vector(h.twin.next));
+                    var sl = acos(dot(v1, v2));
+                    a += sl;
+                    //a += g.Angle(c) * rate;
                 }
             }
 

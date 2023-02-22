@@ -22,8 +22,9 @@ namespace VectorField.Demo {
             var sources = new List<(int vid, double value)>();
             var i0 = 0;
             var i1 = 2;
-            s[i0] = new C(1 / math.sqrt(2), 1 / math.sqrt(2));
-            s[i1] = new C(1 / math.sqrt(2), 1 / math.sqrt(2));
+            //s[i0] = new C(1 / math.sqrt(2), 1 / math.sqrt(2));
+            s[i0] = new C(1, 0);
+            //s[i1] = new C(1 / math.sqrt(2), 1 / math.sqrt(2));
             var g1 = GameObject.CreatePrimitive(PrimitiveType.Cube);
             //var g2 = GameObject.CreatePrimitive(PrimitiveType.Cube);
             g1.transform.position = geom.Pos[i0];
