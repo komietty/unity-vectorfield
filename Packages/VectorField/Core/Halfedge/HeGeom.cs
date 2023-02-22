@@ -98,6 +98,7 @@ namespace VectorField {
             return (true, n);
         }
 
+        // TODO: Fix in relation to VectorHeatMethod angle calc
         public float Angle(Corner c) {
             var v1 = normalize(Vector(halfedges[c.hid].next));
             var v2 = normalize(Vector(halfedges[c.hid].prev)) * -1;

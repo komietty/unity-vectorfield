@@ -100,9 +100,9 @@ namespace VectorField {
                 t.Add((i, i, new Complex(diag[i], 0)));
 
             var M = CSprs.OfIndexed(n, n, t);
-            //var C = CSprs.CreateDiagonal(n, n, new Complex(1e-8f, 0));
-            if (!M.IsHermitian()) UnityEngine.Debug.LogError("not hermitian");
-            return M; // + C;
+            var C = CSprs.CreateDiagonal(n, n, new Complex(1e-8f, 0));
+            if (!M.IsHermitian()) UnityEngine.Debug.LogWarning("not hermitian");
+            return M + C;
         }
         
         static double2 Divide(double2 u, double2 v) {
