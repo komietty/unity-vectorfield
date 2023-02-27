@@ -16,12 +16,11 @@ namespace VectorField {
             var tracers = new List<Vector3>();
             var colours = new List<Vector3>();
             var normals = new List<Vector3>();
-            var ids = Enumerable.Range(0, geom.nFaces).OrderBy(_ => UnityEngine.Random.value);
-            foreach (var i in ids) {
+            for (var i = 0; i < geom.nFaces; i++) {
                 var f = geom.Faces[i];
                 var m = geom.MeanEdgeLength();
                 var r = tracer.GenTracer(f);
-                var c = col.Evaluate(UnityEngine.Random.Range(0, 1f));
+                var c = col.Evaluate(UnityEngine.Random.Range(0, 11) * 0.1f);
                 for (var j = 0; j < r.Count - 1; j++) {
                     var tr0 = r[j];
                     var tr1 = r[j + 1];
