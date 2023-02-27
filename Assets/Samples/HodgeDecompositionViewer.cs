@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
-using Unity.Mathematics;
 using MathNet.Numerics.LinearAlgebra;
 using UnityEngine;
-using System.Linq;
 
 namespace VectorField {
     using V = Vector<double>;
 
-    public class TangentFieldViewer : MonoBehaviour {
+    public class HodgeDecompositionViewer : MonoBehaviour {
         public enum Field { Random, Exact, CoExact, Harmonic }
         [SerializeField] protected Field field;
         [SerializeField, Range(0, 10)] int hamonicBasisNum;

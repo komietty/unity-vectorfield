@@ -32,7 +32,9 @@ namespace  VectorField {
             //r.sharedMaterial = new Material(pointMat);
         }
 
-        public void PaintVerts() { }
+        public void PaintVerts(Color[] cols) {
+            mesh.colors = cols;
+        }
 
         private GraphicsBuffer vertTangetArrow;
         public void BuildVertArrowBuffer(float3[] vertVector) {

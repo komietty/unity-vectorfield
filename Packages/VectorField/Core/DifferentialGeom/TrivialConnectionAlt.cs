@@ -71,5 +71,34 @@ namespace VectorField {
             var thetaJI = atan2(dot(u, f2), dot(u, f1));
             return alphaI - thetaIJ + thetaJI;
         }
+        
+        public float3[] GetFaceVectorFromConnection(V phi) {
+            var visit = new bool[geom.nFaces];
+            var alpha = new double[geom.nFaces];
+            var field = new float3[geom.nFaces];
+            var queue = new Queue<int>();
+            var f0 = geom.Faces[0];
+            queue.Enqueue(f0.fid);
+            alpha[f0.fid] = 0;
+            while (queue.Count > 0) {
+                var fid = queue.Dequeue();
+                foreach (var h in geom.GetAdjacentHalfedges(geom.Faces[fid])) {
+                    var gid = h.twin.face.fid;
+                    if (!visit[gid] && gid != f0.fid) {
+                        var sign = h.IsEdgeDir() ? 1 : -1;
+                        var conn = sign * phi[h.edge.eid];
+                        alpha[gid] = TransportNoRotation(h, alpha[fid]) + conn;
+                        visit[gid] = true;
+                        queue.Enqueue(gid);
+                    }
+                }
+            } 
+            foreach (var f in geom.Faces) {
+                var a = alpha[f.fid];
+                var (e1, e2) = geom.OrthonormalBasis(f);
+                field[f.fid] = e1 * (float)cos(a) + e2 * (float)sin(a);
+            }
+            return field;
+        }
     }
 }

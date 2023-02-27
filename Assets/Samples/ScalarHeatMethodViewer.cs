@@ -1,9 +1,7 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.LinearAlgebra.Double;
 using Unity.Mathematics;
 
 namespace VectorField.Demo {
@@ -22,7 +20,6 @@ namespace VectorField.Demo {
         void Start() {
             var container = GetComponent<GeomContainer>();
             var geom = container.geom;
-            var mesh = container.mesh;
             lineMat = new Material(container.LineMat);
 
             var s = new double[geom.nVerts];
@@ -33,19 +30,12 @@ namespace VectorField.Demo {
 
             var hm = new ScalarHeatMethod(geom); 
             var hd = hm.Compute(V.Build.DenseOfArray(s));
-            var vals = new Color[geom.nVerts];
-            var max = 0.0;
-            foreach(var v in geom.Verts) {
-                var i = v.vid;
-                max = math.max(max, hd[i]);
-            }
-            foreach(var v in geom.Verts) {
-                var i = v.vid;
-                vals[i] = colScheme.Evaluate((float)(hd[i] / max));
-            }
-            mesh.colors = vals;
+            var mx = hd.Max(v => v);
+            var cols = new Color[geom.nVerts];
+            for(var i = 0; i < geom.nVerts; i++) cols[i] = colScheme.Evaluate((float)(hd[i] / mx));
+            container.PaintVerts(cols);
             
-            tracers = Isoline.Build(geom, hd, (float)max);
+            tracers = Isoline.Build(geom, hd, (float)mx);
 
             for(var i = 0; i < tracers.Count; i++) {
                 colours.Add(new Vector3(1, 1, 1));
@@ -76,13 +66,14 @@ namespace VectorField.Demo {
     }
 
     public static class Isoline {
-        public static List<Vector3> Build(HeGeom geom, V phi, float maxPhi) {
+        public static List<Vector3> Build(HeGeom g, V phi, float maxPhi) {
             var lines = new List<Vector3>();
             var sgmts = new List<Vector3>();
             var interval = maxPhi / 30;
+            var mlen = g.MeanEdgeLength();
 
-            foreach (var f in geom.Faces) {
-                foreach (var h in geom.GetAdjacentHalfedges(f)) {
+            foreach (var f in g.Faces) {
+                foreach (var h in g.GetAdjacentHalfedges(f)) {
                     var i = h.vid;
                     var j = h.twin.vid;
                     var region1 = math.floor(phi[i] / interval);
@@ -91,7 +82,7 @@ namespace VectorField.Demo {
                         var t = region1 < region2
                             ? (float)((region2 * interval - phi[i]) / (phi[j] - phi[i]))
                             : (float)((region1 * interval - phi[i]) / (phi[j] - phi[i]));
-                        sgmts.Add(geom.Pos[i] * (1 - t) + geom.Pos[j] * t + geom.FaceNormal(f).n * 0.005f);
+                        sgmts.Add(g.Pos[i] * (1 - t) + g.Pos[j] * t + g.FaceNormal(f).n  * mlen * 0.1f);
                     }
                 }
                 if (sgmts.Count == 2) lines.AddRange(sgmts);

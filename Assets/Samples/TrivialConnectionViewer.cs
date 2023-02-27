@@ -13,16 +13,15 @@ namespace VectorField {
         void Start() {
             container = GetComponent<GeomContainer>();
             var g = container.geom;
-            var t = new TrivialConnection(g);
+            var tt = new TrivialConnectionAlt(g);
             var sings = new float[g.nVerts];
             foreach (var s in singularities) {
                 var i = Random.Range(0, g.nVerts); 
                 sings[i] = s;
                 if (s != 0) container.PutSingularityPoint(i);
             }
-            var tt = new TrivialConnectionAlt(g);
             var phi = tt.ComputeCoExactComponent(sings);
-            var flw = t.GetFaceVectorFromConnection(phi);
+            var flw = tt.GetFaceVectorFromConnection(phi);
             container.BuildArrowBuffer(flw);
             //container.BuildRibbonBuffer(flw);
         }

@@ -54,10 +54,10 @@ Shader "VectorField/TangentSpaceViewer" {
                 float3 colour : TEXCOORD0;
             };
 
-            v2f vert (uint vid: SV_VertexID, appdata val) {
+            v2f vert (uint vid: SV_VertexID) {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(float4(_Lines[vid], 1));
-                o.colour = vid < 6 ? float4(1, 0, 0, 1) : _Color; 
+                o.colour = _Color; 
                 return o;
             }
 
