@@ -7,6 +7,7 @@ namespace VectorField {
     using V = Vector<double>;
     
     public class TrivialConnectionViewer : MonoBehaviour {
+        [SerializeField] protected Gradient colScheme;
         [SerializeField] protected List<float> singularities;
         GeomContainer container;
         
@@ -22,13 +23,8 @@ namespace VectorField {
             }
             var phi = tt.ComputeCoExactComponent(sings);
             var flw = tt.GetFaceVectorFromConnection(phi);
-            container.BuildArrowBuffer(flw);
-            //container.BuildRibbonBuffer(flw);
-        }
-
-        private void OnRenderObject() {
-            container.DrawArrows();
-            //container.DrawRibbons();
+            container.BuildFaceArrowBuffer(flw);
+            container.BuildRibbonBuffer(flw, colScheme);
         }
     }
 }

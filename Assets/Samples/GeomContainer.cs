@@ -1,105 +1,95 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
 
 namespace  VectorField {
     public class GeomContainer : MonoBehaviour {
+        public enum Surface { blackBase, whiteBase }
+
+        [SerializeField] protected Surface surface;
         [SerializeField] protected Material lineMat;
         [SerializeField] protected Material arrowMat;
-        [SerializeField] protected Material pointMat;
-        [SerializeField] protected Gradient ribbonColors;
-        [SerializeField] protected Gradient vertexColors;
+        [SerializeField] protected bool showVertArrow;
+        [SerializeField] protected bool showFaceArrow;
+        [SerializeField] protected bool showFaceRibbon;
         public HeGeom geom { get; private set; }
         public Mesh mesh { get; private set; }
         public Material LineMat => lineMat;
-        TangentRibbon ribbon;
-        TangentArrow  arrow;
+        TangentRibbon faceRibbon;
+        TangentVertArrow  vertArrow;
+        TangentFaceArrow  faceArrow;
+        Color arrowColor;
+        bool flag;
+
+        void OnValidate() {
+            if (flag) SwitchSurface();
+        }
 
         void Awake() {
             var f = GetComponentInChildren<MeshFilter>();
             mesh = HeComp.Weld(f.sharedMesh);
             geom = new HeGeom(mesh, transform);
             f.sharedMesh = mesh;
+            SwitchSurface();
+            flag = true;
+        }
+
+        void OnRenderObject() {
+            if (showVertArrow && vertArrow != null) DrawArrows(vertArrow.buff, geom.nVerts);
+            if (showFaceArrow && faceArrow != null) DrawArrows(faceArrow.buff, geom.nFaces);
+            if (showFaceRibbon) DrawRibbons();
+        }
+
+        void SwitchSurface() {
+            switch (surface) {
+                case Surface.blackBase:
+                    arrowColor = Color.white;
+                    mesh.SetColors(Enumerable.Repeat(Color.black, geom.nVerts).ToArray());
+                    break;
+                case Surface.whiteBase:
+                    arrowColor = Color.black;
+                    mesh.SetColors(Enumerable.Repeat(Color.white, geom.nVerts).ToArray());
+                    break;
+            }
         }
 
         public void PutSingularityPoint(int vid) {
             var o = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            var r = o.GetComponent<MeshRenderer>();
             o.transform.position = geom.Pos[vid];
             o.transform.localScale *= geom.MeanEdgeLength() * 0.3f;
-            //r.sharedMaterial = new Material(pointMat);
         }
 
-        public void PaintVerts(Color[] cols) {
-            mesh.colors = cols;
-        }
-
-        private GraphicsBuffer vertTangetArrow;
-        public void BuildVertArrowBuffer(float3[] vertVector) {
-            var tngs = new Vector3[geom.nVerts * 6];
-            var mlen = geom.MeanEdgeLength();
-            for(var i = 0; i < geom.nVerts; i++){
-                var vert = geom.Verts[i];
-                var field = vertVector[i] * mlen * 0.3f;
-                var C = geom.Pos[i];
-                var N = geom.Nrm[i];
-                field = ClampFieldLength(field, mlen * 0.3f);
-                var fc1 = C + N * mlen * 0.1f;
-                var fc2 = C + field * 2 + N * mlen * 0.1f;
-                var v = fc2 - fc1;
-                var vT = math.cross(N, v);
-                tngs[i * 6 + 0] = fc1;
-                tngs[i * 6 + 1] = fc2;
-                tngs[i * 6 + 2] = fc2;
-                tngs[i * 6 + 3] = fc2 - v * 0.2f + vT * 0.2f;
-                tngs[i * 6 + 4] = fc2;
-                tngs[i * 6 + 5] = fc2 - v * 0.2f - vT * 0.2f;
-            }
-            vertTangetArrow = new GraphicsBuffer(GraphicsBuffer.Target.Structured, tngs.Length, 12);
-            vertTangetArrow.SetData(tngs);
+        public void BuildVertArrowBuffer(float3[] vecs) { vertArrow = new TangentVertArrow(vecs, geom); }
+        public void BuildFaceArrowBuffer(float3[] vecs) { faceArrow = new TangentFaceArrow(vecs, geom); }
+        
+        
+        public void BuildRibbonBuffer(float3[] faceVector, Gradient colScheme) {
+            var n = math.min((int)(geom.nFaces * 0.5f), 2000);
+            var l = math.min((int)(geom.nFaces * 0.1f), 400);
+            faceRibbon = new TangentRibbon(faceVector, geom, n, l, colScheme);
         }
         
-        Vector3 ClampFieldLength(Vector3 field, float len) {
-            var m = field.magnitude;
-            return m > len ? field * len / m : field;
-        }
-        
-        public void DrawVertArrows() {
-            vertTangetArrow?.Dispose();
-            arrowMat.SetBuffer("_Lines", vertTangetArrow);
+        void DrawArrows(GraphicsBuffer buff, int count) {
+            arrowMat.SetBuffer("_Lines", buff);
+            arrowMat.SetVector("_Color", arrowColor);
             arrowMat.SetPass(1);
-            Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nVerts * 6);
+            Graphics.DrawProceduralNow(MeshTopology.Lines, count * 6);
         }
-        
-        public void BuildArrowBuffer(float3[] faceVector) {
-            arrow?.Dispose();
-            arrow = new TangentArrow(faceVector, geom);
-        }
-
-        public void DrawArrows() {
-            arrowMat.SetBuffer("_Lines", arrow.tangentBuff);
-            arrowMat.SetPass(1);
-            Graphics.DrawProceduralNow(MeshTopology.Lines, geom.nFaces * 6);
-        }
-        
-        public void BuildRibbonBuffer(float3[] faceVector) {
-            var n = (int)(geom.nFaces * 0.05f);
-            var l = (int)(geom.nFaces * 0.1f);
-            ribbon = new TangentRibbon(faceVector, geom, n, l, ribbonColors);
-        }
-        public void DrawRibbons() {
-            lineMat.SetBuffer("_Line", ribbon.tracerBuff);
-            lineMat.SetBuffer("_Norm", ribbon.normalBuff);
-            lineMat.SetBuffer("_Col",  ribbon.colourBuff);
+        void DrawRibbons() {
+            lineMat.SetBuffer("_Line", faceRibbon.tracerBuff);
+            lineMat.SetBuffer("_Norm", faceRibbon.normalBuff);
+            lineMat.SetBuffer("_Col",  faceRibbon.colourBuff);
             lineMat.SetPass(0);
-            Graphics.DrawProceduralNow(MeshTopology.Lines, ribbon.nTracers);
+            Graphics.DrawProceduralNow(MeshTopology.Lines, faceRibbon.nTracers);
         }
 
-        private void OnDestroy() {
-            arrow?.Dispose();
-            ribbon?.Dispose();
+        void OnDestroy() {
+            vertArrow?.Dispose();
+            faceArrow?.Dispose();
+            faceRibbon?.Dispose();
         }
     }
 }

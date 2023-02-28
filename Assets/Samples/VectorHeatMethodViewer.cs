@@ -29,10 +29,7 @@ namespace VectorField.Demo {
             var magnitude  = vhmd.ExtendScaler(sources);
             var field = vhmd.GenField(connection, magnitude);
             container.BuildVertArrowBuffer(field);
-        }
-    
-        void OnRenderObject() {
-            container.DrawVertArrows();
+            //container.BuildRibbonBuffer(field);
         }
     }
 }

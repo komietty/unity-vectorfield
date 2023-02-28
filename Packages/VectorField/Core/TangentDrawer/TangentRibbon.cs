@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Unity.Mathematics;
-using Random = Unity.Mathematics.Random;
 
 namespace VectorField {
     public class TangentRibbon: System.IDisposable {
@@ -16,8 +14,8 @@ namespace VectorField {
             var tracers = new List<Vector3>();
             var colours = new List<Vector3>();
             var normals = new List<Vector3>();
-            for (var i = 0; i < geom.nFaces; i++) {
-                var f = geom.Faces[i];
+            for (var i = 0; i < num; i++) {
+                var f = geom.Faces[UnityEngine.Random.Range(0, geom.nFaces)];
                 var m = geom.MeanEdgeLength();
                 var r = tracer.GenTracer(f);
                 var c = col.Evaluate(UnityEngine.Random.Range(0, 11) * 0.1f);

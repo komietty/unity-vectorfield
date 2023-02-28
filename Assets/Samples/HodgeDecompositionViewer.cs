@@ -9,38 +9,19 @@ namespace VectorField {
     public class HodgeDecompositionViewer : MonoBehaviour {
         public enum Field { Random, Exact, CoExact, Harmonic }
         [SerializeField] protected Field field;
+        [SerializeField] protected Gradient colScheme;
         [SerializeField, Range(0, 10)] int hamonicBasisNum;
-        bool flag;
-        V random;
-        V exact;
-        V coexact;
-        V harmonic;
+        V random, exact, coexact, harmonic;
         HodgeDecomposition hd;
         HamonicBasis hb;
         HomologyGenerator hm;
         List<V> bs;
-        GraphicsBuffer scalarPots;
-        GraphicsBuffer vectorPots;
-        GraphicsBuffer distances;
-        GameObject sPotGo;
-        GameObject vPotGo;
+        GeomContainer container;
+        bool flag;
 
         void OnValidate(){
-            if (!flag) return;
-            V v;
-            switch (field) {
-                default: throw new Exception();
-                case Field.Random:  v = random;  break;
-                case Field.Exact:   v = exact;   break;
-                case Field.CoExact: v = coexact; break;
-                case Field.Harmonic:
-                    var f = hamonicBasisNum < bs.Count;
-                    v = f ? bs[hamonicBasisNum] : harmonic; break;
-            }
-            container.BuildArrowBuffer(TangentField.InterpolateWhitney(v, container.geom));
+            if (flag) SwitchFlow();
         }
-
-        GeomContainer container;
         
         void Start() {
             container = GetComponent<GeomContainer>();
@@ -54,19 +35,25 @@ namespace VectorField {
             exact    = hd.Exact(omega);
             coexact  = hd.CoExact(omega);
             harmonic = hd.Harmonic(omega, exact, coexact);
-            container.BuildArrowBuffer(TangentField.InterpolateWhitney(random, container.geom));
-            
+            SwitchFlow();
             flag = true;
         }
 
-        private void OnRenderObject() {
-            container.DrawArrows();
-        }
+        void SwitchFlow() {
+            V v;
+            switch (field) {
+                default: throw new Exception();
+                case Field.Random:  v = random;  break;
+                case Field.Exact:   v = exact;   break;
+                case Field.CoExact: v = coexact; break;
+                case Field.Harmonic:
+                    var f = hamonicBasisNum < bs.Count;
+                    v = f ? bs[hamonicBasisNum] : harmonic; break;
+            }
 
-        void OnDestroy() {
-            distances?.Dispose();
-            scalarPots?.Dispose();
-            vectorPots?.Dispose();
+            var flw = TangentField.InterpolateWhitney(v, container.geom);
+            container.BuildFaceArrowBuffer(flw);
+            container.BuildRibbonBuffer(flw, colScheme);
         }
     }
 }
