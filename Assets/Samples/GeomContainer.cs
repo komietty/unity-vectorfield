@@ -75,6 +75,7 @@ namespace  VectorField {
         void DrawArrows(GraphicsBuffer buff, int count) {
             arrowMat.SetBuffer("_Lines", buff);
             arrowMat.SetVector("_Color", arrowColor);
+            arrowMat.SetFloat("_T", Time.time);
             arrowMat.SetPass(1);
             Graphics.DrawProceduralNow(MeshTopology.Lines, count * 6);
         }

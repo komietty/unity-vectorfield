@@ -457,7 +457,7 @@ PrefabInstance:
     - target: {fileID: -6400281290468069383, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: -2432090755550338912, guid: 08f0115afb38748dfa1b4a8401bf4725, type: 3}
+      objectReference: {fileID: -2432090755550338912, guid: 3cd29200260c04696a1d75e1c8f7e8f9, type: 3}
     - target: {fileID: 919132149155446097, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_Name
       value: VectorField
@@ -499,7 +499,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 741813958}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 14046843c0e9c4e8ca67c5f839f4a791, type: 3}
   m_Name: 
@@ -552,7 +552,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 741813958}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 007f12c427ed0473f9e5a36d17720825, type: 3}
   m_Name: 
@@ -587,11 +587,11 @@ MonoBehaviour:
     m_NumColorKeys: 6
     m_NumAlphaKeys: 2
   singularities:
-  - -0.5
-  - 2
-  - -1
-  - 1
   - 0.5
+  - -0.5
+  - 1
+  - -1
+  - -2
 --- !u!114 &741813967
 MonoBehaviour:
   m_ObjectHideFlags: 0
