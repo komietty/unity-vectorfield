@@ -1,14 +1,17 @@
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
+using System.Linq;
+using MathNet.Numerics.LinearAlgebra;
 using Random = UnityEngine.Random;
 
 namespace VectorField.Demo {
     using C = System.Numerics.Complex;
-    using V = MathNet.Numerics.LinearAlgebra.Vector<System.Numerics.Complex>;
+    using V = Vector<System.Numerics.Complex>;
 
     public class VectorHeatMethodViewer : MonoBehaviour {
         GeomContainer container;
+        [SerializeField] protected Gradient colScheme;
 
         void Start() {
             container = GetComponent<GeomContainer>();
@@ -30,6 +33,15 @@ namespace VectorField.Demo {
             var field = vhmd.GenField(connection, magnitude);
             container.BuildVertArrowBuffer(field);
             //container.BuildRibbonBuffer(field);
+            ShowExtendedScalar(magnitude);
+        }
+
+        void ShowExtendedScalar(Vector<double> vals) {
+            var g = container.geom;
+            var m = vals.Max(v => v);
+            var cols = new Color[g.nVerts];
+            for(var i = 0; i < g.nVerts; i++) cols[i] = colScheme.Evaluate((float)(vals[i]));
+            container.mesh.SetColors(cols);
         }
     }
 }

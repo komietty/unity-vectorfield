@@ -30,12 +30,14 @@ namespace VectorField {
             }
             var dataSol = shm.Compute(RV.Build.DenseOfArray(dataRhs));
             var idctSol = shm.Compute(RV.Build.DenseOfArray(idctRhs));
+            //return idctSol;
             var result = new double[geom.nVerts];
             for (var i = 0; i < geom.nVerts; i++) {
                 var data = dataSol[i];
                 var idct = idctSol[i];
-                if (abs(idct) < 1e-3) result[i] = 0;
+                if (abs(idct) < 1e-8) result[i] = 0; 
                 else result[i] = data / idct;
+                Debug.Log(result[i]);
             }
             return RV.Build.DenseOfArray(result);
         }
