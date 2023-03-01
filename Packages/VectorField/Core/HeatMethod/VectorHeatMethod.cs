@@ -28,27 +28,31 @@ namespace VectorField {
                 dataRhs[s.vid] = s.val;
                 idctRhs[s.vid] = 1;
             }
-            var dataSol = shm.Compute(RV.Build.DenseOfArray(dataRhs));
-            var idctSol = shm.Compute(RV.Build.DenseOfArray(idctRhs));
+            
+            var L = Operator.Laplace(geom);
+            var F = Operator.Mass(geom) + L * pow(geom.MeanEdgeLength(), 2);
+            
+            var dataSol = Solver.LU(F, RV.Build.DenseOfArray(dataRhs));
+            var idctSol = Solver.LU(F, RV.Build.DenseOfArray(idctRhs));
             //return idctSol;
             var result = new double[geom.nVerts];
             for (var i = 0; i < geom.nVerts; i++) {
                 var data = dataSol[i];
                 var idct = idctSol[i];
-                if (abs(idct) < 1e-8) result[i] = 0; 
-                else result[i] = data / idct;
-                Debug.Log(result[i]);
+                result[i] = data / idct;
             }
+            Debug.Log(dataSol);
+            Debug.Log(idctSol);
             return RV.Build.DenseOfArray(result);
         }
         
         public CV ComputeVectorHeatFlow(CV phi) {
             // TODO: result seems more apropriate when times 100. Why.
-            var t = pow(geom.MeanEdgeLength(), 2) * 100;
+            var t = pow(geom.MeanEdgeLength(), 2) * 1;
             var L = Operator.ConnectionLaplace(geom);
             var F = Operator.MassComplex(geom) + L * t;
             var C = Solver.LUComp(F,phi);
-            return CV.Build.DenseOfEnumerable(C.Select(c => c / c.Norm()));
+            return C;
         }
 
         public float3[] GenField(CV connection, RV magnitude) {
@@ -57,7 +61,7 @@ namespace VectorField {
                 var (e1, e2) = geom.OrthonormalBasis(v);
                 var cmp = connection[v.vid];
                 var mag = magnitude[v.vid];
-                var sol = cmp;// * mag;
+                var sol = cmp / cmp.Norm() * mag;
                 field[v.vid] = e1 * (float)sol.Real + e2 * (float)sol.Imaginary;
             }
             return field;

@@ -271,6 +271,7 @@ MonoBehaviour:
   showVertArrow: 0
   showFaceArrow: 0
   showFaceRibbon: 0
+  vertexColors: []
 --- !u!1 &691971452
 GameObject:
   m_ObjectHideFlags: 0
@@ -457,7 +458,7 @@ PrefabInstance:
     - target: {fileID: -6400281290468069383, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: -2432090755550338912, guid: 3cd29200260c04696a1d75e1c8f7e8f9, type: 3}
+      objectReference: {fileID: -2432090755550338912, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
     - target: {fileID: 919132149155446097, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_Name
       value: VectorField
@@ -486,12 +487,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 353a80dee1b404979a0ed3dbada9b60c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  surface: 0
+  surface: 2
   lineMat: {fileID: 2100000, guid: 853e24a2948fb495784ae01f9b3ef2c4, type: 2}
   arrowMat: {fileID: 2100000, guid: 6df99629404484285b3ea1edba879bdf, type: 2}
-  showVertArrow: 0
+  showVertArrow: 1
   showFaceArrow: 0
   showFaceRibbon: 0
+  vertexColors: []
 --- !u!114 &741813961
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -507,9 +509,9 @@ MonoBehaviour:
   colScheme:
     serializedVersion: 2
     key0: {r: 1, g: 0.5421879, b: 0, a: 1}
-    key1: {r: 1, g: 0, b: 0.10514355, a: 1}
+    key1: {r: 0.9811321, g: 0, b: 0.12133343, a: 1}
     key2: {r: 0, g: 0.09511185, b: 1, a: 0}
-    key3: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0.09511185, b: 1, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}
     key5: {r: 0, g: 0, b: 0, a: 0}
     key6: {r: 0, g: 0, b: 0, a: 0}
@@ -517,7 +519,7 @@ MonoBehaviour:
     ctime0: 0
     ctime1: 32768
     ctime2: 65535
-    ctime3: 0
+    ctime3: 57632
     ctime4: 0
     ctime5: 0
     ctime6: 0

@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace  VectorField {
     public class GeomContainer : MonoBehaviour {
-        public enum Surface { blackBase, whiteBase }
+        public enum Surface { blackBase, whiteBase, vertexColorBase }
 
         [SerializeField] protected Surface surface;
         [SerializeField] protected Material lineMat;
@@ -17,6 +17,7 @@ namespace  VectorField {
         [SerializeField] protected bool showFaceRibbon;
         public HeGeom geom { get; private set; }
         public Mesh mesh { get; private set; }
+        [HideInInspector] public Color[] vertexColors;
         public Material LineMat => lineMat;
         TangentRibbon faceRibbon;
         TangentVertArrow  vertArrow;
@@ -33,7 +34,10 @@ namespace  VectorField {
             mesh = HeComp.Weld(f.sharedMesh);
             geom = new HeGeom(mesh, transform);
             f.sharedMesh = mesh;
-            SwitchSurface();
+        }
+
+        void Update() {
+            if(!flag) SwitchSurface();
             flag = true;
         }
 
@@ -52,6 +56,10 @@ namespace  VectorField {
                 case Surface.whiteBase:
                     arrowColor = Color.black;
                     mesh.SetColors(Enumerable.Repeat(Color.white, geom.nVerts).ToArray());
+                    break;
+                case Surface.vertexColorBase:
+                    arrowColor = Color.black;
+                    mesh.SetColors(vertexColors);
                     break;
             }
         }
