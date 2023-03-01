@@ -33,7 +33,7 @@ namespace VectorField.Demo {
             var mx = hd.Max(v => v);
             var cols = new Color[geom.nVerts];
             for(var i = 0; i < geom.nVerts; i++) cols[i] = colScheme.Evaluate((float)(hd[i] / mx));
-            container.mesh.SetColors(cols);
+            container.vertexColors = cols;
             
             tracers = Isoline.Build(geom, hd, (float)mx);
 

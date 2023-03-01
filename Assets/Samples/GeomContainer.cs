@@ -70,8 +70,8 @@ namespace  VectorField {
             o.transform.localScale *= geom.MeanEdgeLength() * 0.3f;
         }
 
-        public void BuildVertArrowBuffer(float3[] vecs) { vertArrow = new TangentVertArrow(vecs, geom); }
-        public void BuildFaceArrowBuffer(float3[] vecs) { faceArrow = new TangentFaceArrow(vecs, geom); }
+        public void BuildVertArrowBuffer(float3[] vecs, bool clamp = true) { vertArrow = new TangentVertArrow(vecs, geom, clamp); }
+        public void BuildFaceArrowBuffer(float3[] vecs, bool clamp = true) { faceArrow = new TangentFaceArrow(vecs, geom, clamp); }
         
         
         public void BuildRibbonBuffer(float3[] faceVector, Gradient colScheme) {

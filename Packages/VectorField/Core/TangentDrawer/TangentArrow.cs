@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using Unity.Mathematics;
 
@@ -8,7 +9,7 @@ namespace VectorField {
         public GraphicsBuffer buff { get; protected set; }
         public void Dispose() { buff?.Dispose(); }
         
-        protected float offset = 0.02f;
+        protected float offset = 0.05f;
         
         protected Vector3 ClampField(Vector3 field, float len) {
             var m = field.magnitude;
@@ -17,14 +18,16 @@ namespace VectorField {
     }
 
     public class TangentVertArrow : TangentArrow {
-        public TangentVertArrow(float3[] vertVector, HeGeom geom) {
+        public TangentVertArrow(float3[] vertVector, HeGeom geom, bool clamp) {
             var tngs = new Vector3[geom.nVerts * 6];
             var mlen = geom.MeanEdgeLength();
-            for(var i = 0; i < geom.nVerts; i++){
-                var field = vertVector[i] * mlen * 0.3f;
+            var mfld = vertVector.Select(v => math.length(v)).Average();
+            for(var i = 0; i < geom.nVerts; i++) {
+                var field = vertVector[i];// * mlen * 0.3f;
                 var C = geom.Pos[i];
                 var N = geom.Nrm[i];
-                field = ClampField(field, mlen * 0.3f);
+                //if(clamp) field = ClampField(field, mlen * 0.3f);
+                if(clamp) field = field / mfld * mlen * 0.3f;
                 var fc1 = C - field + N * mlen * offset;
                 var fc2 = C + field + N * mlen * offset;
                 var v = fc2 - fc1;
@@ -42,7 +45,7 @@ namespace VectorField {
         
     }
     public class TangentFaceArrow : TangentArrow {
-        public TangentFaceArrow(float3[] faceVector, HeGeom geom) {
+        public TangentFaceArrow(float3[] faceVector, HeGeom geom, bool clamp) {
             var tngs = new Vector3[geom.nFaces * 6];
             var mlen = geom.MeanEdgeLength();
             for(var i = 0; i < geom.nFaces; i++){
@@ -50,7 +53,7 @@ namespace VectorField {
                 var field = faceVector[i] * mlen * 0.3f;
                 var C = geom.Centroid(face);
                 var N = geom.FaceNormal(face).n;
-                field = ClampField(field, mlen * 0.3f);
+                if(clamp) field = ClampField(field, mlen * 0.3f);
                 var fc1 = C - field + N * mlen * offset;
                 var fc2 = C + field + N * mlen * offset;
                 var v = fc2 - fc1;
