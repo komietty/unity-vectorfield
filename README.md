@@ -3,22 +3,27 @@
 
 Unity-vectorfield is vector field library, consisting of vector field generators on mesh and operators for them. It allows you to quick implementation of vector field algorithms on Unity, which instantly applicable to game programming, media art creation, or physical simulation. This library refers a lot from [Lectures at CMU](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/) and [GeometryCentral](http://geometry-central.net/).
 
-## Solvers
+## Features
+Based on **Halfedge structure** and **Discrete exterior calclus**. 
 
-### Hodge decomposition
+Beware some of the original algorithms refered here supports several geometric representations like point cloud or voxel grid, but this implementation only supports triangulated surface mesh.
 
-### Trivial connection  
-Vector transport method as smooth as possible. From the thesis by Keenan et al 2010. 
+### **Helmholtz-Hodge decomposition**
+An implementaion of hodge decomposion which you can learn in differencial geometry text book. Discretization process is nicely explained in the [lectures notes](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/).
 
-### Scalar heat method
+### **Trivial connection**  
+A vector transport method as smooth as possible, from the paper by Keenan et al. (2010). 
 
-### Vector Heat Method
+### **Scalar heat method**
 
-Another parallel transport method using heat method. From the thesis by Nicolas et al 2019.
+A Distance computing method using heat method, from the [paper](https://www.cs.cmu.edu/~kmcrane/Projects/HeatMethod/index.html) by Keenan et al. (2017).
+
+### **Vector Heat Method**
+
+Another parallel transport algorithm using heat method, from the [paper](https://www.cs.cmu.edu/~kmcrane/Projects/VectorHeatMethod/paper.pdf) by Nicolas et al. (2019). Right now the implimentation on this library supports closed surface for any genesis. It is possible to find c++ implementation by original author [here](https://github.com/nmwsharp/geometry-central).
 
 
 ### Misc
-- Halfedge structure (as very core and standalone module)
 - Curvature culclation (Gausian / Mean / Principal / Normal)
 - Vector field generator by solving Poisson equation on mesh
 - Basis finder for Hamonic component
