@@ -18,7 +18,8 @@ namespace VectorField {
                 var f = geom.Faces[UnityEngine.Random.Range(0, geom.nFaces)];
                 var m = geom.MeanEdgeLength();
                 var r = tracer.GenTracer(f);
-                var c = col.Evaluate(UnityEngine.Random.Range(0, 11) * 0.1f);
+                //var c = col.Evaluate(UnityEngine.Random.Range(0, 11) * 0.1f);
+                var c = Color.HSVToRGB(0.0f + (i % 10) * 0.01f, UnityEngine.Random.Range(0.5f, 1f), 1);
                 for (var j = 0; j < r.Count - 1; j++) {
                     var tr0 = r[j];
                     var tr1 = r[j + 1];
