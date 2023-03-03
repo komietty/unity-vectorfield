@@ -23,7 +23,7 @@ namespace VectorField.Demo {
             var i1 = Random.Range(0, geom.nVerts);
             s[i0] = new C(0, 1);
             s[i1] = new C(1 , 0);
-            sources.Add((i0, 2));
+            sources.Add((i0, 3));
             sources.Add((i1, 1));
             container.PutSingularityPoint(i0);
             container.PutSingularityPoint(i1);

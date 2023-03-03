@@ -1,14 +1,31 @@
 # unity-vectorfield
  <img src="Documents/ribbon3.png"/>
 
-Unity-vectorfield is vector field utility library, consisting of vector field generators on mesh and operators for them. It allows you to quick implementation of differential geometry algorithms on Unity, which instantly applicable to game programming, media art creation, or physical simulation. This library is heavily Inspired by [Keenan Crane's Lectures at CMU](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/) and [Polyscope](https://github.com/nmwsharp/polyscope) and referencing a lot from them.
+Unity-vectorfield is vector field utility library, consisting of vector field generators on mesh and operators for them. It allows you to quick implementation of differential geometry algorithms on Unity, which instantly applicable to game programming, media art creation, or physical simulation. This library is referencing a lot from [Keenan Crane's Lectures at CMU](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/) and [GeometryCentral](http://geometry-central.net/).
 
-## Features
-- ### Random vector field generator and is decomposition
-- ### Distance computing with heat method
-- ### Pararell transport of vector (Trivial connection)
-- ### Pararell transport of vector (Vector heat method)
-- ### And other misc!
+## Solvers
+
+### Random vector field generator and is decomposition
+
+<img src="Documents/hodgedecomp.png"/>
+
+### Distance computing with heat method
+
+
+<img src="Documents/scalarheat.png"/>
+
+### Trivial connection generator  
+Vector transport method as smooth as possible. From the thesis by Keenan et al 2010. 
+
+<img src="Documents/trivialconn.png"/>
+
+### Vector Heat Method
+
+Another parallel transport method using heat method. From the thesis by Nicolas et al 2019.
+
+ <img src="Documents/vectorheat.jpeg"/>
+
+### And other misc!
 
 <!--
 This library contains features below: 

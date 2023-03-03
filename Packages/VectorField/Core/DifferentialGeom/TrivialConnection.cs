@@ -25,12 +25,10 @@ namespace VectorField {
             d0t = S.OfMatrix(d0.Transpose());
             var n = d0.ColumnCount;
             A = d0t * d0 + S.CreateDiagonal(n, n, 1e-8);
-        }
-        
-        bool SatisfyGaussBonnet(float[] singularity){
-            var sum = 0f;
-            foreach (var v in geom.Verts) sum += singularity[v.vid];
-            return abs(geom.eulerCharactaristics - sum) < 1e-8;
+            var hd = new HodgeDecomposition(geom);
+            generators = new HomologyGenerator(geom).BuildGenerators();
+            bases = new HamonicBasis(geom).Compute(hd, generators);
+            P = BuildPeriodMatrix();
         }
 
         double TransportNoRotation(HalfEdge h, double alphaI = 0) {
@@ -48,12 +46,18 @@ namespace VectorField {
                 rhs[v.vid] = -geom.AngleDefect(v) + 2 * PI * singularity[v.vid];
             return d0 * Solver.Cholesky(A, rhs);
         }
+        
+        bool SatisfyGaussBonnet(float[] singularity){
+            var sum = 0f;
+            foreach (var v in geom.Verts) sum += singularity[v.vid];
+            return abs(geom.eulerCharactaristics - sum) < 1e-8;
+        }
 
         public V ComputeConnections(float[] singularity) {
             if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
             var deltaBeta =  ComputeCoExactComponent(singularity);
             var gamma = ComputeHamonicComponent(deltaBeta);
-            return gamma;
+            return deltaBeta + gamma;
         }
 
         public float3[] GetFaceVectorFromConnection(V phi) {
@@ -110,7 +114,6 @@ namespace VectorField {
             var gamma = V.Build.Dense(E, 0);
 
             if (N > 0) {
-                // construct right hand side
                 var rhs = V.Build.Dense(N, 0);
                 for (var i = 0; i < N; i++) {
                     var generator = generators[i];
@@ -123,18 +126,12 @@ namespace VectorField {
                         sum -= s * deltaBeta[k];
                     }
 
-                    // normalize sum between -π and π
                     while (sum < -PI) sum += 2 * PI;
                     while (sum >= PI) sum -= 2 * PI;
-
                     rhs[i] = sum;
                 }
 
-                //var outs = new double[rhs.RowCount];
-                //var trps = P.Storage.EnumerateNonZeroIndexed().Select(t => new Triplet(t.Item3, t.Item1, t.Item2)).ToArray();
-                //Solver.DecompAndSolveLU(trps.Length, rhs.RowCount, trps, rhs.Column(0).ToArray(), outs);
                 var outs = Solver.LU(P,rhs);
-                // compute γ
                 for (var i = 0; i < N; i++) { gamma += bases[i] * outs[i]; }
             }
             return gamma;

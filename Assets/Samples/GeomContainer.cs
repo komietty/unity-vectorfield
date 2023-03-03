@@ -44,7 +44,7 @@ namespace  VectorField {
         void OnRenderObject() {
             if (showVertArrow && vertArrow != null) DrawArrows(vertArrow.buff, geom.nVerts);
             if (showFaceArrow && faceArrow != null) DrawArrows(faceArrow.buff, geom.nFaces);
-            if (showFaceRibbon) DrawRibbons();
+            if (showFaceRibbon && faceRibbon != null) DrawRibbons();
         }
 
         void SwitchSurface() {
