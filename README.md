@@ -8,13 +8,13 @@ This library is for vector field design especially parallel transport, based on 
 
 - **Helmholtz-Hodge decomposition** - An implementation of hodge decomposition which you can learn in differential geometry textbooks. The discretization process is nicely explained in the [lecture notes](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/).
 
-- **Trivial connections** | [Paper](https://www.cs.cmu.edu/~kmcrane/Projects/TrivialConnections/) by Keenan et al. (2010) - A vector transport method as smooth as possible. Right now this implementation supports closed surfaces for any genesis. 
+- **Trivial connections** ([Paper](https://www.cs.cmu.edu/~kmcrane/Projects/TrivialConnections/) by Keenan et al., 2010) - A vector transport method as smooth as possible. Right now this implementation supports closed surfaces for any genesis. 
 
-- **Scalar heat method** | [Paper](https://www.cs.cmu.edu/~kmcrane/Projects/HeatMethod/index.html) by Keenan et al. (2017) - A shortest distance computing method using the heat method for single or multiple-source on both flat and curved domains.
+- **Scalar heat method** ([Paper](https://www.cs.cmu.edu/~kmcrane/Projects/HeatMethod/index.html) by Keenan et al., 2017) - A shortest distance computing method using the heat method for single or multiple-source on both flat and curved domains.
 
-- **Vector Heat Method** | [Paper](https://www.cs.cmu.edu/~kmcrane/Projects/VectorHeatMethod/paper.pdf) by Nicolas et al. (2019) - Another parallel transport algorithm using heat method. Right now this implementation supports closed surfaces for any genesis. You can find the C++ implementation by the original author [here](https://github.com/nmwsharp/geometry-central).
+- **Vector Heat Method** ([Paper](https://www.cs.cmu.edu/~kmcrane/Projects/VectorHeatMethod/paper.pdf) by Nicolas et al., 2019) - Another parallel transport algorithm using the heat method. Right now this implementation supports closed surfaces for any genesis. You can find the C++ implementation by the original author [here](https://github.com/nmwsharp/geometry-central).
 
-Other misc includes curvature calculation (Gaussian / Mean / Principal / Normal), vector field generator by solving poisson equation on mesh, basis finder for hamonic component, basis finder for homology group, ribbon drawer, etc. 
+Other misc includes curvature calculation (Gaussian / Mean / Principal / Normal), vector field generator by solving Poisson equation on mesh, basis finder for harmonic component, basis finder for homology group, ribbon drawer, etc. 
 
 ## Installation & Usage
 For installation, put the following address to UnitPackageManager.  
