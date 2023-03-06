@@ -8,11 +8,11 @@ This library is for vector field design specially parallel transport, based on  
 
 - **Helmholtz-Hodge decomposition** - An implementaion of hodge decomposion which you can learn in differencial geometry text book. Discretization process is nicely explained in the [lectures notes](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/).
 
-- **Trivial connection** ([Paper]() by Keenan et al. (2010)) - A vector transport method as smooth as possible. Right now this implimentation supports closed surface for any genesis. 
+- **Trivial connections** | [Paper](https://www.cs.cmu.edu/~kmcrane/Projects/TrivialConnections/) by Keenan et al. (2010) - A vector transport method as smooth as possible. Right now this implimentation supports closed surface for any genesis. 
 
-- **Scalar heat method** ([Paper](https://www.cs.cmu.edu/~kmcrane/Projects/HeatMethod/index.html) by Keenan et al. (2017)) - A Distance computing method using heat method for single or multiple-source shortest path problem on both flat and curved domains.
+- **Scalar heat method** | [Paper](https://www.cs.cmu.edu/~kmcrane/Projects/HeatMethod/index.html) by Keenan et al. (2017) - A Distance computing method using heat method for single or multiple-source shortest path problem on both flat and curved domains.
 
-- **Vector Heat Method** ([Paper](https://www.cs.cmu.edu/~kmcrane/Projects/VectorHeatMethod/paper.pdf) by Nicolas et al. (2019)) - Another parallel transport algorithm using heat method. Right now this implimentation supports closed surface for any genesis. You can find C++ implementation by original author [here](https://github.com/nmwsharp/geometry-central).
+- **Vector Heat Method** | [Paper](https://www.cs.cmu.edu/~kmcrane/Projects/VectorHeatMethod/paper.pdf) by Nicolas et al. (2019) - Another parallel transport algorithm using heat method. Right now this implimentation supports closed surface for any genesis. You can find C++ implementation by original author [here](https://github.com/nmwsharp/geometry-central).
 
 Other misc includes Curvature culclation (Gausian / Mean / Principal / Normal), Vector field generator by solving Poisson equation on mesh, Basis finder for Hamonic component, Basis finder for Homology group, Ribbon drawer, etc. 
 
