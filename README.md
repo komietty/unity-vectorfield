@@ -8,7 +8,7 @@ This library is for vector field design specially parallel transport, based on  
 
 - **Helmholtz-Hodge decomposition** - An implementaion of hodge decomposion which you can learn in differencial geometry text book. Discretization process is nicely explained in the [lectures notes](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/).
 
-- **Trivial connection** ([Paper]() by Keenan et al. (2010))- A vector transport method as smooth as possible. Right now this implimentation supports closed surface for any genesis. 
+- **Trivial connection** ([Paper]() by Keenan et al. (2010)) - A vector transport method as smooth as possible. Right now this implimentation supports closed surface for any genesis. 
 
 - **Scalar heat method** ([Paper](https://www.cs.cmu.edu/~kmcrane/Projects/HeatMethod/index.html) by Keenan et al. (2017)) - A Distance computing method using heat method for single or multiple-source shortest path problem on both flat and curved domains.
 

@@ -3,63 +3,76 @@ using MathNet.Numerics.LinearAlgebra.Double;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Mathematics;
+using UnityEngine;
 using static Unity.Mathematics.math;
 
 namespace VectorField {
     using S = SparseMatrix;
     using V = Vector<double>;
     using E = ExteriorDerivatives;
-
+    
     public class TrivialConnection {
-        protected HeGeom geom;
-        protected S A;
-        protected S d0;
-        protected S d0t;
-        protected List<List<HalfEdge>> generators;
-        protected List<V> bases;
-        protected S P;
+        private HeGeom geom;
+        private S SqareA;
+        private S TransA;
+        private S HeterA;
+        private S nullSpaceCoef;
+        private List<List<HalfEdge>> generators;
 
-        public TrivialConnection(HeGeom g) {
-            geom = g;
-            d0  = E.BuildExteriorDerivative0Form(g);
-            d0t = S.OfMatrix(d0.Transpose());
-            var n = d0.ColumnCount;
-            A = d0t * d0 + S.CreateDiagonal(n, n, 1e-8);
+        protected List<V> bases;
+        protected S Period;
+
+        public TrivialConnection(HeGeom geom) {
+            this.geom = geom;
+            generators = new HomologyGenerator(geom).BuildGenerators();
+            HeterA = BuildCycleMatrix();
+            TransA = S.OfMatrix(HeterA.Transpose());
+            SqareA = TransA * HeterA;
+            
             var hd = new HodgeDecomposition(geom);
             generators = new HomologyGenerator(geom).BuildGenerators();
             bases = new HamonicBasis(geom).Compute(hd, generators);
-            P = BuildPeriodMatrix();
-        }
-
-        double TransportNoRotation(HalfEdge h, double alphaI = 0) {
-            var u = geom.Vector(h);
-            var (e1, e2) = geom.OrthonormalBasis(h.face);
-            var (f1, f2) = geom.OrthonormalBasis(h.twin.face);
-            var thetaIJ = atan2(dot(u, e2), dot(u, e1));
-            var thetaJI = atan2(dot(u, f2), dot(u, f1));
-            return alphaI - thetaIJ + thetaJI;
-        }
-
-        public V ComputeCoExactComponent(float[] singularity) {
-            var rhs = new double[geom.nVerts];
-            foreach (var v in geom.Verts)
-                rhs[v.vid] = -geom.AngleDefect(v) + 2 * PI * singularity[v.vid];
-            return d0 * Solver.Cholesky(A, rhs);
+            Period = BuildPeriodMatrix();
         }
         
-        bool SatisfyGaussBonnet(float[] singularity){
-            var sum = 0f;
-            foreach (var v in geom.Verts) sum += singularity[v.vid];
-            return abs(geom.eulerCharactaristics - sum) < 1e-8;
+        public V ComputeCoExactComponent(float[] singularity) {
+            var rhs = new double[geom.nVerts + generators.Count];
+            foreach (var v in geom.Verts)
+                rhs[v.vid] = -geom.AngleDefect(v) + 2 * PI * singularity[v.vid];
+            for(var i = 0; i < generators.Count; i++) 
+                rhs[geom.nVerts + i] = -AngleDefectAroundGenerator(generators[i]);
+            return HeterA * Solver.Cholesky(SqareA, rhs);
         }
-
+        
         public V ComputeConnections(float[] singularity) {
             if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
-            var deltaBeta =  ComputeCoExactComponent(singularity);
-            var gamma = ComputeHamonicComponent(deltaBeta);
-            return deltaBeta + gamma;
+            var coexact = ComputeCoExactComponent(singularity);
+            var gamma = ComputeHamonicComponent(coexact);
+            return coexact + gamma;
+        }
+        
+        double AngleDefectAroundGenerator(List<HalfEdge> generator) {
+            var theta = 0d;
+            foreach (var h in generator) theta = TransportNoRotation(h, theta);
+            while( theta >=  PI ) theta -= 2 * PI;
+            while( theta <  -PI ) theta += 2 * PI;
+            return -theta;
         }
 
+        S BuildCycleMatrix() {
+            var T = new List<(int i, int j, double v)>();
+            foreach (var v in geom.Verts) 
+            foreach (var h in geom.GetAdjacentHalfedges(v)) {
+                T.Add((h.edge.eid, v.vid, h.IsEdgeDir()? -1 : 1));
+            }
+            for (var i = 0; i < generators.Count; i++) 
+            foreach (var h in generators[i]) {
+                T.Add((h.edge.eid, geom.nVerts + i, h.IsEdgeDir() ? -1 : 1));
+            }
+            
+            return S.OfIndexed(geom.nEdges, geom.nVerts + generators.Count, T);
+        }
+        
         public float3[] GetFaceVectorFromConnection(V phi) {
             var visit = new bool[geom.nFaces];
             var alpha = new double[geom.nFaces];
@@ -88,7 +101,22 @@ namespace VectorField {
             }
             return field;
         }
-
+        
+        double TransportNoRotation(HalfEdge h, double alphaI = 0) {
+            var u = geom.Vector(h);
+            var (e1, e2) = geom.OrthonormalBasis(h.face);
+            var (f1, f2) = geom.OrthonormalBasis(h.twin.face);
+            var thetaIJ = atan2(dot(u, e2), dot(u, e1));
+            var thetaJI = atan2(dot(u, f2), dot(u, f1));
+            return alphaI - thetaIJ + thetaJI;
+        }
+        
+        bool SatisfyGaussBonnet(float[] singularity){
+            var sum = 0f;
+            foreach (var v in geom.Verts) sum += singularity[v.vid];
+            return abs(geom.eulerCharactaristics - sum) < 1e-8;
+        }
+        
         S BuildPeriodMatrix() {
             var n = bases.Count;
             var t = new List<(int, int, double)>();
@@ -131,7 +159,7 @@ namespace VectorField {
                     rhs[i] = sum;
                 }
 
-                var outs = Solver.LU(P,rhs);
+                var outs = Solver.LU(Period,rhs);
                 for (var i = 0; i < N; i++) { gamma += bases[i] * outs[i]; }
             }
             return gamma;

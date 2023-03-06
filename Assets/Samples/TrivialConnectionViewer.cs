@@ -9,7 +9,6 @@ namespace VectorField {
     public class TrivialConnectionViewer : MonoBehaviour {
         [SerializeField] protected Gradient colScheme;
         [SerializeField] protected List<float> singularities;
-        [SerializeField] protected int mode;
         GeomContainer container;
         
         void Start() {
@@ -24,42 +23,8 @@ namespace VectorField {
                 c++;
                 if (s != 0) container.PutSingularityPoint(i);
             }
-
-            switch (mode) {
-                case 0: modeA(g, sings); break;
-                case 1: modeB(g, sings); break;
-                case 2: modeC(g, sings); break;
-                case 3: modeD(g, sings); break;
-            }
-        }
-        
-        void modeA(HeGeom g, float[] singularities) {
             var t = new TrivialConnection(g);
-            var phi = t.ComputeCoExactComponent(singularities);
-            var flw = t.GetFaceVectorFromConnection(phi);
-            container.BuildFaceArrowBuffer(flw);
-            container.BuildRibbonBuffer(flw, colScheme);
-        }
-        
-        void modeB(HeGeom g, float[] singularities) {
-            var t = new TrivialConnection(g);
-            var phi = t.ComputeConnections(singularities);
-            var flw = t.GetFaceVectorFromConnection(phi);
-            container.BuildFaceArrowBuffer(flw);
-            container.BuildRibbonBuffer(flw, colScheme);
-        }
-        
-        void modeC(HeGeom g, float[] singularities) {
-            var t = new TrivialConnectionAlt(g);
-            var phi = t.ComputeCoExactComponent(singularities);
-            var flw = t.GetFaceVectorFromConnection(phi);
-            container.BuildFaceArrowBuffer(flw);
-            container.BuildRibbonBuffer(flw, colScheme);
-        }
-        
-        void modeD(HeGeom g, float[] singularities) {
-            var t = new TrivialConnectionAlt(g);
-            var phi = t.ComputeConnections(singularities);
+            var phi = t.ComputeConnections(sings);
             var flw = t.GetFaceVectorFromConnection(phi);
             container.BuildFaceArrowBuffer(flw);
             container.BuildRibbonBuffer(flw, colScheme);
