@@ -18,24 +18,24 @@ namespace VectorField.Demo {
         Material lineMat;
 
         void Start() {
-            var container = GetComponent<GeomContainer>();
-            var geom = container.geom;
-            lineMat = new Material(container.LineMat);
+            var c = GetComponent<GeomContainer>();
+            var g = c.geom;
+            lineMat = new Material(c.LineMat);
 
-            var s = new double[geom.nVerts];
-            for (var i = 0; i < geom.nVerts; i++) s[i] = 0;
-            s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
-            s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
-            s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
+            var s = new double[g.nVerts];
+            for (var i = 0; i < g.nVerts; i++) s[i] = 0;
+            s[UnityEngine.Random.Range(0, g.nVerts)] = 1;
+            s[UnityEngine.Random.Range(0, g.nVerts)] = 1;
+            s[UnityEngine.Random.Range(0, g.nVerts)] = 1;
 
-            var hm = new ScalarHeatMethod(geom); 
-            var hd = hm.Compute(V.Build.DenseOfArray(s));
-            var mx = hd.Max(v => v);
-            var cols = new Color[geom.nVerts];
-            for(var i = 0; i < geom.nVerts; i++) cols[i] = colScheme.Evaluate((float)(hd[i] / mx));
-            container.vertexColors = cols;
+            var hm = new ScalarHeatMethod(g); 
+            var dist = hm.Compute(V.Build.DenseOfArray(s));
+            var max = dist.Max(v => v);
+            var cols = new Color[g.nVerts];
+            for(var i = 0; i < g.nVerts; i++) cols[i] = colScheme.Evaluate((float)(dist[i] / max));
+            c.vertexColors = cols;
             
-            tracers = Isoline.Build(geom, hd, (float)mx);
+            tracers = Isoline.Build(g, dist, (float)max);
 
             for(var i = 0; i < tracers.Count; i++) {
                 colours.Add(new Vector3(1, 1, 1));

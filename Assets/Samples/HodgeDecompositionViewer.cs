@@ -12,11 +12,8 @@ namespace VectorField {
         [SerializeField] protected Gradient colScheme;
         [SerializeField, Range(0, 10)] int hamonicBasisNum;
         V random, exact, coexact, harmonic;
-        HodgeDecomposition hd;
-        HamonicBasis hb;
-        HomologyGenerator hm;
-        List<V> bs;
         GeomContainer container;
+        List<V> bases;
         bool flag;
 
         void OnValidate(){
@@ -25,16 +22,15 @@ namespace VectorField {
         
         void Start() {
             container = GetComponent<GeomContainer>();
-            var g = container.geom;
-            hd = new HodgeDecomposition(g);
-            hb = new HamonicBasis(g);
-            hm = new HomologyGenerator(g);
-            bs = hb.Compute(hd, hm.BuildGenerators());
-            var (omega, sids, vids) = TangentField.GenRandomOneForm(g);
-            random   = omega;
-            exact    = hd.Exact(omega);
-            coexact  = hd.CoExact(omega);
-            harmonic = hd.Harmonic(omega, exact, coexact);
+            var g  = container.geom;
+            var hd = new HodgeDecomposition(g);
+            var hb = new HamonicBasis(g);
+            var hm = new HomologyGenerator(g);
+            bases    = hb.Compute(hd, hm.BuildGenerators());
+            random   = TangentField.GenRandomOneForm(g).oneForm;
+            exact    = hd.Exact(random);
+            coexact  = hd.CoExact(random);
+            harmonic = hd.Harmonic(random, exact, coexact);
             SwitchFlow();
             flag = true;
         }
@@ -47,13 +43,13 @@ namespace VectorField {
                 case Field.Exact:   v = exact;   break;
                 case Field.CoExact: v = coexact; break;
                 case Field.Harmonic:
-                    var f = hamonicBasisNum < bs.Count;
-                    v = f ? bs[hamonicBasisNum] : harmonic; break;
+                    var f = hamonicBasisNum < bases.Count;
+                    v = f ? bases[hamonicBasisNum] : harmonic; break;
             }
 
-            var flw = TangentField.InterpolateWhitney(v, container.geom);
-            container.BuildFaceArrowBuffer(flw);
-            container.BuildRibbonBuffer(flw, colScheme);
+            var flow = TangentField.InterpolateWhitney(v, container.geom);
+            container.BuildFaceArrowBuffer(flow);
+            container.BuildRibbonBuffer(flow, colScheme);
         }
     }
 }

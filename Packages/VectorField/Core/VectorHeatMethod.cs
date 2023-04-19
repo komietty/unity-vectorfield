@@ -1,8 +1,5 @@
 using System.Collections.Generic;
-using System.Linq;
-using MathNet.Numerics;
 using Unity.Mathematics;
-using UnityEngine;
 
 namespace VectorField {
     using static math;
@@ -17,7 +14,7 @@ namespace VectorField {
 
         public VectorHeatMethod(HeGeom geom) { this.geom = geom; }
         
-        public RV ExtendScaler(List<(int vid, double val)> src) {
+        public RV ExtendScalar(List<(int vid, double val)> src) {
             var dataRhs = new double[geom.nVerts];
             var idctRhs = new double[geom.nVerts];
             foreach (var s in src) {

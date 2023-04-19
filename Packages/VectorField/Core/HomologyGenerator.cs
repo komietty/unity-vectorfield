@@ -3,9 +3,9 @@ using System.Collections.Generic;
 namespace VectorField {
     public class HomologyGenerator {
 
-        protected HeGeom geom;
-        public int[] vertParent { get; }
-        public int[] faceParent { get; }
+        HeGeom geom;
+        int[] vertParent;
+        int[] faceParent;
 
         public HomologyGenerator(HeGeom geom) {
             this.geom = geom;
