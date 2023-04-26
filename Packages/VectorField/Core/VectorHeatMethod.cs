@@ -9,50 +9,45 @@ namespace VectorField {
     using RV = MathNet.Numerics.LinearAlgebra.Vector<double>;
     using CV = MathNet.Numerics.LinearAlgebra.Vector<System.Numerics.Complex>;
 
-    public class VectorHeatMethod {
-        protected HeGeom geom;
-
-        public VectorHeatMethod(HeGeom geom) { this.geom = geom; }
+    public static class VectorHeatMethod {
         
-        public RV ExtendScalar(List<(int vid, double val)> src) {
-            var dataRhs = new double[geom.nVerts];
-            var idctRhs = new double[geom.nVerts];
+        public static RV ComputeExtendedScalar(HeGeom g, List<(int vid, double val)> src) {
+            var dataRhs = RV.Build.Dense(g.nVerts);
+            var idctRhs = RV.Build.Dense(g.nVerts);
             foreach (var s in src) {
                 dataRhs[s.vid] = s.val;
                 idctRhs[s.vid] = 1;
             }
-            
-            var L = Operator.Laplace(geom);
-            var F = Operator.Mass(geom) + L * pow(geom.MeanEdgeLength(), 2);
-            
-            var dataSol = Solver.LU(F, RV.Build.DenseOfArray(dataRhs));
-            var idctSol = Solver.LU(F, RV.Build.DenseOfArray(idctRhs));
-            var result = new double[geom.nVerts];
-            for (var i = 0; i < geom.nVerts; i++) {
+            var L = Operator.Laplace(g);
+            var F = Operator.Mass(g) + L * pow(g.MeanEdgeLength(), 2);
+            var dataSol = Solver.LU(F, dataRhs);
+            var idctSol = Solver.LU(F, idctRhs);
+            var result = RV.Build.Dense(g.nVerts);
+            for (var i = 0; i < g.nVerts; i++) {
                 var data = dataSol[i];
                 var idct = idctSol[i];
                 result[i] = data / idct;
             }
-            return RV.Build.DenseOfArray(result);
+            return result;
         }
         
-        public CV ComputeVectorHeatFlow(CV phi) {
-            var t = pow(geom.MeanEdgeLength(), 2);
-            var L = Operator.ConnectionLaplace(geom);
-            var F = Operator.MassComplex(geom) + L * t;
+        public static CV ComputeVectorHeatFlow(HeGeom g, CV phi) {
+            var t = pow(g.MeanEdgeLength(), 2);
+            var L = Operator.ConnectionLaplace(g);
+            var F = Operator.MassComplex(g) + L * t;
             var C = Solver.LUComp(F,phi);
             return C;
         }
 
-        public float3[] GenField(CV connection, RV magnitude) {
-            var field = new float3[geom.nVerts];
-            foreach (var v in geom.Verts) {
-                var (e1, e2) = geom.OrthonormalBasis(v);
-                var cmp = connection[v.vid];
-                var mag = magnitude[v.vid];
-                var len = sqrt(pow(cmp.Real, 2) + pow(cmp.Imaginary, 2));
-                var sol = cmp / len * mag;
-                field[v.vid] = e1 * (float)sol.Real + e2 * (float)sol.Imaginary;
+        public static float3[] ComputeVertVectorField(HeGeom g, CV connection, RV magnitude) {
+            var field = new float3[g.nVerts];
+            foreach (var v in g.Verts) {
+                var (e1, e2) = g.OrthonormalBasis(v);
+                var c = connection[v.vid];
+                var m = magnitude[v.vid];
+                var l = sqrt(pow(c.Real, 2) + pow(c.Imaginary, 2));
+                var s = c / l * m;
+                field[v.vid] = e1 * (float)s.Real + e2 * (float)s.Imaginary;
             }
             return field;
         }

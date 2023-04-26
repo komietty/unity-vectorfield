@@ -4,6 +4,7 @@ using System.Numerics;
 
 namespace VectorField {
     using static math;
+    using d2 = double2;
     using RSprs = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
     using CSprs = MathNet.Numerics.LinearAlgebra.Complex.SparseMatrix;
 
@@ -55,8 +56,8 @@ namespace VectorField {
         public static CSprs ConnectionLaplace(HeGeom g) {
             var t = new List<(int, int, Complex)>();
             var n = g.nVerts;
-            var halfedgeVectorInVertex = new double2[g.halfedges.Length];
-            var transportVectorAlongHe = new double2[g.halfedges.Length];
+            var halfedgeVectorInVertex = new d2[g.halfedges.Length];
+            var transportVectorAlongHe = new d2[g.halfedges.Length];
 
             for (var i = 0; i < n; i++) {
                 var v = g.Verts[i];
@@ -65,7 +66,7 @@ namespace VectorField {
                 var rate = 2 * PI / g.AngleSum(v);
                 foreach (var c in g.GetAdjacentConers(v)) {
                     var h = g.halfedges[c.hid].prev;
-                    halfedgeVectorInVertex[h.id] = new double2(cos(a), sin(a)) * g.Length(h);
+                    halfedgeVectorInVertex[h.id] = new d2(cos(a), sin(a)) * g.Length(h);
                     // TODO: Angle(c) does calc h and h.prev.twin. Fix it so as to reasoable.
                     var v1 = normalize(g.Vector(h));
                     var v2 = normalize(g.Vector(h.twin.next));
@@ -82,7 +83,7 @@ namespace VectorField {
                 var vB = halfedgeVectorInVertex[hB.id];
                 var rot = normalize(Divide(-vB, vA));
                 transportVectorAlongHe[hA.id] = rot;
-                transportVectorAlongHe[hB.id] = Divide(new float2(1, 0), rot);
+                transportVectorAlongHe[hB.id] = Divide(new d2(1, 0), rot);
             }
 
             var diag = new double[g.nVerts];
@@ -103,11 +104,14 @@ namespace VectorField {
             var C = CSprs.CreateDiagonal(n, n, new Complex(1e-8f, 0));
             if (!M.IsHermitian()) UnityEngine.Debug.LogWarning("not hermitian");
             return M + C;
-        }
-        
-        static double2 Divide(double2 u, double2 v) {
-            var deno = v.x * v.x + v.y * v.y;
-            return new double2(u.x * v.x + u.y * v.y, u.y * v.x - u.x * v.y) / deno;
+            
+            d2 Divide(d2 u, d2 v) {
+                var deno = v.x * v.x + v.y * v.y;
+                return new d2(
+                    u.x * v.x + u.y * v.y,
+                    u.y * v.x - u.x * v.y
+                ) / deno;
+            }
         }
     }
 }

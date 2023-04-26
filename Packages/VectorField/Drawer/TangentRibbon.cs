@@ -52,9 +52,8 @@ namespace VectorField {
             return new f2(math.dot(v, a), math.dot(v, b));
         }
 
-        float Cross(f2 a, f2 b) => b.x * a.y - b.y * a.x;
-
         bool Intersect(f2 a, f2 b, f2 c, f2 d, out float rate) {
+            float Cross(f2 a, f2 b) => b.x * a.y - b.y * a.x;
             var deno = Cross(b - a, d - c);
             if (deno == 0) { rate = 0; return false; }
             var s = Cross(c - a, d - c) / deno;

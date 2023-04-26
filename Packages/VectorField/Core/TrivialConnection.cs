@@ -1,8 +1,8 @@
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Mathematics;
+using System.Linq;
 using UnityEngine;
 using static Unity.Mathematics.math;
 
@@ -31,7 +31,7 @@ namespace VectorField {
             
             var hd = new HodgeDecomposition(geom);
             generators = new HomologyGenerator(geom).BuildGenerators();
-            bases = new HamonicBasis(geom).Compute(hd, generators);
+            bases = HamonicBasis.Compute(geom, hd, generators);
             Period = BuildPeriodMatrix();
         }
         

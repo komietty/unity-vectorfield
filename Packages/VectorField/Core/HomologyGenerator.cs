@@ -13,7 +13,7 @@ namespace VectorField {
             this.faceParent = new int[geom.nFaces];
         }
 
-        public void BuildPrimalSpanningTree() {
+        void BuildPrimalSpanningTree() {
             foreach (var v in geom.Verts) vertParent[v.vid] = v.vid;
             var rtid = geom.Verts[0].vid;
             var queue = new Queue<int>();
@@ -30,7 +30,7 @@ namespace VectorField {
             }
         }
 
-        public void BuildDualSpanningCotree() {
+        void BuildDualSpanningCotree() {
             foreach (var f in geom.Faces) faceParent[f.fid] = f.fid;
             var queue = new Queue<int>();
             var f0 = geom.Faces[0];

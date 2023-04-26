@@ -35,20 +35,6 @@ namespace VectorField {
             return CV.Build.DenseOfArray(sln);
         }
 
-        /*
-         * Computes the solution of the poisson problem Ax = -M(rho - rhoBar),
-         * where A is the positive definite laplace matrix and M is the mass matrix.
-         * rho: A scalar density of vertices of the input mesh.
-        */
-        public static RV ScalarPoissonProblem(HeGeom g, RV rho){
-            var M = Operator.Mass(g);
-            var A = Operator.Laplace(g);
-            var T = g.TotalArea();
-            var rhoSum = (M * rho).Sum();
-            var rhoBar = MathNet.Numerics.LinearAlgebra.Double.DenseVector.Create(M.RowCount, rhoSum / T);
-            return Cholesky(A, -M * (rho - rhoBar));
-        }
-        
         #if UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
         [DllImport("EigenSolver.bundle")]
         static extern void DecompAndSolveCholReal(

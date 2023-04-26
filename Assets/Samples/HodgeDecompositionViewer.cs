@@ -24,9 +24,8 @@ namespace VectorField {
             container = GetComponent<GeomContainer>();
             var g  = container.geom;
             var hd = new HodgeDecomposition(g);
-            var hb = new HamonicBasis(g);
             var hm = new HomologyGenerator(g);
-            bases    = hb.Compute(hd, hm.BuildGenerators());
+            bases    = HamonicBasis.Compute(g, hd, hm.BuildGenerators());
             random   = TangentField.GenRandomOneForm(g).oneForm;
             exact    = hd.Exact(random);
             coexact  = hd.CoExact(random);
@@ -47,9 +46,9 @@ namespace VectorField {
                     v = f ? bases[hamonicBasisNum] : harmonic; break;
             }
 
-            var flow = TangentField.InterpolateWhitney(v, container.geom);
+            var flow = ExteriorDerivatives.InterpolateWhitney(v, container.geom);
             container.BuildFaceArrowBuffer(flow);
-            container.BuildRibbonBuffer(flow, colScheme);
+            //container.BuildRibbonBuffer(flow, colScheme);
         }
     }
 }

@@ -4,28 +4,31 @@ using System.Collections.Generic;
 namespace VectorField {
     using Vecd = MathNet.Numerics.LinearAlgebra.Vector<double>;
 
-    public class HamonicBasis {
-        HeGeom geom;
-
-        public HamonicBasis(HeGeom geom) { this.geom = geom; }
-
-        Vecd BuildClosedPrimalOneForm(List<HalfEdge> generator) {
+    public static class HamonicBasis {
+        
+        static Vecd BuildClosedPrimalOneForm(
+            HeGeom geom,
+            List<HalfEdge> gen
+            ) {
             var n = geom.nEdges;
             var d = new double[n];
-            foreach (var h in generator) d[h.edge.eid] = h.edge.hid == h.id ? 1 : -1;
+            foreach (var h in gen) d[h.edge.eid] = h.edge.hid == h.id ? 1 : -1;
             return DenseVector.OfArray(d);
         } 
 
-        public List<Vecd> Compute(HodgeDecomposition hd, List<List<HalfEdge>> generators) {
-            var gammas = new List<Vecd>();
-            if (generators.Count > 0) {
-                foreach (var g in generators) {
-                    var omega  = BuildClosedPrimalOneForm(g);
-                    var dAlpha = hd.Exact(omega);
-                    gammas.Add(omega - dAlpha);
+        public static List<Vecd> Compute(
+            HeGeom geom,
+            HodgeDecomposition hd,
+            List<List<HalfEdge>> gens) {
+            var l = new List<Vecd>();
+            if (gens.Count > 0) {
+                foreach (var g in gens) {
+                    var omega = BuildClosedPrimalOneForm(geom, g);
+                    var exact = hd.Exact(omega);
+                    l.Add(omega - exact);
                 }
             }
-            return gammas;
+            return l;
         }
     }
 }

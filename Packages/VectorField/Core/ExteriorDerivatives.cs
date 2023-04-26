@@ -3,6 +3,7 @@ using Unity.Mathematics;
 
 namespace VectorField {
     using Sprs = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
+    using Vecd = MathNet.Numerics.LinearAlgebra.Vector<double>;
 
     public static class ExteriorDerivatives {
 
@@ -60,6 +61,37 @@ namespace VectorField {
                 }
             }
             return Sprs.OfIndexed(g.nFaces, g.nEdges, l);
+        }
+        
+        /*
+         * interpolation to compute intrinsic vector on face
+         * see Keenans Lecture 8 for Whitney interpolation.
+        */
+        public static float3[] InterpolateWhitney(Vecd oneForm, HeGeom g) {
+            var field = new float3[g.nFaces];
+            for (var i = 0; i < g.nFaces; i++) {
+                var f = g.Faces[i];
+                var h = g.halfedges[f.hid];
+                var pi = g.Pos[h.vid];
+                var pj = g.Pos[h.next.vid];
+                var pk = g.Pos[h.prev.vid];
+                var eij = pj - pi;
+                var ejk = pk - pj;
+                var eki = pi - pk;
+                var cij = oneForm[h.edge.eid];
+                var cjk = oneForm[h.next.edge.eid];
+                var cki = oneForm[h.prev.edge.eid];
+                if (h.edge.hid != h.id) cij *= -1;
+                if (h.next.edge.hid != h.next.id) cjk *= -1;
+                if (h.prev.edge.hid != h.prev.id) cki *= -1;
+                var A = g.Area(f);
+                var N = g.FaceNormal(f).n;
+                var a = (eki - ejk) * (float)cij;
+                var b = (eij - eki) * (float)cjk;
+                var c = (ejk - eij) * (float)cki;
+                field[i] = math.cross(N, (a + b + c)) / (float)(6 * A);
+            }
+            return field;
         }
     }
 }
