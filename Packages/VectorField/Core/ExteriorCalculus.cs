@@ -5,34 +5,34 @@ using System.Numerics;
 namespace VectorField {
     using static math;
     using d2 = double2;
-    using RSprs = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
-    using CSprs = MathNet.Numerics.LinearAlgebra.Complex.SparseMatrix;
+    using RSparse = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
+    using CSparse = MathNet.Numerics.LinearAlgebra.Complex.SparseMatrix;
 
     public static class Operator {
         /*
          * Generates Real Mass Matrix
         */
-        public static RSprs Mass(HeGeom g){
+        public static RSparse Mass(HeGeom g){
             var n = g.nVerts;
             System.Span<double> a = stackalloc double[n];
             for (int i = 0; i < n; i++) a[i] = g.BarycentricDualArea(i);
-            return RSprs.OfDiagonalArray(a.ToArray());
+            return RSparse.OfDiagonalArray(a.ToArray());
         }
 
         /*
          * Generates Complex Mass Matrix
         */
-        public static CSprs MassComplex(HeGeom g){
+        public static CSparse MassComplex(HeGeom g){
             var n = g.nVerts;
             System.Span<Complex> a = new Complex[n];
             for (int i = 0; i < n; i++) a[i] = new Complex(g.BarycentricDualArea(i), 0);
-            return CSprs.OfDiagonalArray(a.ToArray());
+            return CSparse.OfDiagonalArray(a.ToArray());
         }
 
         /*
          * Generates Real Laplace Matrix
         */
-        public static RSprs Laplace(HeGeom g){
+        public static RSparse Laplace(HeGeom g){
             var t = new List<(int, int, double)>();
             var n = g.nVerts;
             for (var i = 0; i < n; i++) {
@@ -45,15 +45,15 @@ namespace VectorField {
                 }
                 t.Add((i, i, s));
             }
-            var M = RSprs.OfIndexed(n, n, t);
-            var C = RSprs.CreateDiagonal(n, n, 1e-8);
+            var M = RSparse.OfIndexed(n, n, t);
+            var C = RSparse.CreateDiagonal(n, n, 1e-8);
             return M + C;
         }
 
         /*
          * Generates Connection Laplace Matrix
         */
-        public static CSprs ConnectionLaplace(HeGeom g) {
+        public static CSparse ConnectionLaplace(HeGeom g) {
             var t = new List<(int, int, Complex)>();
             var n = g.nVerts;
             var halfedgeVectorInVertex = new d2[g.halfedges.Length];
@@ -100,8 +100,8 @@ namespace VectorField {
             for (int i = 0; i < diag.Length; i++)
                 t.Add((i, i, new Complex(diag[i], 0)));
 
-            var M = CSprs.OfIndexed(n, n, t);
-            var C = CSprs.CreateDiagonal(n, n, new Complex(1e-8f, 0));
+            var M = CSparse.OfIndexed(n, n, t);
+            var C = CSparse.CreateDiagonal(n, n, new Complex(1e-8f, 0));
             if (!M.IsHermitian()) UnityEngine.Debug.LogWarning("not hermitian");
             return M + C;
             

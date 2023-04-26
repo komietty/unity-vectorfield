@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using MathNet.Numerics.LinearAlgebra;
 using Unity.Mathematics;
 
 namespace VectorField.Demo {
-    using V = Vector<double>;
+    using Vector = MathNet.Numerics.LinearAlgebra.Vector<double>;
 
     public class ScalarHeatMethodViewer : MonoBehaviour {
         [SerializeField] protected Gradient colScheme;
@@ -22,14 +21,13 @@ namespace VectorField.Demo {
             var g = c.geom;
             lineMat = new Material(c.LineMat);
 
-            var s = new double[g.nVerts];
+            var s = Vector.Build.Dense(g.nVerts);
             for (var i = 0; i < g.nVerts; i++) s[i] = 0;
             s[UnityEngine.Random.Range(0, g.nVerts)] = 1;
             s[UnityEngine.Random.Range(0, g.nVerts)] = 1;
             s[UnityEngine.Random.Range(0, g.nVerts)] = 1;
 
-            var hm = new ScalarHeatMethod(g); 
-            var dist = hm.Compute(V.Build.DenseOfArray(s));
+            var dist = ScalarHeatMethod.ComputeScalarHeatFlow(g, s);
             var max = dist.Max(v => v);
             var cols = new Color[g.nVerts];
             for(var i = 0; i < g.nVerts; i++) cols[i] = colScheme.Evaluate((float)(dist[i] / max));
@@ -66,7 +64,7 @@ namespace VectorField.Demo {
     }
 
     public static class Isoline {
-        public static List<Vector3> Build(HeGeom g, V phi, float maxPhi) {
+        public static List<Vector3> Build(HeGeom g, Vector phi, float maxPhi) {
             var lines = new List<Vector3>();
             var sgmts = new List<Vector3>();
             var interval = maxPhi / 30;

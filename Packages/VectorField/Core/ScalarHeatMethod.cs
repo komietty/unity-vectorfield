@@ -3,70 +3,63 @@ using System.Collections.Generic;
 
 namespace VectorField {
     using static math;
-    using RS = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
-    using RD = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix;
-    using RV = MathNet.Numerics.LinearAlgebra.Vector<double>;
+    using Dense  = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix;
+    using Vector = MathNet.Numerics.LinearAlgebra.Vector<double>;
 
-    public class ScalarHeatMethod {
-        HeGeom geom; 
-        RS A; // The laplace matrix of the input mesh
-        RS F; // The mean curvature flow oparator built on the input mesh
+    public static class ScalarHeatMethod {
 
-        public ScalarHeatMethod(HeGeom geom) {
-            this.geom = geom;
-            var t = pow(geom.MeanEdgeLength(), 2);
-            A = Operator.Laplace(geom);
-            F = Operator.Mass(geom) + A * t;
-        }
-
-        RD ComputeVectorField(IList<double> u) {
-            var X = RD.Create(geom.nFaces, 3, 0);
-            foreach (var f in geom.Faces) {
-                var n = geom.FaceNormal(f).n;
-                var a = geom.Area(f);
-                var g = new double3();
-                foreach (var h in geom.GetAdjacentHalfedges(f)) {
+        static Dense ComputeVectorField(HeGeom g, IList<double> u) {
+            var X = Dense.Create(g.nFaces, 3, 0);
+            foreach (var f in g.Faces) {
+                var n = g.FaceNormal(f).n;
+                var a = g.Area(f);
+                var d = new double3();
+                foreach (var h in g.GetAdjacentHalfedges(f)) {
                     var ui = u[h.prev.vid];
-                    var ei = geom.Vector(h);
-                    g += (double3)cross(n, ei) * ui;
+                    var ei = g.Vector(h);
+                    d += (double3)cross(n, ei) * ui;
                 }
-                var xi = -normalize(g / (2 * a));
-                X.SetRow(f.fid, RV.Build.DenseOfArray(new [] { xi.x, xi.y, xi.z }));
+                var xi = -normalize(d / (2 * a));
+                X.SetRow(f.fid, Vector.Build.DenseOfArray(new [] { xi.x, xi.y, xi.z }));
             }
             return X;
         }
 
-        RV ComputeDivergence(RD X) {
-            var D = RV.Build.Dense(geom.nVerts);
-            foreach(var v in geom.Verts) {
+        static Vector ComputeDivergence(HeGeom g, Dense X) {
+            var D = Vector.Build.Dense(g.nVerts);
+            foreach(var v in g.Verts) {
                 var sum = 0.0;
-                foreach (var h in geom.GetAdjacentHalfedges(v)) {
+                foreach (var h in g.GetAdjacentHalfedges(v)) {
                     if (h.onBoundary) continue;
                     var xm = X.Row(h.face.fid);
                     var xj = new double3(xm[0], xm[1], xm[2]);
-                    var e1 = geom.Vector(h);
-                    var e2 = geom.Vector(h.prev.twin);
-                    var cotTheta1 = geom.Cotan(h);
-                    var cotTheta2 = geom.Cotan(h.prev);
-                    sum += cotTheta1 * dot(e1, xj) + cotTheta2 * dot(e2, xj);
+                    var e1 = g.Vector(h);
+                    var e2 = g.Vector(h.prev.twin);
+                    var c1 = g.Cotan(h);
+                    var c2 = g.Cotan(h.prev);
+                    sum += c1 * dot(e1, xj) + c2 * dot(e2, xj);
                 }
                 D[v.vid] = sum * 0.5;
             }
             return D;
         }
 
-        void SubtractMinDistance(IList<double> phi) {
+        /*
+         * A: The laplace matrix of the input mesh
+         * F: The mean curvature flow oparator built on the input mesh
+         */
+        public static Vector ComputeScalarHeatFlow(HeGeom g, Vector delta) {
+            var t = pow(g.MeanEdgeLength(), 2);
+            var A = Operator.Laplace(g);
+            var F = Operator.Mass(g) + A * t;
+            var u = Solver.Cholesky(F, delta);
+            var X = ComputeVectorField(g, u);
+            var D = ComputeDivergence(g, X);
+            var phi = Solver.Cholesky(A, -D);
+            //subtruct min distance
             var min = double.PositiveInfinity;
             for (var i = 0; i < phi.Count; i++) min = math.min(phi[i], min);
             for (var i = 0; i < phi.Count; i++) phi[i] -= min;
-        }
-
-        public RV Compute(RV delta) {
-            var u = Solver.Cholesky(F, delta);
-            var X = ComputeVectorField(u);
-            var D = ComputeDivergence(X);
-            var phi = Solver.Cholesky(A, -D);
-            SubtractMinDistance(phi);
             return phi;
         } 
     }

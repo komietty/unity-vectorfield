@@ -2,14 +2,11 @@ using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using System.Collections.Generic;
 using Unity.Mathematics;
-using System.Linq;
-using UnityEngine;
 using static Unity.Mathematics.math;
 
 namespace VectorField {
     using S = SparseMatrix;
     using V = Vector<double>;
-    using E = ExteriorDerivatives;
     
     public class TrivialConnection {
         private HeGeom geom;
@@ -66,10 +63,9 @@ namespace VectorField {
                 T.Add((h.edge.eid, v.vid, h.IsEdgeDir()? -1 : 1));
             }
             for (var i = 0; i < generators.Count; i++) 
-            foreach (var h in generators[i]) {
-                T.Add((h.edge.eid, geom.nVerts + i, h.IsEdgeDir() ? -1 : 1));
-            }
-            
+                foreach (var h in generators[i]) {
+                    T.Add((h.edge.eid, geom.nVerts + i, h.IsEdgeDir() ? -1 : 1));
+                }
             return S.OfIndexed(geom.nEdges, geom.nVerts + generators.Count, T);
         }
         
@@ -146,19 +142,16 @@ namespace VectorField {
                 for (var i = 0; i < N; i++) {
                     var generator = generators[i];
                     var sum = 0.0;
-
                     foreach (var h in generator) {
                         var k = h.edge.eid;
                         var s = h.edge.hid == h.id ? 1 : -1;
                         sum += TransportNoRotation(h);
                         sum -= s * deltaBeta[k];
                     }
-
                     while (sum < -PI) sum += 2 * PI;
                     while (sum >= PI) sum -= 2 * PI;
                     rhs[i] = sum;
                 }
-
                 var outs = Solver.LU(Period,rhs);
                 for (var i = 0; i < N; i++) { gamma += bases[i] * outs[i]; }
             }

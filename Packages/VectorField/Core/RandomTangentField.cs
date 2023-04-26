@@ -2,30 +2,28 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 
 namespace VectorField {
-    using V = MathNet.Numerics.LinearAlgebra.Vector<double>;
-    using D = MathNet.Numerics.LinearAlgebra.Double.DenseVector;
+    using Vector = MathNet.Numerics.LinearAlgebra.Vector<double>;
 
     public static class TangentField {
-        
         /*
          * Computes the solution of the poisson problem Ax = -M(rho - rhoBar),
          * where A is the positive definite laplace matrix and M is the mass matrix.
          * rho: A scalar density of vertices of the input mesh.
         */
-        public static V ScalarPoissonProblem(HeGeom g, V rho){
+        public static Vector ScalarPoissonProblem(HeGeom g, Vector rho){
             var M = Operator.Mass(g);
             var A = Operator.Laplace(g);
             var T = g.TotalArea();
             var rhoSum = (M * rho).Sum();
-            var rhoBar = D.Create(M.RowCount, rhoSum / T);
+            var rhoBar = Vector.Build.Dense(M.RowCount, rhoSum / T);
             return Solver.Cholesky(A, -M * (rho - rhoBar));
         }
 
-        public static (V oneForm, int[] exactIds, int[] coexactIds) GenRandomOneForm(HeGeom g) {
+        public static (Vector oneForm, int[] exactIds, int[] coexactIds) GenRandomOneForm(HeGeom g) {
             var nv = g.nVerts;
             var r = math.max(2, (int)(nv / 1000f));
-            var rho1 = D.Create(nv, 0);
-            var rho2 = D.Create(nv, 0);
+            var rho1 = Vector.Build.Dense(nv, 0);
+            var rho2 = Vector.Build.Dense(nv, 0);
             var exactIds   = new int[r];
             var coexactIds = new int[r];
             for (var i = 0; i < r; i++) {
@@ -59,7 +57,7 @@ namespace VectorField {
                 v += u * 0.3f;
                 field[f] = v;
             }
-            var omega = new double[g.nEdges];
+            var omega = Vector.Build.Dense(g.nEdges);
             for (var i = 0; i < g.nEdges; i++) {
                 var e = g.Edges[i];
                 var h = g.halfedges[e.hid];
@@ -67,7 +65,7 @@ namespace VectorField {
                 var f2 = h.twin.onBoundary ? new float3() : field[h.twin.face];
                 omega[i] = math.dot(f1 + f2, g.Vector(h));
             }
-            return (D.OfArray(omega), exactIds, coexactIds);
+            return (omega, exactIds, coexactIds);
         }
     }
 }

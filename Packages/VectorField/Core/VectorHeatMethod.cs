@@ -3,9 +3,6 @@ using Unity.Mathematics;
 
 namespace VectorField {
     using static math;
-    using RS = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
-    using DD = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix;
-    using CS = MathNet.Numerics.LinearAlgebra.Complex.SparseMatrix;
     using RV = MathNet.Numerics.LinearAlgebra.Vector<double>;
     using CV = MathNet.Numerics.LinearAlgebra.Vector<System.Numerics.Complex>;
 
