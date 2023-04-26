@@ -6,9 +6,9 @@ namespace VectorField {
 
     public static class TangentField {
         /*
-         * Computes the solution of the poisson problem Ax = -M(rho - rhoBar),
-         * where A is the positive definite laplace matrix and M is the mass matrix.
-         * rho: A scalar density of vertices of the input mesh.
+         * Computes the solution of the poisson problem Ax = -M(rho - rhoBar).
+         * A: the positive definite laplace matrix and M is the mass matrix.
+         * rho: a scalar density of vertices of the input mesh.
         */
         public static Vector ScalarPoissonProblem(HeGeom g, Vector rho){
             var M = Operator.Mass(g);

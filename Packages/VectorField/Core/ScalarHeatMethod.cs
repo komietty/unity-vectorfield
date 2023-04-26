@@ -45,18 +45,17 @@ namespace VectorField {
         }
 
         /*
-         * A: The laplace matrix of the input mesh
-         * F: The mean curvature flow oparator built on the input mesh
+         * Compute heat flow with the mean curvature flow oparator F. 
          */
         public static Vector ComputeScalarHeatFlow(HeGeom g, Vector delta) {
             var t = pow(g.MeanEdgeLength(), 2);
-            var A = Operator.Laplace(g);
-            var F = Operator.Mass(g) + A * t;
+            var L = Operator.Laplace(g);
+            var F = Operator.Mass(g) + L * t;
             var u = Solver.Cholesky(F, delta);
             var X = ComputeVectorField(g, u);
             var D = ComputeDivergence(g, X);
-            var phi = Solver.Cholesky(A, -D);
-            //subtruct min distance
+            var phi = Solver.Cholesky(L, -D);
+            //subtract min distance
             var min = double.PositiveInfinity;
             for (var i = 0; i < phi.Count; i++) min = math.min(phi[i], min);
             for (var i = 0; i < phi.Count; i++) phi[i] -= min;

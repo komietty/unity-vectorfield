@@ -17,7 +17,7 @@ namespace VectorField {
         private List<List<HalfEdge>> generators;
 
         protected List<V> bases;
-        protected S Period;
+        protected S period;
 
         public TrivialConnection(HeGeom geom) {
             this.geom = geom;
@@ -28,8 +28,8 @@ namespace VectorField {
             
             var hd = new HodgeDecomposition(geom);
             generators = new HomologyGenerator(geom).BuildGenerators();
-            bases = HamonicBasis.Compute(geom, hd, generators);
-            Period = BuildPeriodMatrix();
+            bases = hd.ComputeHamonicBasis(generators);
+            period = BuildPeriodMatrix();
         }
         
         public V ComputeCoExactComponent(float[] singularity) {
@@ -152,7 +152,7 @@ namespace VectorField {
                     while (sum >= PI) sum -= 2 * PI;
                     rhs[i] = sum;
                 }
-                var outs = Solver.LU(Period,rhs);
+                var outs = Solver.LU(period,rhs);
                 for (var i = 0; i < N; i++) { gamma += bases[i] * outs[i]; }
             }
             return gamma;

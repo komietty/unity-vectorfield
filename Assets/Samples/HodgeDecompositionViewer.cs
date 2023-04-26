@@ -25,11 +25,11 @@ namespace VectorField {
             var g  = container.geom;
             var hd = new HodgeDecomposition(g);
             var hm = new HomologyGenerator(g);
-            bases    = HamonicBasis.Compute(g, hd, hm.BuildGenerators());
             random   = TangentField.GenRandomOneForm(g).oneForm;
-            exact    = hd.Exact(random);
-            coexact  = hd.CoExact(random);
-            harmonic = hd.Harmonic(random, exact, coexact);
+            bases    = hd.ComputeHamonicBasis(hm.BuildGenerators());
+            exact    = hd.ComputeExact(random);
+            coexact  = hd.ComputeCoExact(random);
+            harmonic = hd.ComputeHarmonic(random, exact, coexact);
             SwitchFlow();
             flag = true;
         }

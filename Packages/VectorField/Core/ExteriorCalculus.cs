@@ -24,7 +24,7 @@ namespace VectorField {
         */
         public static CSparse MassComplex(HeGeom g){
             var n = g.nVerts;
-            System.Span<Complex> a = new Complex[n];
+            System.Span<Complex> a = stackalloc Complex[n];
             for (int i = 0; i < n; i++) a[i] = new Complex(g.BarycentricDualArea(i), 0);
             return CSparse.OfDiagonalArray(a.ToArray());
         }
