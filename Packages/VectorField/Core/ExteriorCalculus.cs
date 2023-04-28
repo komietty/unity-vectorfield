@@ -59,19 +59,18 @@ namespace VectorField {
             var halfedgeVectorInVertex = new d2[g.halfedges.Length];
             var transportVectorAlongHe = new d2[g.halfedges.Length];
 
-            for (var i = 0; i < n; i++) {
-                var v = g.Verts[i];
-                var a = 0f;
+            foreach (var v in g.Verts) {
+                var angle = 0f;
                 // is isBoundary, rate is PI / geom.AngleSum(v);
-                var rate = 2 * PI / g.AngleSum(v);
+                var proj2plane = 2 * PI / g.AngleSum(v);
                 foreach (var c in g.GetAdjacentConers(v)) {
                     var h = g.halfedges[c.hid].prev;
-                    halfedgeVectorInVertex[h.id] = new d2(cos(a), sin(a)) * g.Length(h);
+                    halfedgeVectorInVertex[h.id] = new d2(cos(angle), sin(angle)) * g.Length(h);
                     // TODO: Angle(c) does calc h and h.prev.twin. Fix it so as to reasoable.
                     var v1 = normalize(g.Vector(h));
                     var v2 = normalize(g.Vector(h.twin.next));
                     var sl = acos(dot(v1, v2));
-                    a += sl;
+                    angle += sl * proj2plane;
                     //a += g.Angle(c) * rate;
                 }
             }

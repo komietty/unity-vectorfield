@@ -16,8 +16,10 @@ namespace VectorField.Demo {
             var g = c.geom;
             var srcVectors = V.Build.Dense(g.nVerts);
             var srcScalars = new List<(int vid, double value)>();
-            var i0 = Random.Range(0, g.nVerts);
-            var i1 = Random.Range(0, g.nVerts);
+            //var i0 = Random.Range(0, g.nVerts);
+            //var i1 = Random.Range(0, g.nVerts);
+            var i0 = Mathf.FloorToInt(g.nVerts * 1.0f / 5);
+            var i1 = Mathf.FloorToInt(g.nVerts * 4.0f / 5);
             srcVectors[i0] = new C(0, 1);
             srcVectors[i1] = new C(1, 0);
             srcScalars.Add((i0, 3));
