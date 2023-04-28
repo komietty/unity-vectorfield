@@ -36,24 +36,14 @@ namespace VectorField {
         public Vector ComputeHarmonic(Vector v, Vector e, Vector c) => v - e - c;
         
         /*
-         * Compute hamonic element basis using generators of the target manifold.
+         * Compute hamonic element basis using a generator of the target manifold.
+         * Build closed primal 1-form first, then subtruct exact elememts from it.
          */
-        public List<Vector> ComputeHamonicBasis(List<List<HalfEdge>> generators) {
-            var l = new List<Vector>();
-            if (generators.Count == 0) return l;
-            foreach (var h in generators) {
-                var o = BuildClosedPrimalOneForm(h);
-                var e = ComputeExact(o);
-                l.Add(o - e);
-            }
-            return l;
-        }
-        
-        Vector BuildClosedPrimalOneForm(List<HalfEdge> generator) {
-            var v = Vector.Build.Dense(G.nEdges);
+        public Vector ComputeHamonicBasis(List<HalfEdge> generator) {
+            var oneform = Vector.Build.Dense(G.nEdges);
             foreach (var h in generator)
-                v[h.edge.eid] = h.edge.hid == h.id ? 1 : -1;
-            return v;
-        } 
+                oneform[h.edge.eid] = h.edge.hid == h.id ? 1 : -1;
+            return oneform - ComputeExact(oneform);
+        }
     }
 }

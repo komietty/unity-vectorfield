@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MathNet.Numerics.LinearAlgebra;
 using UnityEngine;
 
@@ -22,14 +23,14 @@ namespace VectorField {
         
         void Start() {
             container = GetComponent<GeomContainer>();
-            var g  = container.geom;
-            var hd = new HodgeDecomposition(g);
-            var hm = new HomologyGenerator(g);
-            random   = TangentField.GenRandomOneForm(g).oneForm;
-            bases    = hd.ComputeHamonicBasis(hm.BuildGenerators());
-            exact    = hd.ComputeExact(random);
-            coexact  = hd.ComputeCoExact(random);
-            harmonic = hd.ComputeHarmonic(random, exact, coexact);
+            var G  = container.geom;
+            var h = new HodgeDecomposition(G);
+            var g = new HomologyGenerator(G).BuildGenerators();
+            random   = TangentField.GenRandomOneForm(G).oneForm;
+            bases    = g.Select(g => h.ComputeHamonicBasis(g)).ToList();
+            exact    = h.ComputeExact(random);
+            coexact  = h.ComputeCoExact(random);
+            harmonic = h.ComputeHarmonic(random, exact, coexact);
             SwitchFlow();
             flag = true;
         }
@@ -42,13 +43,13 @@ namespace VectorField {
                 case Field.Exact:   v = exact;   break;
                 case Field.CoExact: v = coexact; break;
                 case Field.Harmonic:
-                    var f = hamonicBasisNum < bases.Count;
-                    v = f ? bases[hamonicBasisNum] : harmonic; break;
+                    v = hamonicBasisNum < bases.Count ?
+                        bases[hamonicBasisNum] : harmonic; break;
             }
 
-            var flow = ExteriorDerivatives.InterpolateWhitney(v, container.geom);
-            container.BuildFaceArrowBuffer(flow);
-            //container.BuildRibbonBuffer(flow, colScheme);
+            var f = ExteriorDerivatives.InterpolateWhitney(v, container.geom);
+            container.BuildFaceArrowBuffer(f);
+            container.BuildRibbonBuffer(f, colScheme);
         }
     }
 }
