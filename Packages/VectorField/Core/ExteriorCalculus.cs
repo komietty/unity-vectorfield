@@ -55,7 +55,8 @@ namespace VectorField {
          * If a vert is on boundary, proj2plane is PI/g.AngleSum(v).
          * Because the halfedges on HeGeom are oriented CW order,
          * regular g.Angle(c) func does not calc angle in CCW way.
-         * Here instead I calc angles manually using AdjacentHes.
+         * Here I instead calc angles manually using AdjacentHes.
+         * M should be Helmitian Matrix.
         */
         public static CSparse ConnectionLaplace(HeGeom g) {
             var t = new List<(int, int, Complex)>();
@@ -84,6 +85,7 @@ namespace VectorField {
             }
 
             var diag = new double[g.nVerts];
+            
             foreach (var h in g.halfedges) {
                 var iTail = h.vid;
                 var iTop  = h.twin.vid;
@@ -100,7 +102,6 @@ namespace VectorField {
             var n = g.nVerts;
             var M = CSparse.OfIndexed(n, n, t);
             var C = CSparse.CreateDiagonal(n, n, new Complex(1e-8f, 0));
-            if (!M.IsHermitian()) UnityEngine.Debug.LogWarning("not hermitian");
             return M + C;
             
             d2 Divide(d2 u, d2 v) {
