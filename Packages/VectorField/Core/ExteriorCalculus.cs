@@ -51,27 +51,25 @@ namespace VectorField {
         }
 
         /*
-         * Generates Connection Laplace Matrix
+         * A connection laplace matrix.
+         * If a vert is on boundary, proj2plane is PI/g.AngleSum(v).
+         * Because the halfedges on HeGeom are oriented CW order,
+         * regular g.Angle(c) func does not calc angle in CCW way.
+         * Here instead I calc angles manually using AdjacentHes.
         */
         public static CSparse ConnectionLaplace(HeGeom g) {
             var t = new List<(int, int, Complex)>();
-            var n = g.nVerts;
             var halfedgeVectorInVertex = new d2[g.halfedges.Length];
             var transportVectorAlongHe = new d2[g.halfedges.Length];
 
             foreach (var v in g.Verts) {
                 var angle = 0f;
-                // is isBoundary, rate is PI / geom.AngleSum(v);
                 var proj2plane = 2 * PI / g.AngleSum(v);
-                foreach (var c in g.GetAdjacentConers(v)) {
-                    var h = g.halfedges[c.hid].prev;
+                foreach (var h in g.GetAdjacentHalfedges(v)) {
                     halfedgeVectorInVertex[h.id] = new d2(cos(angle), sin(angle)) * g.Length(h);
-                    // TODO: Angle(c) does calc h and h.prev.twin. Fix it so as to reasoable.
                     var v1 = normalize(g.Vector(h));
                     var v2 = normalize(g.Vector(h.twin.next));
-                    var sl = acos(dot(v1, v2));
-                    angle += sl * proj2plane;
-                    //a += g.Angle(c) * rate;
+                    angle += acos(dot(v1, v2)) * proj2plane;
                 }
             }
 
@@ -99,6 +97,7 @@ namespace VectorField {
             for (int i = 0; i < diag.Length; i++)
                 t.Add((i, i, new Complex(diag[i], 0)));
 
+            var n = g.nVerts;
             var M = CSparse.OfIndexed(n, n, t);
             var C = CSparse.CreateDiagonal(n, n, new Complex(1e-8f, 0));
             if (!M.IsHermitian()) UnityEngine.Debug.LogWarning("not hermitian");
@@ -106,10 +105,7 @@ namespace VectorField {
             
             d2 Divide(d2 u, d2 v) {
                 var deno = v.x * v.x + v.y * v.y;
-                return new d2(
-                    u.x * v.x + u.y * v.y,
-                    u.y * v.x - u.x * v.y
-                ) / deno;
+                return new d2(u.x * v.x + u.y * v.y, u.y * v.x - u.x * v.y) / deno;
             }
         }
     }

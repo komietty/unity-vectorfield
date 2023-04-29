@@ -30,7 +30,7 @@ namespace VectorField {
             period = BuildPeriodMatrix();
         }
         
-        public V ComputeCoExactComponent(float[] singularity) {
+        V ComputeCoExactComponent(float[] singularity) {
             var rhs = new double[G.nVerts + generators.Count];
             foreach (var v in G.Verts)
                 rhs[v.vid] = -G.AngleDefect(v) + 2 * PI * singularity[v.vid];

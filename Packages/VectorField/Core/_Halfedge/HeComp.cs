@@ -32,6 +32,11 @@ namespace VectorField {
             var tripls = new List<HalfEdge>(3);
             var ecount = 0;
 
+            /*
+             * Allocate halfedges inside a triange.
+             * Unity is left hand axis, so mesh ids are stored CW order.
+             * That means halfedges are stored CW order as well.
+             */
             for (var i = 0; i < idxs.Length; i += 3) {
                 tripls.Clear();
                 var n  = i + 3;
@@ -130,7 +135,7 @@ namespace VectorField {
                     var K = (J + 1) % 3;
                     var i = idcs[I + J];
                     var j = idcs[I + K];
-                    if (i > j) { var k = j; j = i; i = k; }
+                    if (i > j) (i, j) = (j, i); 
                     if (sortedEdges.Contains((i, j))) { nBoundaryHe--; }
                     else { sortedEdges.Add((i, j)); nBoundaryHe++; }
                 }
@@ -149,7 +154,7 @@ namespace VectorField {
             eulerCharactaristics = nFaces - nEdges + nVerts;
         }
 
-        /**
+        /*
          * Weld vertices which are apparently same but structualy disconnected.
         */
         public static M Weld(M original, bool normalize = true) {

@@ -44,6 +44,10 @@ namespace VectorField {
         }
     }
 
+    /*
+     * Another representation of halfedge except boundary one.
+     * Each corner stores the halfedge opposite to it.
+     */
     public readonly struct Corner {
         public readonly int hid;
         public Corner(int hid) { this.hid = hid; }

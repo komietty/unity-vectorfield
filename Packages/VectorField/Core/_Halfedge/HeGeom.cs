@@ -13,8 +13,8 @@ namespace VectorField {
     public class HeGeom: HeComp {
         public Span<f3> Pos => pos.AsSpan();
         public Span<f3> Nrm => nrm.AsSpan();
-        f3[] pos;
-        f3[] nrm;
+        private readonly f3[] pos;
+        private readonly f3[] nrm;
 
         public HeGeom(M mesh, T trs) : base(mesh) {
             pos = mesh.vertices.Select(v => (f3)trs.TransformPoint(v)).ToArray();
@@ -27,10 +27,6 @@ namespace VectorField {
 
         public float Length(HalfEdge h) {
             return length(Vector(h));
-        }
-
-        public float Length(Edge e) {
-            return length(Vector(halfedges[e.hid]));
         }
 
         public float Cotan(HalfEdge h){
@@ -84,7 +80,7 @@ namespace VectorField {
 
         public float MeanEdgeLength(){
             var sum = 0f;
-            foreach (var e in Edges) sum += Length(e);
+            foreach (var e in Edges) sum += Length(halfedges[e.hid]);
             return sum / nEdges;
         }
 
@@ -98,24 +94,20 @@ namespace VectorField {
             return (true, n);
         }
 
-        // TODO: Fix in relation to VectorHeatMethod angle calc
         public float Angle(Corner c) {
             var v1 = normalize(Vector(halfedges[c.hid].next));
             var v2 = normalize(Vector(halfedges[c.hid].prev)) * -1;
             return acos(dot(v1, v2));
         }
-
+        
+        public float AngleDefect(Vert v) => PI * 2 - AngleSum(v);
+        
         public float AngleSum(Vert v) {
             var sum = 0f;
             foreach (var c in GetAdjacentConers(v)) sum += Angle(c);
             return sum;
         }
 
-        public float AngleDefect(Vert v) {
-            var sum = PI * 2;
-            foreach (var c in GetAdjacentConers(v)) sum -= Angle(c);
-            return sum;
-        }
 
         public float DihedralAngle(HalfEdge h) {
             var n_ijk = FaceNormal(h.face).n;
@@ -165,6 +157,7 @@ namespace VectorField {
             return new float2(H - D, H + D);
         } 
 
+        /* CCW order */
         public IEnumerable<Vert> GetAdjacentVerts(Vert v) {
             var curr = halfedges[v.hid];
             var goal = curr;
@@ -177,13 +170,14 @@ namespace VectorField {
             };
         }
 
+        /* CCW order */
         public IEnumerable<Face> GetAdjacentFaces(Vert v) {
-            var goal = halfedges[v.hid];
-            while (goal.onBoundary) { goal = goal.twin.next; }
-            var curr = goal;
+            var curr = halfedges[v.hid];
+            while (curr.onBoundary) curr = curr.twin.next;
+            var goal = curr;
             var once = false;
             while (true) {
-                while (curr.onBoundary) { curr = curr.twin.next; }
+                while (curr.onBoundary) curr = curr.twin.next;
                 if (once && curr == goal) break;
                 once = true;
                 yield return curr.next.face;
@@ -191,10 +185,11 @@ namespace VectorField {
             };
         }
 
+        /* CCW order, oriented link of the vertex */
         public IEnumerable<Corner> GetAdjacentConers(Vert v) {
-            var goal = halfedges[v.hid];
-            while (goal.onBoundary) goal = goal.twin.next;
-            var curr = goal;
+            var curr = halfedges[v.hid];
+            while (curr.onBoundary) curr = curr.twin.next;
+            var goal = curr;
             var once = false;
             while (true) {
                 while (curr.onBoundary) curr = curr.twin.next;
@@ -205,6 +200,7 @@ namespace VectorField {
             };
         }
 
+        /* CCW order */
         public IEnumerable<HalfEdge> GetAdjacentHalfedges(Vert v) {
             var curr = halfedges[v.hid];
             var goal = curr;
@@ -217,6 +213,7 @@ namespace VectorField {
             };
         }
 
+        /* CCW order */
         public IEnumerable<HalfEdge> GetAdjacentHalfedges(Face f) {
             var curr = halfedges[f.hid];
             var goal = curr;
@@ -224,7 +221,7 @@ namespace VectorField {
             while (true) {
                 if (once && curr == goal) break;
                 yield return curr;
-                curr = curr.next;
+                curr = curr.prev;
                 once = true;
             };
         }
