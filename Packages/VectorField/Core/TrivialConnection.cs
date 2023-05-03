@@ -3,6 +3,7 @@ using MathNet.Numerics.LinearAlgebra.Double;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Mathematics;
+using UnityEngine;
 using static Unity.Mathematics.math;
 
 namespace VectorField {
@@ -13,7 +14,7 @@ namespace VectorField {
         private readonly HeGeom G;
         private readonly S SqareA;
         private readonly S TransA;
-        private readonly S HeterA;
+        private readonly S A;
         private readonly List<List<HalfEdge>> generators;
         private readonly List<V> bases;
         private readonly S period;
@@ -21,9 +22,9 @@ namespace VectorField {
         public TrivialConnection(HeGeom g) {
             G = g;
             generators = new HomologyGenerator(G).BuildGenerators();
-            HeterA = BuildCycleMatrix();
-            TransA = S.OfMatrix(HeterA.Transpose());
-            SqareA = TransA * HeterA;
+            A = BuildCycleMatrix();
+            TransA = S.OfMatrix(A.Transpose());
+            SqareA = A * TransA;
             
             var h = new HodgeDecomposition(G);
             bases = generators.Select(g => h.ComputeHamonicBasis(g)).ToList();
@@ -36,14 +37,37 @@ namespace VectorField {
                 rhs[v.vid] = -G.AngleDefect(v) + 2 * PI * singularity[v.vid];
             for(var i = 0; i < generators.Count; i++) 
                 rhs[G.nVerts + i] = -AngleDefectAroundGenerator(generators[i]);
-            return HeterA * Solver.Cholesky(SqareA, rhs);
+            /*
+            Debug.Log("SqareA");
+            Debug.Log(SqareA);
+            Debug.Log("A");
+            Debug.Log(A);
+            Debug.Log("rhs");
+            Debug.Log(rhs.Length);
+            Debug.Log("nvert");
+            Debug.Log(G.nVerts);
+            Debug.Log("nedge");
+            Debug.Log(G.nEdges);
+             */
+            //return TransA * Solver.Cholesky(SqareA, rhs);
+            //throw new Exception();
+            return Solver.QR(A, rhs);
         }
         
         public V ComputeConnections(float[] singularity) {
             if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
             var c = ComputeCoExactComponent(singularity);
-            var h = ComputeHamonicComponent(c);
-            return c + h;
+            var d1 = ExteriorDerivatives.BuildExteriorDerivative1Form(G);
+            var d1t = S.OfMatrix(d1.Transpose());
+            var ddt = d1 * d1t;
+            var xmin = c - d1t * ddt.LU().Solve(d1 * c);
+            
+            Debug.Log("xmin");
+            Debug.Log(xmin);
+            return xmin;
+            var x = c - d1t * (d1 * d1t).Inverse() * d1 * c;
+            var h = ComputeHamonicComponent(x);
+            return x;// + h;
         }
         
         double AngleDefectAroundGenerator(List<HalfEdge> generator) {
@@ -58,6 +82,23 @@ namespace VectorField {
             var nv = G.nVerts;
             var ne = G.nEdges;
             var ng = generators.Count;
+            var d0 = ExteriorDerivatives.BuildExteriorDerivative0Form(G);
+            var d0t = d0.Transpose();
+            var h_strage = new List<(int i, int j, double v)>();
+            for (var i = 0; i < ng; i++)
+                foreach (var h in generators[i]) {
+                    // +- ambiguous
+                    h_strage.Add((h.edge.eid, i, h.IsCanonical() ? 1 : -1));
+                }
+
+            var H = S.OfIndexed(ne, ng, h_strage);
+            var Ht = H.Transpose();
+
+            var A = S.Create(nv + ng, ne, 0);
+            for (var i = 0; i < nv; i++) { A.SetRow(i, d0t.Row(i)); }
+            for (var i = 0; i < ng; i++) { A.SetRow(i + nv, Ht.Row(i)); }
+            return A;
+            /*
             var T = new List<(int i, int j, double v)>();
             foreach (var v in G.Verts) 
             foreach (var h in G.GetAdjacentHalfedges(v)) {
@@ -68,6 +109,7 @@ namespace VectorField {
                     T.Add((h.edge.eid, nv + i, h.IsEdgeDir() ? -1 : 1));
                 }
             return S.OfIndexed(ne, nv + ng, T);
+            */
         }
         
         public float3[] GetFaceVectorFromConnection(V phi) {
@@ -83,7 +125,7 @@ namespace VectorField {
                 foreach (var h in G.GetAdjacentHalfedges(G.Faces[fid])) {
                     var gid = h.twin.face.fid;
                     if (!visit[gid] && gid != f0.fid) {
-                        var sign = h.IsEdgeDir() ? 1 : -1;
+                        var sign = h.IsCanonical() ? 1 : -1;
                         var conn = sign * phi[h.edge.eid];
                         alpha[gid] = TransportNoRotation(h, alpha[fid]) + conn;
                         visit[gid] = true;
@@ -124,7 +166,7 @@ namespace VectorField {
                     var sum = 0.0;
                     foreach (var h in g) {
                         var k = h.edge.eid;
-                        var s = h.edge.hid == h.id ? 1 : -1;
+                        var s = h.IsCanonical() ? 1 : -1;
                         sum += s * bases[k];
                     }
                     t.Add((i, j, sum));
@@ -135,8 +177,7 @@ namespace VectorField {
 
         V ComputeHamonicComponent(V deltaBeta) {
             var N = bases.Count;
-            var E = G.nEdges;
-            var gamma = V.Build.Dense(E, 0);
+            var gamma = V.Build.Dense(G.nEdges, 0);
 
             if (N > 0) {
                 var rhs = V.Build.Dense(N, 0);
@@ -145,7 +186,7 @@ namespace VectorField {
                     var sum = 0.0;
                     foreach (var h in generator) {
                         var k = h.edge.eid;
-                        var s = h.edge.hid == h.id ? 1 : -1;
+                        var s = h.IsCanonical() ? 1 : -1;
                         sum += TransportNoRotation(h);
                         sum -= s * deltaBeta[k];
                     }

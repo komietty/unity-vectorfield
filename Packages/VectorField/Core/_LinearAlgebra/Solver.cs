@@ -27,6 +27,14 @@ namespace VectorField {
             return RV.Build.DenseOfArray(sln);
         }
         
+        public static RV QR(RSprs lhs, RV rhs) => QR(lhs, rhs.ToArray());
+        public static RV QR(RSprs lhs, double[] rhs) {
+            var sln = new double[lhs.ColumnCount];
+            var trp = lhs.Storage.EnumerateNonZeroIndexed().Select(t => new Trp<double>(t)).ToArray();
+            DecompAndSolveQRReal(trp.Length, lhs.RowCount, lhs.ColumnCount, trp, rhs, sln);
+            return RV.Build.DenseOfArray(sln);
+        }
+        
         public static CV LUComp(CSprs lhs, CV rhs) => LUComp(lhs, rhs.ToArray());
         public static CV LUComp(CSprs lhs, Complex[] rhs) {
             var sln = new Complex[rhs.Length];
@@ -52,6 +60,16 @@ namespace VectorField {
             [In]  Trp<double>[] trplets,
             [In]  double[] result,
             [Out] double[] answer
+        );
+        
+        [DllImport("EigenSolver.bundle")]
+        static extern void DecompAndSolveQRReal(
+            int ntrps,
+            int nrows,
+            int ncols,
+            [In]  Trp<double>[] a_strage,
+            [In]  double[] rhs,
+            [Out] double[] result
         );
         
         [DllImport("EigenSolver.bundle")]

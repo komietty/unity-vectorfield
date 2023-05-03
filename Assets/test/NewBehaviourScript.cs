@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using MathNet.Numerics.LinearAlgebra.Complex32;
 using UnityEngine;
 using VectorField;
 
@@ -32,6 +33,12 @@ public class NewBehaviourScript : MonoBehaviour {
             adjHEs = geom.GetAdjacentHalfedges(v0).ToList();
             adjCns = geom.GetAdjacentConers(v0).ToList();
             count = 0;
+            var a = new double[]{ 2, -2, -4, 3, -2, 1, -5, 4, };
+            var b = new double[]{ -2, 2, 0, 1, };
+            var A = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix.OfRowMajor(4, 2, a);
+            Debug.Log(A);
+            var x = Solver.QR(A, b);
+            Debug.Log(x);
     }
 
     void Update() {

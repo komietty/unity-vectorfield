@@ -9,7 +9,7 @@ namespace VectorField {
         public HalfEdge prev;
         public HalfEdge twin;
         public bool onBoundary;
-        public bool IsEdgeDir() => id == edge.hid;
+        public bool IsCanonical() => id == edge.hid;
 
         public HalfEdge(int id, int vid = -1) {
             this.id = id;
