@@ -12,10 +12,14 @@ namespace VectorField {
     
     public class StripePattern {
         private readonly HeGeom G;
+        private readonly int fieldDegree;
 
-        public StripePattern(HeGeom g) { G = g; }
+        public StripePattern(HeGeom g, int fieldDegree) {
+            this.G = g;
+            this.fieldDegree = fieldDegree;
+        }
 
-        /*
+        /**
          * Algorithm 2.
          * Be sure h is inserted only once.
          */ 
@@ -34,7 +38,7 @@ namespace VectorField {
             return angles;
         }
         
-        /*
+        /** 
          * Algorithm 3.
          * X: tangent field in complex number on verts
          * v: target frequency on verts
@@ -48,9 +52,11 @@ namespace VectorField {
                 var vi = hi.vid;
                 var vj = hj.vid;
                 var rho_ij = -angles[hi.id] + angles[hj.id] + PI;
-                var sgn_ij = math.sign((float)Dot(new Complex(cos(rho_ij), sin(rho_ij)) * X[vi], X[vj]));
-                var phi_i = 0; // arg of X[vi];
-                var phi_j = 0; // arg of sgn_ij * X[vj];
+                var sgn_ij = math.sign(Dot(new Complex(cos(rho_ij), sin(rho_ij)) * X[vi], X[vj]));
+                var x_vi = X[vi];
+                var x_vj = sgn_ij * X[vj];
+                var phi_i = atan2(x_vi.Imaginary, x_vi.Real); // TODO: check
+                var phi_j = atan2(x_vj.Imaginary, x_vj.Real); // TODO: check
                 var l = G.Length(G.halfedges[e.hid]);
                 var omega_ij = l * 0.5 * (
                     v[vi] * cos(phi_i - angles[hi.id]) +
@@ -60,30 +66,37 @@ namespace VectorField {
                 omega[e.eid] = omega_ij;
             }
             return (sign, omega);
+            
+            float Dot(Complex a, Complex b) => (float)(a.Real * b.Real - a.Imaginary * b.Imaginary);
         }
 
-        double Dot(Complex a, Complex b) {
-            return a.Real * b.Real - a.Imaginary * b.Imaginary;
-        }
         
         /*
          * Algorithm 4.
          */
-        public RSparse ComputeEnegyMatrix(RVector omega, RVector sign) {
+        public RSparse ComputeEnegyMatrix(RVector omega, RVector sign, RVector angle) {
             var nv = G.nVerts;
             var A = RSparse.Create(nv * 2, nv * 2, 0);
             foreach (var e in G.Edges) {
                 var h = G.halfedges[e.hid];
                 var vi = G.Verts[h.vid];
                 var vj = G.Verts[h.twin.vid];
-                //var thetaI = h.
-                //var thetaJ = h.
+                var thetaI = angle[h.vid];
+                var thetaJ = angle[h.twin.vid] + PI;
+                var dTheta = thetaJ - thetaI;
+                var r_ij = new Complex(cos(dTheta), sin(dTheta));
+                
+                var cotAlpha = G.Cotan(h);
+                var cotBeta  = G.Cotan(h.twin);
+                //if(       e->he->face->fieldIndex(2.) != 0 ) cotAlpha = 0.;
+                //if( e->he->flip->face->fieldIndex(2.) != 0 ) cotBeta  = 0.;
+                var w = (cotAlpha + cotBeta) * 0.5;
             }
 
             return A;
         }
         
-        /*
+        /**
          * Algorithm 5.
          */
         public RSparse ComputeMassMatrix() {
@@ -105,6 +118,7 @@ namespace VectorField {
         public RVector ComputeParameterization() {
             var nv = G.nVerts;
             var groundState = RVector.Build.Dense(nv * 2, 0);
+            return groundState;
         }
     }
 }
