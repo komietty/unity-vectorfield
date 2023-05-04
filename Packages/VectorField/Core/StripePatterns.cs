@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Unity.Mathematics;
 
@@ -6,14 +7,13 @@ namespace VectorField {
     using static math;
     using RVector = MathNet.Numerics.LinearAlgebra.Vector<double>;
     using CVector = MathNet.Numerics.LinearAlgebra.Vector<Complex>;
+    using RSparse = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
     using RDense = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix;
     
     public class StripePattern {
         private readonly HeGeom G;
 
-        public StripePattern(HeGeom g) {
-            G = g;
-        }
+        public StripePattern(HeGeom g) { G = g; }
 
         /*
          * Algorithm 2.
@@ -67,10 +67,44 @@ namespace VectorField {
         }
         
         /*
-         * Algrithm 4.
+         * Algorithm 4.
          */
-        public RDense ComputeEnegyMatrix(RVector omega, RVector sign) {
-            throw new Exception();
+        public RSparse ComputeEnegyMatrix(RVector omega, RVector sign) {
+            var nv = G.nVerts;
+            var A = RSparse.Create(nv * 2, nv * 2, 0);
+            foreach (var e in G.Edges) {
+                var h = G.halfedges[e.hid];
+                var vi = G.Verts[h.vid];
+                var vj = G.Verts[h.twin.vid];
+                //var thetaI = h.
+                //var thetaJ = h.
+            }
+
+            return A;
+        }
+        
+        /*
+         * Algorithm 5.
+         */
+        public RSparse ComputeMassMatrix() {
+            var nv = G.nVerts;
+            var B = RSparse.Create(nv * 2, nv * 2, 0);
+            var T = new List<(int, int, double)>();
+            foreach (var v in G.Verts) {
+                var i = v.vid;
+                var dualArea = G.BarycentricDualArea(v);
+                T.Add((i * 2 + 0, i * 2 + 1, dualArea));
+                T.Add((i * 2 + 0, i * 2 + 1, dualArea));
+            }
+            return B;
+        }
+
+        /*
+         * Algorithm 6.
+         */
+        public RVector ComputeParameterization() {
+            var nv = G.nVerts;
+            var groundState = RVector.Build.Dense(nv * 2, 0);
         }
     }
 }
