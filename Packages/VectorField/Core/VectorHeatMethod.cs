@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using Unity.Mathematics;
+using System.Numerics;
 
 namespace VectorField {
     using static math;
     using RV = MathNet.Numerics.LinearAlgebra.Vector<double>;
-    using CV = MathNet.Numerics.LinearAlgebra.Vector<System.Numerics.Complex>;
+    using CV = MathNet.Numerics.LinearAlgebra.Vector<Complex>;
 
     public static class VectorHeatMethod {
         
@@ -34,6 +35,17 @@ namespace VectorField {
             var F = Operator.MassComplex(g) + L * t;
             var C = Solver.LUComp(F,phi);
             return C;
+        }
+        
+        public static CV ComputeVertVectorFieldComplex(HeGeom g, CV connection, RV magnitude) {
+            var X = CV.Build.Dense(g.nVerts);
+            foreach (var v in g.Verts) {
+                var c = connection[v.vid];
+                var m = magnitude[v.vid];
+                var l = sqrt(pow(c.Real, 2) + pow(c.Imaginary, 2));
+                X[v.vid] = c / l * m;
+            }
+            return X;
         }
 
         public static float3[] ComputeVertVectorField(HeGeom g, CV connection, RV magnitude) {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using MathNet.Numerics;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace VectorField {
     using static math;
@@ -19,6 +20,8 @@ namespace VectorField {
         private readonly CVector directionalField;
         private readonly double fieldDegree = 2;
         private readonly double lambda = 130; // initial global line frequency
+        private readonly RSparse energyMatrix;
+        private readonly RSparse massMatrix;
         
         private static float Dot(Complex a, Complex b) => (float)(a.Real * b.Real - a.Imaginary * b.Imaginary);
         private static float Arg(Complex a) => (float)(atan2(a.Imaginary, a.Real));
@@ -35,6 +38,10 @@ namespace VectorField {
             crossSheets = RVector.Build.Dense(G.nEdges, 1);
             directionalField = X;
             parameterization = CVector.Build.Dense(G.nVerts);
+            energyMatrix = ComputeEnegyMatrix(angle);
+            massMatrix = ComputeMassMatrix();
+            Debug.Log(energyMatrix);
+            Debug.Log(massMatrix);
         }
 
         /**
@@ -56,11 +63,10 @@ namespace VectorField {
             return angle;
         }
         
-        /** 
+        /* 
          * Algorithm 3.
          * X: tangent field in complex number on verts
          * v: target frequency on verts
-         */
         public (RVector sign, RVector omega) InitializeEdgeData(RVector angles, CVector X, RVector v) {
             var sign  = RVector.Build.Dense(G.nEdges);
             var omega = RVector.Build.Dense(G.nEdges);
@@ -71,8 +77,8 @@ namespace VectorField {
                 var vj = hj.vid;
                 var rho_ij = -angles[hi.id] + angles[hj.id] + PI;
                 var sgn_ij = math.sign(Dot(new Complex(cos(rho_ij), sin(rho_ij)) * X[vi], X[vj]));
-                var phi_i = Arg(X[vi]); //TODO check
-                var phi_j = Arg(sgn_ij * X[vj]); //TODO check
+                var phi_i = Arg(X[vi]); //check
+                var phi_j = Arg(sgn_ij * X[vj]); //check
                 var l = G.Length(G.halfedges[e.hid]);
                 var omega_ij = l * 0.5 * (
                     v[vi] * cos(phi_i - angles[hi.id]) +
@@ -82,16 +88,17 @@ namespace VectorField {
                 omega[e.eid] = omega_ij;
             }
             return (sign, omega);
-            
         }
+         */
 
         
         /**
+         * Algorithm 3.
          * Algorithm 4.
          */
-        public RSparse ComputeEnegyMatrix(RVector omega, RVector sign, RVector angle) {
+        public RSparse ComputeEnegyMatrix(RVector angle) {
             var nv = G.nVerts;
-            var A = RSparse.Create(nv * 2, nv * 2, 0);
+            var A = RDense.Create(nv * 2, nv * 2, 0);
             foreach (var e in G.Edges) {
                 var h = G.halfedges[e.hid];
                 var vi = G.Verts[h.vid];
@@ -121,10 +128,12 @@ namespace VectorField {
                 
                 var i = vi.vid * 2;
                 var j = vj.vid * 2;
+                
                 A[i + 0, i + 0] += w;
                 A[i + 1, i + 1] += w;
                 A[j + 0, j + 0] += w;
                 A[j + 1, j + 1] += w;
+                
                 if (s > 0) {
                     A[i+0,j+0] = -a; A[i+0,j+1] = -b;
                     A[i+1,j+0] =  b; A[i+1,j+1] = -a;
@@ -139,15 +148,14 @@ namespace VectorField {
 
                 }
             }
-            return A;
+            return RSparse.OfMatrix(A);
         }
         
         /**
          * Algorithm 5.
          */
-        public RSparse ComputeMassMatrix() {
-            var nv = G.nVerts;
-            var B = RSparse.Create(nv * 2, nv * 2, 0);
+        RSparse ComputeMassMatrix() {
+            var n = G.nVerts;
             var T = new List<(int, int, double)>();
             foreach (var v in G.Verts) {
                 var i = v.vid;
@@ -155,7 +163,7 @@ namespace VectorField {
                 T.Add((i * 2 + 0, i * 2 + 1, dualArea));
                 T.Add((i * 2 + 0, i * 2 + 1, dualArea));
             }
-            return B;
+            return RSparse.OfIndexed(n * 2, n * 2, T);
         }
 
         /**
