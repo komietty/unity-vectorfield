@@ -11,6 +11,10 @@ namespace VectorField {
 
     public static class Solver {
 
+        public static RV SmallestEigenPositiveDefinite(RSprs A, RSprs B) {
+            throw new System.Exception();
+        }
+
         public static RV Cholesky(RSprs lhs, RV rhs) => Cholesky(lhs, rhs.ToArray());
         public static RV Cholesky(RSprs lhs, double[] rhs){
             var sln = new double[rhs.Length];
@@ -80,6 +84,7 @@ namespace VectorField {
             [In]  Complex[] result,
             [Out] Complex[] answer
         );
+        
         #endif
 
         #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
