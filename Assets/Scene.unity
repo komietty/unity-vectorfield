@@ -369,8 +369,8 @@ MonoBehaviour:
   surfMode: 2
   showVertSpace: 0
   showFaceSpace: 0
-  showVertArrow: 1
-  showFaceArrow: 0
+  showVertArrow: 0
+  showFaceArrow: 1
   showFaceRibbon: 0
   vertexColors: []
 --- !u!114 &741813961
@@ -380,7 +380,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 741813958}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 14046843c0e9c4e8ca67c5f839f4a791, type: 3}
   m_Name: 
@@ -464,7 +464,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 741813958}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 007f12c427ed0473f9e5a36d17720825, type: 3}
   m_Name: 
@@ -500,8 +500,7 @@ MonoBehaviour:
     m_NumColorKeys: 5
     m_NumAlphaKeys: 2
   singularities:
-  - 1
-  - -1
+  - 0
 --- !u!114 &741813967
 MonoBehaviour:
   m_ObjectHideFlags: 0

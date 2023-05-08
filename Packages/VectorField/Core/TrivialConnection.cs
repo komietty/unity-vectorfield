@@ -12,8 +12,6 @@ namespace VectorField {
     
     public class TrivialConnection {
         private readonly HeGeom G;
-        private readonly S SqareA;
-        private readonly S TransA;
         private readonly S A;
         private readonly List<List<HalfEdge>> generators;
         private readonly List<V> bases;
@@ -23,9 +21,6 @@ namespace VectorField {
             G = g;
             generators = new HomologyGenerator(G).BuildGenerators();
             A = BuildCycleMatrix();
-            TransA = S.OfMatrix(A.Transpose());
-            SqareA = A * TransA;
-            
             var h = new HodgeDecomposition(G);
             bases = generators.Select(g => h.ComputeHamonicBasis(g)).ToList();
             period = BuildPeriodMatrix();
@@ -37,20 +32,6 @@ namespace VectorField {
                 rhs[v.vid] = -G.AngleDefect(v) + 2 * PI * singularity[v.vid];
             for(var i = 0; i < generators.Count; i++) 
                 rhs[G.nVerts + i] = -AngleDefectAroundGenerator(generators[i]);
-            /*
-            Debug.Log("SqareA");
-            Debug.Log(SqareA);
-            Debug.Log("A");
-            Debug.Log(A);
-            Debug.Log("rhs");
-            Debug.Log(rhs.Length);
-            Debug.Log("nvert");
-            Debug.Log(G.nVerts);
-            Debug.Log("nedge");
-            Debug.Log(G.nEdges);
-             */
-            //return TransA * Solver.Cholesky(SqareA, rhs);
-            //throw new Exception();
             return Solver.QR(A, rhs);
         }
         

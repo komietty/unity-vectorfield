@@ -14,6 +14,9 @@ namespace VectorField {
         private readonly Sparse h1i;
         private readonly Sparse d0t;
         private readonly Sparse d1t;
+        public Sparse MatA => A; 
+        public Sparse MatH1 => h1; 
+        public Sparse MatD0 => d0; 
 
         public HodgeDecomposition(HeGeom g) {
             G = g;
@@ -29,21 +32,21 @@ namespace VectorField {
         }
 
         /*
-         * Decompose input one-forms to exact, coexact, and hamonic elements.
+         * Decompose input one-forms to exact, coexact, and harmonic elements.
          */
         public Vector ComputeExact   (Vector v) => d0 * Solver.Cholesky(A, d0t * h1 * v);
         public Vector ComputeCoExact (Vector v) => h1i * d1t * Solver.LU(B, d1 * v);
         public Vector ComputeHarmonic(Vector v, Vector e, Vector c) => v - e - c;
         
         /*
-         * Compute hamonic element basis using a generator of the target manifold.
-         * Build closed primal 1-form first, then subtruct exact elememts from it.
+         * Compute harmonic element basis using a generator of the target manifold.
+         * Build closed primal 1-form first, then subtract exact elements from it.
          */
         public Vector ComputeHamonicBasis(List<HalfEdge> generator) {
-            var oneform = Vector.Build.Dense(G.nEdges);
+            var oneForm = Vector.Build.Dense(G.nEdges);
             foreach (var h in generator)
-                oneform[h.edge.eid] = h.edge.hid == h.id ? 1 : -1;
-            return oneform - ComputeExact(oneform);
+                oneForm[h.edge.eid] = h.edge.hid == h.id ? 1 : -1;
+            return oneForm - ComputeExact(oneForm);
         }
     }
 }

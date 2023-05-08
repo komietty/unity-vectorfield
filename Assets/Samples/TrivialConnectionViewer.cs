@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -19,11 +18,14 @@ namespace VectorField {
                 b[i] = s;
                 if (s != 0) c.PutSingularityPoint(i);
             }
-            var t = new TrivialConnection(g);
+            //var t = new TrivialConnection(g);
+            //var p = t.ComputeConnections(b);
+            var t = new TrivialConnectionAlt(g);
             var p = t.ComputeConnections(b);
+            
             var f = t.GetFaceVectorFromConnection(p);
             c.BuildFaceArrowBuffer(f);
-            c.BuildRibbonBuffer(f, colScheme);
+            //c.BuildRibbonBuffer(f, colScheme);
         }
     }
 }
