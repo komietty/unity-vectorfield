@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Runtime.InteropServices;
 using MathNet.Numerics.LinearAlgebra;
+using UnityEngine.Assertions;
 
 namespace VectorField {
     using RSprs = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
@@ -12,11 +13,37 @@ namespace VectorField {
     public static class Solver {
 
         public static RV SmallestEigenPositiveDefinite(RSprs A, RSprs B) {
-            throw new System.Exception();
+            var trpA = A.Storage.EnumerateNonZeroIndexed().Select(t => new Trp<double>(t)).ToArray();
+            var trpB = B.Storage.EnumerateNonZeroIndexed().Select(t => new Trp<double>(t)).ToArray();
+            var res_x = new double[A.ColumnCount];
+            Assert.IsTrue(A.RowCount == B.RowCount && A.ColumnCount == B.ColumnCount);
+            SmallestEigenPositiveDefiniteReal(
+                trpA.Length,
+                trpB.Length,
+                A.RowCount,
+                A.ColumnCount,
+                trpA,
+                trpB,
+                res_x
+            );
+            return RV.Build.DenseOfArray(res_x);
         }
         
         public static CV SmallestEigenPositiveDefinite(CSprs A, CSprs B) {
-            throw new System.Exception();
+            var trpA = A.Storage.EnumerateNonZeroIndexed().Select(t => new Trp<Complex>(t)).ToArray();
+            var trpB = B.Storage.EnumerateNonZeroIndexed().Select(t => new Trp<Complex>(t)).ToArray();
+            var res_x = new Complex[A.ColumnCount];
+            Assert.IsTrue(A.RowCount == B.RowCount && A.ColumnCount == B.ColumnCount);
+            SmallestEigenPositiveDefinite(
+                trpA.Length,
+                trpB.Length,
+                A.RowCount,
+                A.ColumnCount,
+                trpA,
+                trpB,
+                res_x
+            );
+            return CV.Build.DenseOfArray(res_x);
         }
 
         public static RV Cholesky(RSprs lhs, RV rhs) => Cholesky(lhs, rhs.ToArray());
@@ -89,6 +116,27 @@ namespace VectorField {
             [Out] Complex[] answer
         );
         
+        [DllImport("EigenSolver.bundle")]
+        static extern void SmallestEigenPositiveDefiniteReal(
+            int ntrpsA,
+            int ntrpsB,
+            int nrow,
+            int ncol,
+            [In]  Trp<double>[] trpsA,
+            [In]  Trp<double>[] trpsB,
+            [Out] double[] answer
+        );
+        
+        [DllImport("EigenSolver.bundle")]
+        static extern void SmallestEigenPositiveDefinite(
+            int ntrpsA,
+            int ntrpsB,
+            int nrow,
+            int ncol,
+            [In]  Trp<Complex>[] trpsA,
+            [In]  Trp<Complex>[] trpsB,
+            [Out] Complex[] answer
+        );
         #endif
 
         #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN

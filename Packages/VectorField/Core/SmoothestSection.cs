@@ -1,12 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Numerics;
 using Unity.Mathematics;
-using UnityEditor.Experimental.GraphView;
 
-namespace VectorField
-{
+namespace VectorField {
     using static math;
     using RVector = MathNet.Numerics.LinearAlgebra.Vector<double>;
     using CVector = MathNet.Numerics.LinearAlgebra.Vector<Complex>;
@@ -16,28 +12,20 @@ namespace VectorField
     
     public class SmoothestSection
     {
-        private int fieldDegree = 1;
-        private HeGeom G;
-        private RVector angles;
-        private CVector fileds;
+        private readonly int fieldDegree = 1;
+        private readonly HeGeom G;
+        public CVector fileds;
         
-        Complex Div(Complex u, Complex v) 
-        {
-            var d = v.Real * v.Real + v.Imaginary * v.Imaginary;
-            return new Complex(
-                u.Real * v.Real + u.Imaginary * v.Imaginary,
-                u.Imaginary * v.Real - u.Real * v.Imaginary
-                ) / d;
-        }
-        
-        public SmoothestSection()
-        {
-            var engy = BuildFeildEnergy();
+        public SmoothestSection(HeGeom g) {
+            G = g;
+            //var angl = VertexPolarAngleForEachHe();
+            //var engy = BuildFeildEnergy(angl);
+            var engy = Operator.ConnectionLaplace(G);
             var mass = Operator.MassComplex(G);
-            var vals = Solver.SmallestEigenPositiveDefinite(engy, mass);
+            fileds = Solver.SmallestEigenPositiveDefinite(engy, mass);
         }
         
-        public RVector VertexPolarAngleForEachHe() {
+        RVector VertexPolarAngleForEachHe() {
             var angles = RVector.Build.Dense(G.halfedges.Length);
             foreach (var v in G.Verts) {
                 var a = 0f;
@@ -52,8 +40,7 @@ namespace VectorField
             return angles;
         }
         
-        public CSparse BuildFeildEnergy() {
-            var k = fieldDegree;
+        CSparse BuildFeildEnergy(IList<double> angles) {
             var A = CSparse.Create(G.nVerts, G.nVerts, 0);
             foreach (var f in G.Faces) {
                 foreach (var h in G.GetAdjacentHalfedges(f)) {
@@ -62,15 +49,27 @@ namespace VectorField
                     var w = G.Cotan(h);
                     var thetaI = angles[h.id];
                     var thetaJ = angles[h.twin.id];
-                    var phi = k * (thetaI - thetaJ + PI);
+                    var phi = fieldDegree * (thetaI - thetaJ + PI);
                     var r = new Complex(cos(phi), sin(phi));
                     A[i, i] += w;
                     A[i, j] -= w * r;
                     A[j, j] += w;
-                    A[j, i] -= Div(w, r);
+                    A[j, i] -= Utility.Div(w, r);
                 }
             }
             return A;
+        }
+        
+        public static float3[] ComputeVertVectorField(HeGeom g, CVector connection) {
+            var field = new float3[g.nVerts];
+            foreach (var v in g.Verts) {
+                var (e1, e2) = g.OrthonormalBasis(v);
+                var c = connection[v.vid];
+                var l = sqrt(pow(c.Real, 2) + pow(c.Imaginary, 2));
+                var s = c / l;
+                field[v.vid] = e1 * (float)s.Real + e2 * (float)s.Imaginary;
+            }
+            return field;
         }
     }
 }

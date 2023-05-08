@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using MathNet.Numerics.LinearAlgebra;
-using Random = UnityEngine.Random;
 
 namespace VectorField.Demo {
     using C = System.Numerics.Complex;

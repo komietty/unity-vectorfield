@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.Mathematics;
 using System.Numerics;
+using System.Linq;
 
 namespace VectorField {
     using static math;
@@ -79,9 +80,9 @@ namespace VectorField {
                 var hB = hA.twin;
                 var vA = halfedgeVectorInVertex[hA.id];
                 var vB = halfedgeVectorInVertex[hB.id];
-                var rot = normalize(Divide(-vB, vA));
+                var rot = normalize(Utility.Div(-vB, vA));
                 transportVectorAlongHe[hA.id] = rot;
-                transportVectorAlongHe[hB.id] = Divide(new d2(1, 0), rot);
+                transportVectorAlongHe[hB.id] = Utility.Div(new d2(1, 0), rot);
             }
 
             var diag = new double[g.nVerts];
@@ -103,11 +104,6 @@ namespace VectorField {
             var M = CSparse.OfIndexed(n, n, t);
             var C = CSparse.CreateDiagonal(n, n, new Complex(1e-8f, 0));
             return M + C;
-            
-            d2 Divide(d2 u, d2 v) {
-                var deno = v.x * v.x + v.y * v.y;
-                return new d2(u.x * v.x + u.y * v.y, u.y * v.x - u.x * v.y) / deno;
-            }
         }
     }
 }

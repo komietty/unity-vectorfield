@@ -7,9 +7,9 @@ namespace VectorField {
     using f3 = float3;
     
     public class TangentTracer {
-        HeGeom geom;
-        f3[] tangents;
-        int maxlength;
+        private readonly HeGeom geom;
+        private readonly f3[] tangents;
+        private readonly int maxlength;
 
         public TangentTracer(HeGeom geom, f3[] tangents, int maxlength) {
             this.geom = geom;
@@ -17,8 +17,7 @@ namespace VectorField {
             this.maxlength = maxlength;
         }
 
-        public List<(f3 p, f3 n)> GenTracer(Face bgn) {
-            var f = bgn;
+        public List<(f3 p, f3 n)> GenTracer(Face f) {
             var h = geom.halfedges[f.hid];
             var r = UnityEngine.Random.Range(0.1f, 0.9f);
             var fwd = GenTracer(f, h, r, 1);
