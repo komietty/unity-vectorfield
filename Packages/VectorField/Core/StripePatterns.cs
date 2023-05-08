@@ -24,7 +24,7 @@ namespace VectorField {
         private readonly RSparse massMatrix;
         
         private static float Dot(Complex a, Complex b) => (float)(a.Real * b.Real - a.Imaginary * b.Imaginary);
-        private static float Arg(Complex a) => (float)(atan2(a.Imaginary, a.Real));
+        private static float Arg(Complex a) => (float)atan2(a.Imaginary, a.Real);
 
         private Complex CanonicalVector(Vert v) {
             var r = directionalField[v.vid].Norm();
@@ -40,8 +40,6 @@ namespace VectorField {
             parameterization = CVector.Build.Dense(G.nVerts);
             energyMatrix = ComputeEnegyMatrix(angle);
             massMatrix = ComputeMassMatrix();
-            Debug.Log(energyMatrix);
-            Debug.Log(massMatrix);
         }
 
         /**
@@ -185,7 +183,60 @@ namespace VectorField {
         /**
          * Algorithm 7.
          */
-        public void AssignTextureCoordinate() {
+        public void AssignTextureCoordinate(int p) {
+            foreach (var f in G.Faces)
+            {
+                var h_ij = G.halfedges[f.hid];
+                var h_jk = h_ij.next;
+                var h_ki = h_jk.next;
+                var psiI = parameterization[h_ij.vid];
+                var psiJ = parameterization[h_jk.vid];
+                var psiK = parameterization[h_ki.vid];
+                
+                var cIJ = h_ij.IsCanonical() ? 1 : -1;
+                var cJK = h_jk.IsCanonical() ? 1 : -1;
+                var cKI = h_ki.IsCanonical() ? 1 : -1;
+                
+                /*
+                // grab the connection coeffients
+                double omegaIJ = cIJ * h_ij.edge->omega;
+                double omegaJK = cJK * h_jk.edge->omega;
+                double omegaKI = cKI * h_ki.edge->omega;
+
+                if( crossSheets[h_ij.edge.eid] > 0) {
+                    psiJ = psiJ.Conjugate(); //bar?
+                    omegaIJ =  cIJ * omegaIJ;
+                    omegaJK = -cJK * omegaJK;
+                }
+                if( crossSheets[h_ki.edge.eid] > 0 ) {
+                    psiK = psiK.Conjugate(); // bar?
+                    omegaKI = -cKI * omegaKI;
+                    omegaJK =  cJK * omegaJK;
+                }
+                
+                // construct complex transport coefficients
+                var rij = new Complex(cos(omegaIJ), sin(omegaIJ));
+                var rjk = new Complex(cos(omegaJK), sin(omegaJK));
+                var rki = new Complex(cos(omegaKI), sin(omegaKI));
+
+                // compute the angles at the triangle corners closest to the target omegas
+                double alphaI = Arg(psiI);
+                double alphaJ = alphaI + omegaIJ - Arg(rij*psiI/psiJ); //fmodPI((varphiI + omegaIJ) - varphiJ); // could do this in terms of angles instead of complex numbers...
+                double alphaK = alphaJ + omegaJK - Arg(rjk*psiJ/psiK); //fmodPI((varphiJ + omegaJK) - varphiK); // mostly a matter of taste---possibly a matter of performance?
+                double alphaL = alphaK + omegaKI - Arg(rki*psiK/psiI); //fmodPI((varphiK + omegaKI) - varphiI);
+
+                // adjust triangles containing zeros
+                double n = lround((alphaL-alphaI)/(2 * PI));
+                alphaJ -= 2 * PI * n / 3;
+                alphaK -= 4 * PI * n / 3;
+
+                // store the coordinates
+                h_ij->texcoord[p] = alphaI;
+                h_jk->texcoord[p] = alphaJ;
+                h_ki->texcoord[p] = alphaK;
+                f->paramIndex[p] = n;
+                */
+            }
         }
     }
 }

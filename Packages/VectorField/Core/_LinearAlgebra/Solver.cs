@@ -14,6 +14,10 @@ namespace VectorField {
         public static RV SmallestEigenPositiveDefinite(RSprs A, RSprs B) {
             throw new System.Exception();
         }
+        
+        public static CV SmallestEigenPositiveDefinite(CSprs A, CSprs B) {
+            throw new System.Exception();
+        }
 
         public static RV Cholesky(RSprs lhs, RV rhs) => Cholesky(lhs, rhs.ToArray());
         public static RV Cholesky(RSprs lhs, double[] rhs){
