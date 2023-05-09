@@ -7,8 +7,9 @@ namespace VectorField {
     public static class TangentField {
         /*
          * Computes the solution of the poisson problem Ax = -M(rho - rhoBar).
-         * A: the positive definite laplace matrix and M is the mass matrix.
-         * rho: a scalar density of vertices of the input mesh.
+         * A: the positive definite laplace matrix
+         * M: the mass matrix
+         * rho: a scalar density of verts of the input mesh
         */
         public static Vector ScalarPoissonProblem(HeGeom g, Vector rho){
             var M = Operator.Mass(g);
@@ -19,6 +20,9 @@ namespace VectorField {
             return Solver.Cholesky(A, -M * (rho - rhoBar));
         }
 
+        /*
+         * Computes a random one-form by solving scalar poisson problem.
+         */
         public static (Vector oneForm, int[] exactIds, int[] coexactIds) GenRandomOneForm(HeGeom g) {
             var nv = g.nVerts;
             var r = math.max(2, (int)(nv / 1000f));
@@ -29,7 +33,7 @@ namespace VectorField {
             for (var i = 0; i < r; i++) {
                 var j1 = (int)(UnityEngine.Random.value * nv);
                 var j2 = (int)(UnityEngine.Random.value * nv);
-                exactIds[i] = j1;
+                exactIds[i]   = j1;
                 coexactIds[i] = j2;
                 rho1[j1] = UnityEngine.Random.Range(-2500f, 2500f);
                 rho2[j2] = UnityEngine.Random.Range(-2500f, 2500f);

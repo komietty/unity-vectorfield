@@ -9,21 +9,16 @@ namespace VectorField {
     
     /*
      * Trivial connection with Hodge decomposition.
-     * This technic is proposed later on the original thesis, appears 
-     * in the lecture note of Carnegie Mellon University DDG course. 
+     * This technic is proposed after the original thesis, 
+     * in the lecture note of Carnegie Mellon Univ. DDG course. 
      */
     public class TrivialConnectionHD: TrivialConnection {
         private readonly Sparse A;
         private readonly Sparse P;
         private readonly Sparse h1;
         private readonly Sparse d0;
-        private readonly List<Vector> basis;
-        private readonly List<List<HalfEdge>> genes;
         
         public TrivialConnectionHD(HeGeom g): base(g) {
-            var hodge = new HodgeDecomposition(G);
-            genes = new HomologyGenerator(G).BuildGenerators();
-            basis = genes.Select(g => hodge.ComputeHamonicBasis(g)).ToList();
             P  = BuildPeriodMatrix();
             A  = hodge.MatA;
             h1 = hodge.MatH1;
@@ -31,14 +26,12 @@ namespace VectorField {
         }
         
         Sparse BuildPeriodMatrix() {
-            var n = basis.Count;
             var T = new List<(int, int, double)>();
-            for (var i = 0; i < n; i++) {
-                var g = genes[i];
-                for (var j = 0; j < n; j++) {
+            for (var i = 0; i < nBasis; i++) {
+                for (var j = 0; j < nBasis; j++) {
                     var b = basis[j];
                     var s = 0.0;
-                    foreach (var h in g) {
+                    foreach (var h in genes[i]) {
                         var k = h.edge.eid;
                         var v = h.IsCanonical() ? -1 : 1;
                         s += v * b[k];
@@ -46,7 +39,7 @@ namespace VectorField {
                     T.Add((i, j, s));
                 }
             }
-            return Sparse.OfIndexed(n, n, T);
+            return Sparse.OfIndexed(nBasis, nBasis, T);
         }
         
         Vector ComputeCoExactComponent(float[] singularity) {
@@ -57,11 +50,10 @@ namespace VectorField {
         }
         
         Vector ComputeHarmonicComponent(Vector deltaBeta) {
-            var n = basis.Count;
             var H = Vector.Build.Dense(G.nEdges, 0);
-            if (n == 0) return H;
-            var rhs = Vector.Build.Dense(n, 0);
-            for (var i = 0; i < n; i++) {
+            if (nBasis == 0) return H;
+            var rhs = Vector.Build.Dense(nBasis, 0);
+            for (var i = 0; i < nBasis; i++) {
                 var gen = genes[i];
                 var sum = 0.0;
                 foreach (var h in gen) {
@@ -75,7 +67,7 @@ namespace VectorField {
                 rhs[i] = sum;
             }
             var x = Solver.LU(P, rhs);
-            for (var i = 0; i < n; i++) H += basis[i] * x[i];
+            for (var i = 0; i < nBasis; i++) H += basis[i] * x[i];
             return H;
         }
         
@@ -94,13 +86,8 @@ namespace VectorField {
      */
     public class TrivialConnectionQR: TrivialConnection {
         private readonly Sparse A;
-        private readonly List<List<HalfEdge>> genes;
-        private readonly List<Vector> bases;
 
         public TrivialConnectionQR(HeGeom g): base(g) {
-            var h = new HodgeDecomposition(G);
-            genes = new HomologyGenerator(G).BuildGenerators();
-            bases = genes.Select(g => h.ComputeHamonicBasis(g)).ToList();
             A = BuildCycleMatrix();
         }
         
@@ -160,8 +147,17 @@ namespace VectorField {
      */
     public abstract class TrivialConnection {
         protected readonly HeGeom G;
+        protected readonly HodgeDecomposition hodge;
+        protected readonly List<Vector> basis;
+        protected readonly List<List<HalfEdge>> genes;
+        protected int nBasis => basis.Count;
 
-        protected TrivialConnection(HeGeom g) { G = g; }
+        protected TrivialConnection(HeGeom g) {
+            G = g;
+            hodge = new HodgeDecomposition(G);
+            genes = new HomologyGenerator(G).BuildGenerators();
+            basis = genes.Select(g => hodge.ComputeHarmonicBasis(g)).ToList();
+        }
 
         protected double TransportNoRotation(HalfEdge h, double alphaI = 0) {
             var u = G.Vector(h);

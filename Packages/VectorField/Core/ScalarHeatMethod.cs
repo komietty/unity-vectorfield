@@ -45,7 +45,7 @@ namespace VectorField {
         }
 
         /*
-         * Compute heat flow with the mean curvature flow oparator F. 
+         * Compute heat flow with the mean curvature flow operator F. 
          */
         public static Vector ComputeScalarHeatFlow(HeGeom g, Vector delta) {
             var t = pow(g.MeanEdgeLength(), 2);

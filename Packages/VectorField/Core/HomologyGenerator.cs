@@ -5,8 +5,6 @@ namespace VectorField {
         private readonly HeGeom G;
         private readonly int[] vertParent;
         private readonly int[] faceParent;
-        public int[] VertParent => vertParent;
-        public int[] FaceParent => faceParent;
 
         public HomologyGenerator(HeGeom g) {
             G = g;
@@ -65,7 +63,7 @@ namespace VectorField {
         HalfEdge SharedHalfEdge(Face f, Face g) {
             foreach (var h in G.GetAdjacentHalfedges(f))
                 if (h.twin.face.fid == g.fid) return h;
-            throw new System.Exception("no halfedge shared");
+            throw new System.Exception("no half-edge shared");
         }
 
         public List<List<HalfEdge>> BuildGenerators() {

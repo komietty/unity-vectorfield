@@ -27,7 +27,7 @@ namespace VectorField {
             var h = new HodgeDecomposition(G);
             var g = new HomologyGenerator(G).BuildGenerators();
             random   = TangentField.GenRandomOneForm(G).oneForm;
-            bases    = g.Select(g => h.ComputeHamonicBasis(g)).ToList();
+            bases    = g.Select(g => h.ComputeHarmonicBasis(g)).ToList();
             exact    = h.ComputeExact(random);
             coexact  = h.ComputeCoExact(random);
             harmonic = h.ComputeHarmonic(random, exact, coexact);

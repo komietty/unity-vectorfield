@@ -32,7 +32,7 @@ namespace VectorField {
         }
 
         /*
-         * Decompose input one-forms to exact, coexact, and harmonic elements.
+         * Decompose input one-forms to exact, co-exact, and harmonic elements.
          */
         public Vector ComputeExact   (Vector v) => d0 * Solver.Cholesky(A, d0t * h1 * v);
         public Vector ComputeCoExact (Vector v) => h1i * d1t * Solver.LU(B, d1 * v);
@@ -42,7 +42,7 @@ namespace VectorField {
          * Compute harmonic element basis using a generator of the target manifold.
          * Build closed primal 1-form first, then subtract exact elements from it.
          */
-        public Vector ComputeHamonicBasis(List<HalfEdge> generator) {
+        public Vector ComputeHarmonicBasis(List<HalfEdge> generator) {
             var oneForm = Vector.Build.Dense(G.nEdges);
             foreach (var h in generator)
                 oneForm[h.edge.eid] = h.edge.hid == h.id ? 1 : -1;
