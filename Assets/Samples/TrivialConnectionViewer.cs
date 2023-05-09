@@ -37,6 +37,8 @@ namespace VectorField {
             //c.BuildRibbonBuffer(f, colScheme);
         }
 
+        /*
+         */
         void OnRenderObject() {
             if (generators == null) return;
             GL.PushMatrix();

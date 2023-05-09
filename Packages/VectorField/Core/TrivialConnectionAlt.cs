@@ -93,6 +93,12 @@ namespace VectorField {
             //if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
             var c = ComputeCoExactComponent(singularity);
             var h = ComputeHamonicComponent(c);
+            
+            var cotanWeight = new double[G.nEdges];
+            foreach (var e in G.Edges) { cotanWeight[e.eid] = sqrt(G.EdgeCotan(e)); }
+            var contanWeightDiag = Sparse.OfDiagonalArray(cotanWeight);
+
+            //return contanWeightDiag * (c + h);
             return c + h;
         }
         

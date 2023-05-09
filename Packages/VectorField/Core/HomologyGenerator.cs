@@ -16,7 +16,7 @@ namespace VectorField {
 
         void BuildPrimalSpanningTree() {
             foreach (var v in G.Verts) vertParent[v.vid] = v.vid;
-            var rtid = G.Verts[0].vid;
+            var rtid = G.Verts[10].vid;
             var queue = new Queue<int>();
             queue.Enqueue(rtid);
             while (queue.Count != 0) {

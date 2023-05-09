@@ -13,25 +13,25 @@ namespace VectorField {
     public class TrivialConnection {
         private readonly HeGeom G;
         private readonly S A;
-        private readonly List<List<HalfEdge>> generators;
+        private readonly S P;
+        private readonly List<List<HalfEdge>> genes;
         private readonly List<V> bases;
-        private readonly S period;
 
         public TrivialConnection(HeGeom g) {
             G = g;
-            generators = new HomologyGenerator(G).BuildGenerators();
-            A = BuildCycleMatrix();
             var h = new HodgeDecomposition(G);
-            bases = generators.Select(g => h.ComputeHamonicBasis(g)).ToList();
-            period = BuildPeriodMatrix();
+            genes = new HomologyGenerator(G).BuildGenerators();
+            bases = genes.Select(g => h.ComputeHamonicBasis(g)).ToList();
+            A = BuildCycleMatrix();
+            P = BuildPeriodMatrix();
         }
         
         V ComputeCoExactComponent(float[] singularity) {
-            var rhs = new double[G.nVerts + generators.Count];
+            var rhs = new double[G.nVerts + genes.Count];
             foreach (var v in G.Verts)
                 rhs[v.vid] = -G.AngleDefect(v) + 2 * PI * singularity[v.vid];
-            for(var i = 0; i < generators.Count; i++) 
-                rhs[G.nVerts + i] = -AngleDefectAroundGenerator(generators[i]);
+            for(var i = 0; i < genes.Count; i++) 
+                rhs[G.nVerts + i] = -AngleDefectAroundGenerator(genes[i]);
             return Solver.QR(A, rhs);
         }
         
@@ -47,8 +47,7 @@ namespace VectorField {
             Debug.Log(xmin);
             return xmin;
             var x = c - d1t * (d1 * d1t).Inverse() * d1 * c;
-            var h = ComputeHamonicComponent(x);
-            return x;// + h;
+            return x;
         }
         
         double AngleDefectAroundGenerator(List<HalfEdge> generator) {
@@ -62,12 +61,12 @@ namespace VectorField {
         S BuildCycleMatrix() {
             var nv = G.nVerts;
             var ne = G.nEdges;
-            var ng = generators.Count;
+            var ng = genes.Count;
             var d0 = ExteriorDerivatives.BuildExteriorDerivative0Form(G);
             var d0t = d0.Transpose();
             var h_strage = new List<(int i, int j, double v)>();
             for (var i = 0; i < ng; i++)
-                foreach (var h in generators[i]) {
+                foreach (var h in genes[i]) {
                     // +- ambiguous
                     h_strage.Add((h.edge.eid, i, h.IsCanonical() ? 1 : -1));
                 }
@@ -94,32 +93,8 @@ namespace VectorField {
         }
         
         public float3[] GetFaceVectorFromConnection(V phi) {
-            var visit = new bool[G.nFaces];
-            var alpha = new double[G.nFaces];
-            var field = new float3[G.nFaces];
-            var queue = new Queue<int>();
-            var f0 = G.Faces[0];
-            queue.Enqueue(f0.fid);
-            alpha[f0.fid] = 0;
-            while (queue.Count > 0) {
-                var fid = queue.Dequeue();
-                foreach (var h in G.GetAdjacentHalfedges(G.Faces[fid])) {
-                    var gid = h.twin.face.fid;
-                    if (!visit[gid] && gid != f0.fid) {
-                        var sign = h.IsCanonical() ? 1 : -1;
-                        var conn = sign * phi[h.edge.eid];
-                        alpha[gid] = TransportNoRotation(h, alpha[fid]) + conn;
-                        visit[gid] = true;
-                        queue.Enqueue(gid);
-                    }
-                }
-            } 
-            foreach (var f in G.Faces) {
-                var a = alpha[f.fid];
-                var (e1, e2) = G.OrthonormalBasis(f);
-                field[f.fid] = e1 * (float)cos(a) + e2 * (float)sin(a);
-            }
-            return field;
+            throw new System.Exception();
+            // same as alt
         }
         
         double TransportNoRotation(HalfEdge h, double alphaI = 0) {
@@ -141,7 +116,7 @@ namespace VectorField {
             var n = bases.Count;
             var t = new List<(int, int, double)>();
             for (var i = 0; i < n; i++) {
-                var g = generators[i];
+                var g = genes[i];
                 for (var j = 0; j < n; j++) {
                     var bases = this.bases[j];
                     var sum = 0.0;
@@ -154,31 +129,6 @@ namespace VectorField {
                 }
             }
             return SparseMatrix.OfIndexed(n, n, t);
-        }
-
-        V ComputeHamonicComponent(V deltaBeta) {
-            var N = bases.Count;
-            var gamma = V.Build.Dense(G.nEdges, 0);
-
-            if (N > 0) {
-                var rhs = V.Build.Dense(N, 0);
-                for (var i = 0; i < N; i++) {
-                    var generator = generators[i];
-                    var sum = 0.0;
-                    foreach (var h in generator) {
-                        var k = h.edge.eid;
-                        var s = h.IsCanonical() ? 1 : -1;
-                        sum += TransportNoRotation(h);
-                        sum -= s * deltaBeta[k];
-                    }
-                    while (sum < -PI) sum += 2 * PI;
-                    while (sum >= PI) sum -= 2 * PI;
-                    rhs[i] = sum;
-                }
-                var outs = Solver.LU(period,rhs);
-                for (var i = 0; i < N; i++) { gamma += bases[i] * outs[i]; }
-            }
-            return gamma;
         }
     }
 }
