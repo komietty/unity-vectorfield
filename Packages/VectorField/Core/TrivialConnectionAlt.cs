@@ -47,7 +47,7 @@ namespace VectorField {
                     var s = 0.0;
                     foreach (var h in g) {
                         var k = h.edge.eid;
-                        var v = h.IsCanonical() ? 1 : -1;
+                        var v = h.IsCanonical() ? -1 : 1;
                         s += v * b[k];
                     }
                     T.Add((i, j, s));
@@ -74,7 +74,7 @@ namespace VectorField {
                     var sum = 0.0;
                     foreach (var h in generator) {
                         var k = h.edge.eid;
-                        var s = h.IsCanonical() ? 1 : -1;
+                        var s = h.IsCanonical() ? -1 : 1;
                         sum += TransportNoRotation(h);
                         sum -= s * deltaBeta[k];
                     }

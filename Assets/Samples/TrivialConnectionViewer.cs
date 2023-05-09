@@ -19,20 +19,22 @@ namespace VectorField {
             G = c.geom;
             hg = new HomologyGenerator(G);
             generators = hg.BuildGenerators();
-            //var b = new float[G.nVerts];
-            //foreach (var s in singularities) {
-            //    var i = Random.Range(0, G.nVerts); 
-            //    b[i] = s;
-            //    if (s != 0) c.PutSingularityPoint(i);
-            //}
+            var b = new float[G.nVerts];
+            foreach (var s in singularities) {
+                var i = Random.Range(0, G.nVerts); 
+                b[i] = s;
+                if (s != 0) c.PutSingularityPoint(i);
+            }
+            
             //var t = new TrivialConnection(g);
             //var p = t.ComputeConnections(b);
-            //var t = new TrivialConnectionAlt(G);
-            //var p = t.ComputeConnections(b);
+            
+            var t = new TrivialConnectionAlt(G);
+            var p = t.ComputeConnections(b);
 
-            //var f = t.GetFaceVectorFromConnection(p);
-            //generators = t.genes;
-            //c.BuildFaceArrowBuffer(f);
+            var f = t.GetFaceVectorFromConnection(p);
+            c.BuildFaceArrowBuffer(f);
+            //c.BuildRibbonBuffer(f, colScheme);
         }
 
         void OnRenderObject() {
@@ -54,8 +56,6 @@ namespace VectorField {
                     GL.Vertex(c2);
                 }
             }
-            /*
-             */
             GL.End();
             GL.PopMatrix();
         }
