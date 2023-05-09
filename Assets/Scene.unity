@@ -312,7 +312,7 @@ PrefabInstance:
     - target: {fileID: -6400281290468069383, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: -2432090755550338912, guid: 3cd29200260c04696a1d75e1c8f7e8f9, type: 3}
+      objectReference: {fileID: -2432090755550338912, guid: 6afcc050cc7fc4bc8a09c7c4821889c4, type: 3}
     - target: {fileID: 919132149155446097, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_Name
       value: VectorField
@@ -469,39 +469,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 007f12c427ed0473f9e5a36d17720825, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colScheme:
-    serializedVersion: 2
-    key0: {r: 0.9716981, g: 0.5130649, b: 0, a: 1}
-    key1: {r: 1, g: 0.41228473, b: 0, a: 1}
-    key2: {r: 0.9716981, g: 0, b: 0.14377171, a: 0}
-    key3: {r: 0.676991, g: 0, b: 1, a: 0}
-    key4: {r: 0.17243624, g: 0, b: 1, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
-    ctime0: 0
-    ctime1: 16384
-    ctime2: 32768
-    ctime3: 49151
-    ctime4: 65535
-    ctime5: 0
-    ctime6: 0
-    ctime7: 0
-    atime0: 0
-    atime1: 65535
-    atime2: 0
-    atime3: 0
-    atime4: 0
-    atime5: 0
-    atime6: 0
-    atime7: 0
-    m_Mode: 0
-    m_ColorSpace: -1
-    m_NumColorKeys: 5
-    m_NumAlphaKeys: 2
   singularities:
-  - -1
-  - -1
+  - -2
+  - 2
   mat: {fileID: 2100000, guid: cc7cafe249ab1414bb3f27b9f46deef6, type: 2}
 --- !u!114 &741813967
 MonoBehaviour:

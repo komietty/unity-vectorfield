@@ -1,53 +1,147 @@
-using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.LinearAlgebra.Double;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Mathematics;
-using UnityEngine;
 using static Unity.Mathematics.math;
 
 namespace VectorField {
-    using S = SparseMatrix;
-    using V = Vector<double>;
+    using Vector = MathNet.Numerics.LinearAlgebra.Vector<double>;
+    using Sparse = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
     
-    public class TrivialConnection {
-        private readonly HeGeom G;
-        private readonly S A;
-        private readonly S P;
+    public class TrivialConnection: SmoothSectionBase {
+        private readonly Sparse A;
+        private readonly Sparse P;
+        private readonly Sparse h1;
+        private readonly Sparse d0;
+        private readonly List<Vector> basis;
         private readonly List<List<HalfEdge>> genes;
-        private readonly List<V> bases;
+        
+        public TrivialConnection(HeGeom g): base(g) {
+            var hodge = new HodgeDecomposition(G);
+            genes = new HomologyGenerator(G).BuildGenerators();
+            basis = genes.Select(g => hodge.ComputeHamonicBasis(g)).ToList();
+            P  = BuildPeriodMatrix();
+            A  = hodge.MatA;
+            h1 = hodge.MatH1;
+            d0 = hodge.MatD0;
+        }
+        
+        Sparse BuildPeriodMatrix() {
+            var n = basis.Count;
+            var T = new List<(int, int, double)>();
+            for (var i = 0; i < n; i++) {
+                var g = genes[i];
+                for (var j = 0; j < n; j++) {
+                    var b = basis[j];
+                    var s = 0.0;
+                    foreach (var h in g) {
+                        var k = h.edge.eid;
+                        var v = h.IsCanonical() ? -1 : 1;
+                        s += v * b[k];
+                    }
+                    T.Add((i, j, s));
+                }
+            }
+            return Sparse.OfIndexed(n, n, T);
+        }
+        
+        Vector ComputeCoExactComponent(float[] singularity) {
+            var rhs = new double[G.nVerts];
+            foreach (var v in G.Verts)
+                rhs[v.vid] = -G.AngleDefect(v) + 2 * PI * singularity[v.vid];
+            return h1 * d0 * Solver.Cholesky(A, rhs);
+        }
+        
+        Vector ComputeHarmonicComponent(Vector deltaBeta) {
+            var n = basis.Count;
+            var H = Vector.Build.Dense(G.nEdges, 0);
+            if (n == 0) return H;
+            var rhs = Vector.Build.Dense(n, 0);
+            for (var i = 0; i < n; i++) {
+                var gen = genes[i];
+                var sum = 0.0;
+                foreach (var h in gen) {
+                    var k = h.edge.eid;
+                    var s = h.IsCanonical() ? -1 : 1;
+                    sum += TransportNoRotation(h);
+                    sum -= s * deltaBeta[k];
+                }
+                while (sum < -PI) sum += 2 * PI;
+                while (sum >= PI) sum -= 2 * PI;
+                rhs[i] = sum;
+            }
+            var x = Solver.LU(P, rhs);
+            for (var i = 0; i < n; i++) H += basis[i] * x[i];
+            return H;
+        }
+        
+        public Vector ComputeConnections(float[] singularity) {
+            if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
+            var c = ComputeCoExactComponent(singularity);
+            var h = ComputeHarmonicComponent(c);
+            return c + h;
+        }
+    }
+    
+    public abstract class SmoothSectionBase {
+        protected readonly HeGeom G;
 
-        public TrivialConnection(HeGeom g) {
-            G = g;
+        protected SmoothSectionBase(HeGeom g) { G = g; }
+
+        protected double TransportNoRotation(HalfEdge h, double alphaI = 0) {
+            var u = G.Vector(h);
+            var (e1, e2) = G.OrthonormalBasis(h.face);
+            var (f1, f2) = G.OrthonormalBasis(h.twin.face);
+            var thetaIJ = atan2(dot(u, e2), dot(u, e1));
+            var thetaJI = atan2(dot(u, f2), dot(u, f1));
+            return alphaI - thetaIJ + thetaJI;
+        }
+        
+        protected bool SatisfyGaussBonnet(float[] singularity){
+            var sum = 0f;
+            foreach (var v in G.Verts) sum += singularity[v.vid];
+            return abs(G.eulerCharactaristics - sum) < 1e-8;
+        }
+        
+        public float3[] GetFaceVectorFromConnection(Vector phi) {
+            var visit = new bool[G.nFaces];
+            var alpha = new double[G.nFaces];
+            var field = new float3[G.nFaces];
+            var queue = new Queue<int>();
+            var f0 = G.Faces[0];
+            queue.Enqueue(f0.fid);
+            alpha[f0.fid] = 0;
+            while (queue.Count > 0) {
+                var fid = queue.Dequeue();
+                foreach (var h in G.GetAdjacentHalfedges(G.Faces[fid])) {
+                    var gid = h.twin.face.fid;
+                    if (!visit[gid] && gid != f0.fid) {
+                        var sign = h.IsCanonical() ? 1 : -1;
+                        var conn = sign * phi[h.edge.eid];
+                        alpha[gid] = TransportNoRotation(h, alpha[fid]) + conn;
+                        visit[gid] = true;
+                        queue.Enqueue(gid);
+                    }
+                }
+            } 
+            foreach (var f in G.Faces) {
+                var a = alpha[f.fid];
+                var (e1, e2) = G.OrthonormalBasis(f);
+                field[f.fid] = e1 * (float)cos(a) + e2 * (float)sin(a);
+            }
+            return field;
+        }
+    }
+    
+    public class TrivialConnectionQR: SmoothSectionBase {
+        private readonly Sparse A;
+        private readonly List<List<HalfEdge>> genes;
+        private readonly List<Vector> bases;
+
+        public TrivialConnectionQR(HeGeom g): base(g) {
             var h = new HodgeDecomposition(G);
             genes = new HomologyGenerator(G).BuildGenerators();
             bases = genes.Select(g => h.ComputeHamonicBasis(g)).ToList();
             A = BuildCycleMatrix();
-            P = BuildPeriodMatrix();
-        }
-        
-        V ComputeCoExactComponent(float[] singularity) {
-            var rhs = new double[G.nVerts + genes.Count];
-            foreach (var v in G.Verts)
-                rhs[v.vid] = -G.AngleDefect(v) + 2 * PI * singularity[v.vid];
-            for(var i = 0; i < genes.Count; i++) 
-                rhs[G.nVerts + i] = -AngleDefectAroundGenerator(genes[i]);
-            return Solver.QR(A, rhs);
-        }
-        
-        public V ComputeConnections(float[] singularity) {
-            if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
-            var c = ComputeCoExactComponent(singularity);
-            var d1 = ExteriorDerivatives.BuildExteriorDerivative1Form(G);
-            var d1t = S.OfMatrix(d1.Transpose());
-            var ddt = d1 * d1t;
-            var xmin = c - d1t * ddt.LU().Solve(d1 * c);
-            
-            Debug.Log("xmin");
-            Debug.Log(xmin);
-            return xmin;
-            var x = c - d1t * (d1 * d1t).Inverse() * d1 * c;
-            return x;
         }
         
         double AngleDefectAroundGenerator(List<HalfEdge> generator) {
@@ -57,8 +151,28 @@ namespace VectorField {
             while(theta <  -PI) theta += 2 * PI;
             return -theta;
         }
+        
+        Vector ComputeSmallestEigenValue(float[] singularity) {
+            var rhs = new double[G.nVerts + genes.Count];
+            foreach (var v in G.Verts)
+                rhs[v.vid] = -G.AngleDefect(v) + 2 * PI * singularity[v.vid];
+            for(var i = 0; i < genes.Count; i++) 
+                rhs[G.nVerts + i] = -AngleDefectAroundGenerator(genes[i]);
+            return Solver.QR(A, rhs);
+        }
+        
+        public Vector ComputeConnections(float[] singularity) {
+            if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
+            var c = ComputeSmallestEigenValue(singularity);
+            var d1 = ExteriorDerivatives.BuildExteriorDerivative1Form(G);
+            var d1t = Sparse.OfMatrix(d1.Transpose());
+            var ddt = d1 * d1t;
+            var x_sol = c - d1t * ddt.LU().Solve(d1 * c);
+            //var x = c - d1t * (d1 * d1t).Inverse() * d1 * c;
+            return x_sol;
+        }
 
-        S BuildCycleMatrix() {
+        Sparse BuildCycleMatrix() {
             var nv = G.nVerts;
             var ne = G.nEdges;
             var ng = genes.Count;
@@ -71,64 +185,13 @@ namespace VectorField {
                     h_strage.Add((h.edge.eid, i, h.IsCanonical() ? 1 : -1));
                 }
 
-            var H = S.OfIndexed(ne, ng, h_strage);
+            var H = Sparse.OfIndexed(ne, ng, h_strage);
             var Ht = H.Transpose();
 
-            var A = S.Create(nv + ng, ne, 0);
+            var A = Sparse.Create(nv + ng, ne, 0);
             for (var i = 0; i < nv; i++) { A.SetRow(i, d0t.Row(i)); }
             for (var i = 0; i < ng; i++) { A.SetRow(i + nv, Ht.Row(i)); }
             return A;
-            /*
-            var T = new List<(int i, int j, double v)>();
-            foreach (var v in G.Verts) 
-            foreach (var h in G.GetAdjacentHalfedges(v)) {
-                T.Add((h.edge.eid, v.vid, h.IsEdgeDir()? -1 : 1));
-            }
-            for (var i = 0; i < ng; i++) 
-                foreach (var h in generators[i]) {
-                    T.Add((h.edge.eid, nv + i, h.IsEdgeDir() ? -1 : 1));
-                }
-            return S.OfIndexed(ne, nv + ng, T);
-            */
-        }
-        
-        public float3[] GetFaceVectorFromConnection(V phi) {
-            throw new System.Exception();
-            // same as alt
-        }
-        
-        double TransportNoRotation(HalfEdge h, double alphaI = 0) {
-            var u = G.Vector(h);
-            var (e1, e2) = G.OrthonormalBasis(h.face);
-            var (f1, f2) = G.OrthonormalBasis(h.twin.face);
-            var thetaIJ = atan2(dot(u, e2), dot(u, e1));
-            var thetaJI = atan2(dot(u, f2), dot(u, f1));
-            return alphaI - thetaIJ + thetaJI;
-        }
-        
-        bool SatisfyGaussBonnet(float[] singularity){
-            var sum = 0f;
-            foreach (var v in G.Verts) sum += singularity[v.vid];
-            return abs(G.eulerCharactaristics - sum) < 1e-8;
-        }
-        
-        S BuildPeriodMatrix() {
-            var n = bases.Count;
-            var t = new List<(int, int, double)>();
-            for (var i = 0; i < n; i++) {
-                var g = genes[i];
-                for (var j = 0; j < n; j++) {
-                    var bases = this.bases[j];
-                    var sum = 0.0;
-                    foreach (var h in g) {
-                        var k = h.edge.eid;
-                        var s = h.IsCanonical() ? 1 : -1;
-                        sum += s * bases[k];
-                    }
-                    t.Add((i, j, sum));
-                }
-            }
-            return SparseMatrix.OfIndexed(n, n, t);
         }
     }
 }

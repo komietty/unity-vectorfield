@@ -18,8 +18,6 @@ namespace VectorField {
         
         public SmoothestSection(HeGeom g) {
             G = g;
-            //var angl = VertexPolarAngleForEachHe();
-            //var engy = BuildFeildEnergy(angl);
             var engy = Operator.ConnectionLaplace(G);
             var mass = Operator.MassComplex(G);
             fileds = Solver.SmallestEigenPositiveDefinite(engy, mass);
