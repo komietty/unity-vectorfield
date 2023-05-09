@@ -271,7 +271,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1b3c151afc20e429a80e100e3a067f30, type: 3}
       propertyPath: m_LocalPosition.z
@@ -366,7 +366,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lineMat: {fileID: 2100000, guid: 853e24a2948fb495784ae01f9b3ef2c4, type: 2}
   arrowMat: {fileID: 2100000, guid: 6df99629404484285b3ea1edba879bdf, type: 2}
-  surfMode: 2
+  surfMode: 0
   showVertSpace: 0
   showFaceSpace: 0
   showVertArrow: 0
@@ -501,6 +501,7 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   singularities:
   - 0
+  mat: {fileID: 2100000, guid: cc7cafe249ab1414bb3f27b9f46deef6, type: 2}
 --- !u!114 &741813967
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -833,7 +834,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &1854672282
 MeshRenderer:
   m_ObjectHideFlags: 0

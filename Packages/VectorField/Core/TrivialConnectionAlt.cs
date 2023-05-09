@@ -15,7 +15,7 @@ namespace VectorField {
         private readonly Sparse h1;
         private readonly Sparse d0;
         private readonly List<Vector> basis;
-        private readonly List<List<HalfEdge>> genes;
+        public List<List<HalfEdge>> genes;
         
         public TrivialConnectionAlt(HeGeom g) {
             G = g;
@@ -58,7 +58,8 @@ namespace VectorField {
         
         Vector ComputeCoExactComponent(float[] singularity) {
             var rhs = new double[G.nVerts];
-            foreach (var v in G.Verts) rhs[v.vid] = -G.AngleDefect(v) + 2 * PI * singularity[v.vid];
+            foreach (var v in G.Verts)
+                rhs[v.vid] = -G.AngleDefect(v) + 2 * PI * singularity[v.vid];
             return h1 * d0 * Solver.Cholesky(A, rhs);
         }
         
@@ -81,7 +82,7 @@ namespace VectorField {
                     while (sum >= PI) sum -= 2 * PI;
                     rhs[i] = sum;
                 }
-                var outs = Solver.LU(P,rhs);
+                var outs = Solver.LU(P, rhs);
                 for (var i = 0; i < N; i++) { gamma += basis[i] * outs[i]; }
             }
             return gamma;
@@ -92,8 +93,6 @@ namespace VectorField {
             //if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
             var c = ComputeCoExactComponent(singularity);
             var h = ComputeHamonicComponent(c);
-            Debug.Log(c);
-            Debug.Log(h);
             return c + h;
         }
         

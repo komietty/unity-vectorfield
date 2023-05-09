@@ -5,6 +5,8 @@ namespace VectorField {
         private readonly HeGeom G;
         private readonly int[] vertParent;
         private readonly int[] faceParent;
+        public int[] VertParent => vertParent;
+        public int[] FaceParent => faceParent;
 
         public HomologyGenerator(HeGeom g) {
             G = g;
