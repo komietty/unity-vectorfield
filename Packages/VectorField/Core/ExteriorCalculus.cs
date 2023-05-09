@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Unity.Mathematics;
 using System.Numerics;
-using System.Linq;
 
 namespace VectorField {
     using static math;
@@ -16,7 +15,7 @@ namespace VectorField {
         public static RSparse Mass(HeGeom g){
             var n = g.nVerts;
             System.Span<double> a = stackalloc double[n];
-            for (int i = 0; i < n; i++) a[i] = g.BarycentricDualArea(i);
+            for (var i = 0; i < n; i++) a[i] = g.BarycentricDualArea(i);
             return RSparse.OfDiagonalArray(a.ToArray());
         }
 
@@ -26,7 +25,7 @@ namespace VectorField {
         public static CSparse MassComplex(HeGeom g){
             var n = g.nVerts;
             System.Span<Complex> a = stackalloc Complex[n];
-            for (int i = 0; i < n; i++) a[i] = new Complex(g.BarycentricDualArea(i), 0);
+            for (var i = 0; i < n; i++) a[i] = new Complex(g.BarycentricDualArea(i), 0);
             return CSparse.OfDiagonalArray(a.ToArray());
         }
 
@@ -54,10 +53,10 @@ namespace VectorField {
         /*
          * A connection laplace matrix.
          * If a vert is on boundary, proj2plane is PI/g.AngleSum(v).
-         * Because the halfedges on HeGeom are oriented CW order,
+         * Because the halfEdges on HeGeom are oriented CW order,
          * regular g.Angle(c) func does not calc angle in CCW way.
          * Here I instead calc angles manually using AdjacentHes.
-         * M should be Helmitian Matrix.
+         * M should be Hermitian Matrix.
         */
         public static CSparse ConnectionLaplace(HeGeom g) {
             var t = new List<(int, int, Complex)>();

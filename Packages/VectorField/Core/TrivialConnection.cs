@@ -7,7 +7,12 @@ namespace VectorField {
     using Vector = MathNet.Numerics.LinearAlgebra.Vector<double>;
     using Sparse = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
     
-    public class TrivialConnection: SmoothSectionBase {
+    /*
+     * Trivial connection with Hodge decomposition.
+     * This technic is proposed later on the original thesis, appears 
+     * in the lecture note of Carnegie Mellon University DDG course. 
+     */
+    public class TrivialConnectionHD: TrivialConnection {
         private readonly Sparse A;
         private readonly Sparse P;
         private readonly Sparse h1;
@@ -15,7 +20,7 @@ namespace VectorField {
         private readonly List<Vector> basis;
         private readonly List<List<HalfEdge>> genes;
         
-        public TrivialConnection(HeGeom g): base(g) {
+        public TrivialConnectionHD(HeGeom g): base(g) {
             var hodge = new HodgeDecomposition(G);
             genes = new HomologyGenerator(G).BuildGenerators();
             basis = genes.Select(g => hodge.ComputeHamonicBasis(g)).ToList();
@@ -82,57 +87,12 @@ namespace VectorField {
         }
     }
     
-    public abstract class SmoothSectionBase {
-        protected readonly HeGeom G;
-
-        protected SmoothSectionBase(HeGeom g) { G = g; }
-
-        protected double TransportNoRotation(HalfEdge h, double alphaI = 0) {
-            var u = G.Vector(h);
-            var (e1, e2) = G.OrthonormalBasis(h.face);
-            var (f1, f2) = G.OrthonormalBasis(h.twin.face);
-            var thetaIJ = atan2(dot(u, e2), dot(u, e1));
-            var thetaJI = atan2(dot(u, f2), dot(u, f1));
-            return alphaI - thetaIJ + thetaJI;
-        }
-        
-        protected bool SatisfyGaussBonnet(float[] singularity){
-            var sum = 0f;
-            foreach (var v in G.Verts) sum += singularity[v.vid];
-            return abs(G.eulerCharactaristics - sum) < 1e-8;
-        }
-        
-        public float3[] GetFaceVectorFromConnection(Vector phi) {
-            var visit = new bool[G.nFaces];
-            var alpha = new double[G.nFaces];
-            var field = new float3[G.nFaces];
-            var queue = new Queue<int>();
-            var f0 = G.Faces[0];
-            queue.Enqueue(f0.fid);
-            alpha[f0.fid] = 0;
-            while (queue.Count > 0) {
-                var fid = queue.Dequeue();
-                foreach (var h in G.GetAdjacentHalfedges(G.Faces[fid])) {
-                    var gid = h.twin.face.fid;
-                    if (!visit[gid] && gid != f0.fid) {
-                        var sign = h.IsCanonical() ? 1 : -1;
-                        var conn = sign * phi[h.edge.eid];
-                        alpha[gid] = TransportNoRotation(h, alpha[fid]) + conn;
-                        visit[gid] = true;
-                        queue.Enqueue(gid);
-                    }
-                }
-            } 
-            foreach (var f in G.Faces) {
-                var a = alpha[f.fid];
-                var (e1, e2) = G.OrthonormalBasis(f);
-                field[f.fid] = e1 * (float)cos(a) + e2 * (float)sin(a);
-            }
-            return field;
-        }
-    }
-    
-    public class TrivialConnectionQR: SmoothSectionBase {
+    /*
+     * Trivial connection with QR factorization (WIP).
+     * This is equivalent to trivial connection with Hodge decomposition above,
+     * the only difference is that this technic is proposed in original thesis.
+     */
+    public class TrivialConnectionQR: TrivialConnection {
         private readonly Sparse A;
         private readonly List<List<HalfEdge>> genes;
         private readonly List<Vector> bases;
@@ -192,6 +152,59 @@ namespace VectorField {
             for (var i = 0; i < nv; i++) { A.SetRow(i, d0t.Row(i)); }
             for (var i = 0; i < ng; i++) { A.SetRow(i + nv, Ht.Row(i)); }
             return A;
+        }
+    }
+    
+    /*
+     * Common method holder for TrivialConnectionHD and TrivialConnectionQR.
+     */
+    public abstract class TrivialConnection {
+        protected readonly HeGeom G;
+
+        protected TrivialConnection(HeGeom g) { G = g; }
+
+        protected double TransportNoRotation(HalfEdge h, double alphaI = 0) {
+            var u = G.Vector(h);
+            var (e1, e2) = G.OrthonormalBasis(h.face);
+            var (f1, f2) = G.OrthonormalBasis(h.twin.face);
+            var thetaIJ = atan2(dot(u, e2), dot(u, e1));
+            var thetaJI = atan2(dot(u, f2), dot(u, f1));
+            return alphaI - thetaIJ + thetaJI;
+        }
+        
+        protected bool SatisfyGaussBonnet(float[] singularity){
+            var sum = 0f;
+            foreach (var v in G.Verts) sum += singularity[v.vid];
+            return abs(G.eulerCharactaristics - sum) < 1e-8;
+        }
+        
+        public float3[] GetFaceVectorFromConnection(Vector phi) {
+            var visit = new bool[G.nFaces];
+            var alpha = new double[G.nFaces];
+            var field = new float3[G.nFaces];
+            var queue = new Queue<int>();
+            var f0 = G.Faces[0];
+            queue.Enqueue(f0.fid);
+            alpha[f0.fid] = 0;
+            while (queue.Count > 0) {
+                var fid = queue.Dequeue();
+                foreach (var h in G.GetAdjacentHalfedges(G.Faces[fid])) {
+                    var gid = h.twin.face.fid;
+                    if (!visit[gid] && gid != f0.fid) {
+                        var sign = h.IsCanonical() ? 1 : -1;
+                        var conn = sign * phi[h.edge.eid];
+                        alpha[gid] = TransportNoRotation(h, alpha[fid]) + conn;
+                        visit[gid] = true;
+                        queue.Enqueue(gid);
+                    }
+                }
+            } 
+            foreach (var f in G.Faces) {
+                var a = alpha[f.fid];
+                var (e1, e2) = G.OrthonormalBasis(f);
+                field[f.fid] = e1 * (float)cos(a) + e2 * (float)sin(a);
+            }
+            return field;
         }
     }
 }
