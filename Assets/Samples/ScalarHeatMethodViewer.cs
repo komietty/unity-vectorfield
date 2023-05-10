@@ -46,6 +46,8 @@ namespace VectorField.Demo {
             tracerBuff.SetData(tracers);
             normalBuff.SetData(normals);
             colourBuff.SetData(colours);
+            
+            c.surfMode = GeomContainer.SurfMode.vertexColorBase;
         }
 
         protected void OnRenderObject() {

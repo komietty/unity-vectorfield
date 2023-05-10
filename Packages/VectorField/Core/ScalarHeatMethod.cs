@@ -1,11 +1,10 @@
 using Unity.Mathematics;
 using System.Collections.Generic;
+using Dense  = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix;
+using Vector = MathNet.Numerics.LinearAlgebra.Vector<double>;
+using static Unity.Mathematics.math;
 
 namespace VectorField {
-    using static math;
-    using Dense  = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix;
-    using Vector = MathNet.Numerics.LinearAlgebra.Vector<double>;
-
     public static class ScalarHeatMethod {
 
         static Dense ComputeVectorField(HeGeom g, IList<double> u) {
@@ -49,8 +48,8 @@ namespace VectorField {
          */
         public static Vector ComputeScalarHeatFlow(HeGeom g, Vector delta) {
             var t = pow(g.MeanEdgeLength(), 2);
-            var L = Operator.Laplace(g);
-            var F = Operator.Mass(g) + L * t;
+            var L = DEC.Laplace(g);
+            var F = DEC.Mass(g) + L * t;
             var u = Solver.Cholesky(F, delta);
             var X = ComputeVectorField(g, u);
             var D = ComputeDivergence(g, X);

@@ -10,7 +10,6 @@ namespace VectorField {
     public class HodgeDecompositionViewer : MonoBehaviour {
         public enum Field { Random, Exact, CoExact, Harmonic }
         [SerializeField] protected Field field;
-        [SerializeField] protected Gradient colScheme;
         [SerializeField, Range(0, 10)] int hamonicBasisNum;
         V random, exact, coexact, harmonic;
         GeomContainer container;
@@ -26,13 +25,16 @@ namespace VectorField {
             var G  = container.geom;
             var h = new HodgeDecomposition(G);
             var g = new HomologyGenerator(G).BuildGenerators();
-            random   = TangentField.GenRandomOneForm(G).oneForm;
+            random   = ScalarPoissonProblem.ComputeRandomOneForm(G);
             bases    = g.Select(g => h.ComputeHarmonicBasis(g)).ToList();
             exact    = h.ComputeExact(random);
             coexact  = h.ComputeCoExact(random);
             harmonic = h.ComputeHarmonic(random, exact, coexact);
             SwitchFlow();
             flag = true;
+            container.surfMode = GeomContainer.SurfMode.blackBase;
+            container.showVertArrow = false;
+            container.showFaceArrow = true;
         }
 
         void SwitchFlow() {
@@ -47,9 +49,9 @@ namespace VectorField {
                         bases[hamonicBasisNum] : harmonic; break;
             }
 
-            var f = ExteriorDerivatives.InterpolateWhitney(v, container.geom);
+            var f = DEC.InterpolateWhitney(v, container.geom);
             container.BuildFaceArrowBuffer(f);
-            container.BuildRibbonBuffer(f, colScheme);
+            container.BuildRibbonBuffer(f);
         }
     }
 }

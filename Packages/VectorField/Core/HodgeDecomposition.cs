@@ -1,9 +1,8 @@
 using System.Collections.Generic;
+using Vector = MathNet.Numerics.LinearAlgebra.Vector<double>;
+using Sparse = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
 
 namespace VectorField {
-    using Vector = MathNet.Numerics.LinearAlgebra.Vector<double>;
-    using Sparse = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
-    
     public class HodgeDecomposition {
         private readonly HeGeom G;
         private readonly Sparse A;
@@ -20,9 +19,9 @@ namespace VectorField {
 
         public HodgeDecomposition(HeGeom g) {
             G = g;
-            h1  = ExteriorDerivatives.BuildHodgeStar1Form(G);
-            d0  = ExteriorDerivatives.BuildExteriorDerivative0Form(G);
-            d1  = ExteriorDerivatives.BuildExteriorDerivative1Form(G);
+            h1  = DEC.BuildHodgeStar1Form(G);
+            d0  = DEC.BuildExteriorDerivative0Form(G);
+            d1  = DEC.BuildExteriorDerivative1Form(G);
             h1i = Sparse.OfDiagonalVector(h1.Diagonal().Map(v => 1 / v));
             d0t = Sparse.OfMatrix(d0.Transpose());
             d1t = Sparse.OfMatrix(d1.Transpose());

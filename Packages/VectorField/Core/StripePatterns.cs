@@ -1,16 +1,13 @@
-using System;
 using System.Collections.Generic;
 using System.Numerics;
 using MathNet.Numerics;
-using Unity.Mathematics;
-using UnityEngine;
+using static Unity.Mathematics.math;
+using RVector = MathNet.Numerics.LinearAlgebra.Vector<double>;
+using CVector = MathNet.Numerics.LinearAlgebra.Vector<System.Numerics.Complex>;
+using RSparse = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
+using RDense  = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix;
 
 namespace VectorField {
-    using static math;
-    using RVector = MathNet.Numerics.LinearAlgebra.Vector<double>;
-    using CVector = MathNet.Numerics.LinearAlgebra.Vector<Complex>;
-    using RSparse = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
-    using RDense = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix;
     
     public class StripePattern {
         private readonly HeGeom G;

@@ -9,8 +9,6 @@ namespace  VectorField {
         [SerializeField] protected Material lineMat;
         [SerializeField] protected Material arrowMat;
         public SurfMode surfMode;
-        public bool showVertSpace;
-        public bool showFaceSpace;
         public bool showVertArrow;
         public bool showFaceArrow;
         public bool showFaceRibbon;
@@ -80,7 +78,7 @@ namespace  VectorField {
         }
         
         
-        public void BuildRibbonBuffer(float3[] faceVector, Gradient colScheme) {
+        public void BuildRibbonBuffer(float3[] faceVector) {
             faceRibbon?.Dispose();
             var n = math.min((int)(geom.nFaces * 0.5f), 2000);
             var l = math.min((int)(geom.nFaces * 0.1f), 400);

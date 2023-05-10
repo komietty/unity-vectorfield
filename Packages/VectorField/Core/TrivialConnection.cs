@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Mathematics;
+using Vector = MathNet.Numerics.LinearAlgebra.Vector<double>;
+using Sparse = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
 using static Unity.Mathematics.math;
 
 namespace VectorField {
-    using Vector = MathNet.Numerics.LinearAlgebra.Vector<double>;
-    using Sparse = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
-    
     /*
      * Trivial connection with Hodge decomposition.
      * This technic is proposed after the original thesis, 
@@ -72,7 +71,8 @@ namespace VectorField {
         }
         
         public Vector ComputeConnections(float[] singularity) {
-            if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
+            if(!SatisfyGaussBonnet(singularity))
+                throw new System.Exception("Singularities must satisfy Gauss-Bonnet theorem");
             var c = ComputeCoExactComponent(singularity);
             var h = ComputeHarmonicComponent(c);
             return c + h;
@@ -111,7 +111,7 @@ namespace VectorField {
         public Vector ComputeConnections(float[] singularity) {
             if(!SatisfyGaussBonnet(singularity)) throw new System.Exception();
             var c = ComputeSmallestEigenValue(singularity);
-            var d1 = ExteriorDerivatives.BuildExteriorDerivative1Form(G);
+            var d1 = DEC.BuildExteriorDerivative1Form(G);
             var d1t = Sparse.OfMatrix(d1.Transpose());
             var ddt = d1 * d1t;
             var x_sol = c - d1t * ddt.LU().Solve(d1 * c);
@@ -123,7 +123,7 @@ namespace VectorField {
             var nv = G.nVerts;
             var ne = G.nEdges;
             var ng = genes.Count;
-            var d0 = ExteriorDerivatives.BuildExteriorDerivative0Form(G);
+            var d0 = DEC.BuildExteriorDerivative0Form(G);
             var d0t = d0.Transpose();
             var h_strage = new List<(int i, int j, double v)>();
             for (var i = 0; i < ng; i++)

@@ -1,64 +1,65 @@
 using System.Collections.Generic;
 using Unity.Mathematics;
-using System.Numerics;
+using RVector = MathNet.Numerics.LinearAlgebra.Vector<double>;
+using CVector = MathNet.Numerics.LinearAlgebra.Vector<System.Numerics.Complex>;
+using static Unity.Mathematics.math;
 
 namespace VectorField {
-    using static math;
-    using RV = MathNet.Numerics.LinearAlgebra.Vector<double>;
-    using CV = MathNet.Numerics.LinearAlgebra.Vector<Complex>;
+    public class VectorHeatMethod {
+        private readonly HeGeom G;
+        public VectorHeatMethod(HeGeom g) { G = g; }
 
-    public static class VectorHeatMethod {
-        
-        public static RV ComputeExtendedScalar(HeGeom g, List<(int vid, double val)> src) {
-            var dataRhs = RV.Build.Dense(g.nVerts);
-            var idctRhs = RV.Build.Dense(g.nVerts);
+        /*
+         * Compute magnitude
+         * t: time of source point spreads 
+         */
+        public RVector ComputeExtendedScalar(List<(int vid, double val)> src) {
+            var dataRhs = RVector.Build.Dense(G.nVerts);
+            var idctRhs = RVector.Build.Dense(G.nVerts);
             foreach (var s in src) {
                 dataRhs[s.vid] = s.val;
                 idctRhs[s.vid] = 1;
             }
-            var L = Operator.Laplace(g);
-            var F = Operator.Mass(g) + L * pow(g.MeanEdgeLength(), 2);
-            var dataSol = Solver.LU(F, dataRhs);
-            var idctSol = Solver.LU(F, idctRhs);
-            var result = RV.Build.Dense(g.nVerts);
-            for (var i = 0; i < g.nVerts; i++) {
+            var t = pow(G.MeanEdgeLength(), 2);
+            var laplace = DEC.Laplace(G);
+            var flowMatrix = DEC.Mass(G) + laplace * t;
+            var dataSol = Solver.LU(flowMatrix, dataRhs);
+            var idctSol = Solver.LU(flowMatrix, idctRhs);
+            var magnitude = RVector.Build.Dense(G.nVerts);
+            for (var i = 0; i < G.nVerts; i++) {
                 var data = dataSol[i];
                 var idct = idctSol[i];
-                result[i] = data / idct;
+                magnitude[i] = data / idct;
             }
-            return result;
+            return magnitude;
         }
         
-        public static CV ComputeVectorHeatFlow(HeGeom g, CV phi) {
-            var t = pow(g.MeanEdgeLength(), 2);
-            var L = Operator.ConnectionLaplace(g);
-            var F = Operator.MassComplex(g) + L * t;
-            var C = Solver.LUComp(F,phi);
-            return C;
+        /*
+         * Compute connection
+         * t: time of source point spreads 
+         */
+        public CVector ComputeVectorHeatFlow(CVector phi) {
+            var t = pow(G.MeanEdgeLength(), 2);
+            var conLaplace = DEC.ConnectionLaplace(G);
+            var flowMatrix = DEC.MassComplex(G) + conLaplace * t;
+            var connection = Solver.LUComp(flowMatrix, phi);
+            return connection;
         }
         
-        public static CV ComputeVertVectorFieldComplex(HeGeom g, CV connection, RV magnitude) {
-            var X = CV.Build.Dense(g.nVerts);
-            foreach (var v in g.Verts) {
-                var c = connection[v.vid];
-                var m = magnitude[v.vid];
-                var l = sqrt(pow(c.Real, 2) + pow(c.Imaginary, 2));
-                X[v.vid] = c / l * m;
-            }
-            return X;
-        }
-
-        public static float3[] ComputeVertVectorField(HeGeom g, CV connection, RV magnitude) {
-            var field = new float3[g.nVerts];
-            foreach (var v in g.Verts) {
-                var (e1, e2) = g.OrthonormalBasis(v);
+        /*
+         * Compute vector field from conneciton and mangnitude
+         */
+        public float3[] ComputeVectorField(CVector connection, RVector magnitude) {
+            var X = new float3[G.nVerts];
+            foreach (var v in G.Verts) {
+                var (e1, e2) = G.OrthonormalBasis(v);
                 var c = connection[v.vid];
                 var m = magnitude[v.vid];
                 var l = sqrt(pow(c.Real, 2) + pow(c.Imaginary, 2));
                 var s = c / l * m;
-                field[v.vid] = e1 * (float)s.Real + e2 * (float)s.Imaginary;
+                X[v.vid] = e1 * (float)s.Real + e2 * (float)s.Imaginary;
             }
-            return field;
+            return X;
         }
     }
 }

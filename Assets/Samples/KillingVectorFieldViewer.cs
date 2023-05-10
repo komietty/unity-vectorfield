@@ -1,24 +1,41 @@
-using System.Collections;
-using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
+using System.Linq;
 
 namespace VectorField {
     public class KillingVectorFieldViewer : MonoBehaviour {
-        
         void Start() {
-            var c = GetComponent<GeomContainer>();
-            var G = c.geom;
-            var k = new KillingVectorField(G);
-            var f = k.GenVectorField(k.omega);
+            var C = GetComponent<GeomContainer>();
+            var G = C.geom;
+            var O = KillingVectorField.Compute(G);
+            var F = DEC.InterpolateWhitney(O, G).Select(f => f * 13.5f).ToArray();
 
-            c.BuildFaceArrowBuffer(f);
-            c.surfMode = GeomContainer.SurfMode.blackBase;
-            c.showFaceArrow = true;
-            c.showVertArrow = false;
-        }
-
-        void Update() {
-        
+            var max = 0f;
+            var len = new float[G.nFaces];
+            var col = new Color[G.nVerts];
+            
+            for (var i = 0; i < G.nFaces; i++) {
+                var l = math.lengthsq(F[i]);
+                max = math.max(l, max);
+                len[i] = l;
+            }
+            
+            foreach (var v in G.Verts) {
+                var sum = 0f;
+                var itr = 0;
+                foreach (var f in G.GetAdjacentFaces(v)) {
+                    sum += len[f.fid];
+                    itr++;
+                }
+                var i = sum / (itr * max) * 0.9f + 0.05f;
+                col[v.vid] = Color.HSVToRGB(i, 1, 1);
+            }
+            
+            C.BuildFaceArrowBuffer(F, false);
+            C.surfMode = GeomContainer.SurfMode.vertexColorBase;
+            C.showFaceArrow = true;
+            C.showVertArrow = false;
+            C.vertexColors = col;
         }
     }
 }

@@ -1,28 +1,14 @@
-using System.Collections.Generic;
-using System.Numerics;
-using Unity.Mathematics;
+using CVector = MathNet.Numerics.LinearAlgebra.Vector<System.Numerics.Complex>;
 
 namespace VectorField {
-    using static math;
-    using RVector = MathNet.Numerics.LinearAlgebra.Vector<double>;
-    using CVector = MathNet.Numerics.LinearAlgebra.Vector<Complex>;
-    using RSparse = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
-    using CSparse = MathNet.Numerics.LinearAlgebra.Complex.SparseMatrix;
-    using RDense = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix;
-    
-    public class SmoothestSection
-    {
-        private readonly int fieldDegree = 1;
-        private readonly HeGeom G;
-        public CVector fileds;
-        
-        public SmoothestSection(HeGeom g) {
-            G = g;
-            var engy = Operator.ConnectionLaplace(G);
-            var mass = Operator.MassComplex(G);
-            fileds = Solver.SmallestEigenPositiveDefinite(engy, mass);
+    public static class SmoothestSection {
+        public static CVector Compute(HeGeom G, int fieldDegree = 1) {
+            var engy = DEC.ConnectionLaplace(G);
+            var mass = DEC.MassComplex(G);
+            return Solver.SmallestEigenPositiveDefinite(engy, mass);
         }
         
+        /*
         RVector VertexPolarAngleForEachHe() {
             var angles = RVector.Build.Dense(G.halfedges.Length);
             foreach (var v in G.Verts) {
@@ -57,17 +43,6 @@ namespace VectorField {
             }
             return A;
         }
-        
-        public static float3[] ComputeVertVectorField(HeGeom g, CVector connection) {
-            var field = new float3[g.nVerts];
-            foreach (var v in g.Verts) {
-                var (e1, e2) = g.OrthonormalBasis(v);
-                var c = connection[v.vid];
-                var l = sqrt(pow(c.Real, 2) + pow(c.Imaginary, 2));
-                var s = c / l;
-                field[v.vid] = e1 * (float)s.Real + e2 * (float)s.Imaginary;
-            }
-            return field;
-        }
+         */
     }
 }

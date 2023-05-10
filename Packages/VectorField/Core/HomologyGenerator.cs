@@ -63,7 +63,7 @@ namespace VectorField {
         HalfEdge SharedHalfEdge(Face f, Face g) {
             foreach (var h in G.GetAdjacentHalfedges(f))
                 if (h.twin.face.fid == g.fid) return h;
-            throw new System.Exception("no half-edge shared");
+            throw new System.Exception("No half edges are shared");
         }
 
         public List<List<HalfEdge>> BuildGenerators() {

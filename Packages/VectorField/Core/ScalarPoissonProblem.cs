@@ -1,19 +1,18 @@
 using System.Collections.Generic;
 using Unity.Mathematics;
+using Vector = MathNet.Numerics.LinearAlgebra.Vector<double>;
 
 namespace VectorField {
-    using Vector = MathNet.Numerics.LinearAlgebra.Vector<double>;
-
-    public static class TangentField {
+    public static class ScalarPoissonProblem {
         /*
          * Computes the solution of the poisson problem Ax = -M(rho - rhoBar).
          * A: the positive definite laplace matrix
          * M: the mass matrix
          * rho: a scalar density of verts of the input mesh
         */
-        public static Vector ScalarPoissonProblem(HeGeom g, Vector rho){
-            var M = Operator.Mass(g);
-            var A = Operator.Laplace(g);
+        public static Vector Compute(HeGeom g, Vector rho){
+            var M = DEC.Mass(g);
+            var A = DEC.Laplace(g);
             var T = g.TotalArea();
             var rhoSum = (M * rho).Sum();
             var rhoBar = Vector.Build.Dense(M.RowCount, rhoSum / T);
@@ -23,24 +22,19 @@ namespace VectorField {
         /*
          * Computes a random one-form by solving scalar poisson problem.
          */
-        public static (Vector oneForm, int[] exactIds, int[] coexactIds) GenRandomOneForm(HeGeom g) {
+        public static Vector ComputeRandomOneForm(HeGeom g) {
             var nv = g.nVerts;
             var r = math.max(2, (int)(nv / 1000f));
-            var rho1 = Vector.Build.Dense(nv, 0);
-            var rho2 = Vector.Build.Dense(nv, 0);
-            var exactIds   = new int[r];
-            var coexactIds = new int[r];
+            var rho1 = Vector.Build.Dense(nv, 0); // exact component
+            var rho2 = Vector.Build.Dense(nv, 0); // coexact component
             for (var i = 0; i < r; i++) {
                 var j1 = (int)(UnityEngine.Random.value * nv);
                 var j2 = (int)(UnityEngine.Random.value * nv);
-                exactIds[i]   = j1;
-                coexactIds[i] = j2;
                 rho1[j1] = UnityEngine.Random.Range(-2500f, 2500f);
                 rho2[j2] = UnityEngine.Random.Range(-2500f, 2500f);
             }
-            var scalarPotential = ScalarPoissonProblem(g, rho1);
-            var vectorPotential = ScalarPoissonProblem(g, rho2);
-
+            var scalarPotential = Compute(g, rho1);
+            var vectorPotential = Compute(g, rho2);
             var field = new Dictionary<Face, float3>();
             for (var i = 0; i < g.nFaces; i++) {
                 var f = g.Faces[i];
@@ -69,7 +63,7 @@ namespace VectorField {
                 var f2 = h.twin.onBoundary ? new float3() : field[h.twin.face];
                 omega[i] = math.dot(f1 + f2, g.Vector(h));
             }
-            return (omega, exactIds, coexactIds);
+            return omega;
         }
     }
 }
