@@ -6,17 +6,17 @@ Unity-vectorfield is a vector field library, consisting of vector field generato
 ## Features
 This library is for designing various vector fields based on  **Halfedge structure** and **Discrete exterior calculus**. Beware some of the original algorithms referred to here support some geometric representations, point cloud or voxel grid, but this library only supports triangulated closed surface with any genesis (meaning closed meshes with holes like torus. surface with boundaries will be supported soon). The main solvers are below, [] showing the reference number.
 
-- [**Hodge decomposition**](#1) - An implementation of Helmholtz-Hodge decomposition. An arbitrally tangent field is decomposed into exact, coexact, and harmonic space. The discretization process is nicely explained in the [lecture note](#7).
+- [**Hodge decomposition**](#1) - An implementation of Helmholtz-Hodge decomposition. An arbitrally tangent field is decomposed into the three orhogonal spaces. The discretization process is nicely explained in the [here](#7).
 
 - [**Trivial connections**](#2) - A vector transport method to compute the smoothest vector field with user input singularity points. Singularities can be placed anywhere as long as they satisfy Gauss-bonnet theorem.
 
-- [**Smooth vector field**](#4) -A vector parallel transport method. Unlike the trivial connection, this method put globally optimal singularities automatically. Currently, it only implements the smoothest field, not the curvature-aligned fields yet. 
+- [**Smooth vector field**](#4) -A parallel transport method. Unlike the trivial connection, this method put globally optimal singularities automatically. Currently, it only implements the smoothest field, not the curvature-aligned fields yet. 
 
 - [**Scalar heat method**](#5) - A shortest distance computing method using the heat method for single or multiple-source on both flat and curved domains. 
 
-- [**Vector heat method**](#6) - Another parallel transport algorithm using the heat method. Note that this library only implements the fundamental feature of the paper. The full-featured C++ implementation by the original author is [here](https://github.com/nmwsharp/geometry-central).
+- [**Vector heat method**](#6) - Another parallel transport algorithm using the heat method. Note that this library only implements the fundamental feature of the paper. The full-featured c++ version by the original author is [here](https://github.com/nmwsharp/geometry-central).
 
-- [**Killing vector filed**](#3) - this method computes an approximated version of [Killig vector filed](https://en.wikipedia.org/wiki/Killing_vector_field). This vector field becomes very important when you want to compute an isometric pattern on a surface.  
+- [**Killing vector filed**](#3) - A method computes an approximated version of [Killig vector filed](https://en.wikipedia.org/wiki/Killing_vector_field). This vector field becomes very important when you want to compute an isometric pattern on a surface.  
 
 Miscellaneous includes curvature calculation, vector field generator by solving Poisson equation on mesh, basis finder for harmonic component, basis finder for homology group, ribbon drawer, etc. 
 
