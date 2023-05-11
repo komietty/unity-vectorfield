@@ -13,8 +13,8 @@ namespace VectorField {
     public static class Solver {
 
         public static RV SmallestEigenPositiveDefinite(RSprs A, RSprs B) {
-            var trpA = A.Storage.EnumerateNonZeroIndexed().Select(t => new Trp<double>(t)).ToArray();
-            var trpB = B.Storage.EnumerateNonZeroIndexed().Select(t => new Trp<double>(t)).ToArray();
+            var trpA = A.Storage.EnumerateNonZeroIndexed().Select(t => new TrpReal(t)).ToArray();
+            var trpB = B.Storage.EnumerateNonZeroIndexed().Select(t => new TrpReal(t)).ToArray();
             var res_x = new double[A.ColumnCount];
             Assert.IsTrue(A.RowCount == B.RowCount && A.ColumnCount == B.ColumnCount);
             SmallestEigenPositiveDefiniteReal(
@@ -30,8 +30,8 @@ namespace VectorField {
         }
         
         public static CV SmallestEigenPositiveDefinite(CSprs A, CSprs B) {
-            var trpA = A.Storage.EnumerateNonZeroIndexed().Select(t => new Trp<Complex>(t)).ToArray();
-            var trpB = B.Storage.EnumerateNonZeroIndexed().Select(t => new Trp<Complex>(t)).ToArray();
+            var trpA = A.Storage.EnumerateNonZeroIndexed().Select(t => new TrpComp(t)).ToArray();
+            var trpB = B.Storage.EnumerateNonZeroIndexed().Select(t => new TrpComp(t)).ToArray();
             var res_x = new Complex[A.ColumnCount];
             Assert.IsTrue(A.RowCount == B.RowCount && A.ColumnCount == B.ColumnCount);
             SmallestEigenPositiveDefinite(
@@ -49,7 +49,7 @@ namespace VectorField {
         public static RV Cholesky(RSprs lhs, RV rhs) => Cholesky(lhs, rhs.ToArray());
         public static RV Cholesky(RSprs lhs, double[] rhs){
             var sln = new double[rhs.Length];
-            var trp = lhs.Storage.EnumerateNonZeroIndexed().Select(t => new Trp<double>(t)).ToArray();
+            var trp = lhs.Storage.EnumerateNonZeroIndexed().Select(t => new TrpReal(t)).ToArray();
             DecompAndSolveCholReal(trp.Length, rhs.Length, trp, rhs, sln);
             return RV.Build.DenseOfArray(sln);
         }
@@ -57,7 +57,7 @@ namespace VectorField {
         public static RV LU(RSprs lhs, RV rhs) => LU(lhs, rhs.ToArray());
         public static RV LU(RSprs lhs, double[] rhs) {
             var sln = new double[rhs.Length];
-            var trp = lhs.Storage.EnumerateNonZeroIndexed().Select(t => new Trp<double>(t)).ToArray();
+            var trp = lhs.Storage.EnumerateNonZeroIndexed().Select(t => new TrpReal(t)).ToArray();
             DecompAndSolveLUReal(trp.Length, rhs.Length, trp, rhs, sln);
             return RV.Build.DenseOfArray(sln);
         }
@@ -65,7 +65,7 @@ namespace VectorField {
         public static RV QR(RSprs lhs, RV rhs) => QR(lhs, rhs.ToArray());
         public static RV QR(RSprs lhs, double[] rhs) {
             var sln = new double[lhs.ColumnCount];
-            var trp = lhs.Storage.EnumerateNonZeroIndexed().Select(t => new Trp<double>(t)).ToArray();
+            var trp = lhs.Storage.EnumerateNonZeroIndexed().Select(t => new TrpReal(t)).ToArray();
             DecompAndSolveQRReal(trp.Length, lhs.RowCount, lhs.ColumnCount, trp, rhs, sln);
             return RV.Build.DenseOfArray(sln);
         }
@@ -73,7 +73,7 @@ namespace VectorField {
         public static CV LUComp(CSprs lhs, CV rhs) => LUComp(lhs, rhs.ToArray());
         public static CV LUComp(CSprs lhs, Complex[] rhs) {
             var sln = new Complex[rhs.Length];
-            var trp = lhs.Storage.EnumerateNonZeroIndexed().Select(t => new Trp<Complex>(t)).ToArray();
+            var trp = lhs.Storage.EnumerateNonZeroIndexed().Select(t => new TrpComp(t)).ToArray();
             DecompAndSolveLUComp(trp.Length, rhs.Length, trp, rhs, sln);
             return CV.Build.DenseOfArray(sln);
         }
@@ -83,7 +83,7 @@ namespace VectorField {
         static extern void DecompAndSolveCholReal(
             int ntrps,
             int nresult,
-            [In]  Trp<double>[] trplets,
+            [In]  TrpReal[] trplets,
             [In]  double[] result,
             [Out] double[] answer
         );
@@ -92,7 +92,7 @@ namespace VectorField {
         static extern void DecompAndSolveLUReal(
             int ntrps,
             int nresult,
-            [In]  Trp<double>[] trplets,
+            [In]  TrpReal[] trplets,
             [In]  double[] result,
             [Out] double[] answer
         );
@@ -102,7 +102,7 @@ namespace VectorField {
             int ntrps,
             int nrows,
             int ncols,
-            [In]  Trp<double>[] a_strage,
+            [In]  TrpReal[] a_strage,
             [In]  double[] rhs,
             [Out] double[] result
         );
@@ -111,7 +111,7 @@ namespace VectorField {
         static extern void DecompAndSolveLUComp(
             int ntrps,
             int nresult,
-            [In]  Trp<Complex>[] trplets,
+            [In]  TrpComp[] trplets,
             [In]  Complex[] result,
             [Out] Complex[] answer
         );
@@ -122,8 +122,8 @@ namespace VectorField {
             int ntrpsB,
             int nrow,
             int ncol,
-            [In]  Trp<double>[] trpsA,
-            [In]  Trp<double>[] trpsB,
+            [In]  TrpReal[] trpsA,
+            [In]  TrpReal[] trpsB,
             [Out] double[] answer
         );
         
@@ -133,8 +133,8 @@ namespace VectorField {
             int ntrpsB,
             int nrow,
             int ncol,
-            [In]  Trp<Complex>[] trpsA,
-            [In]  Trp<Complex>[] trpsB,
+            [In]  TrpComp[] trpsA,
+            [In]  TrpComp[] trpsB,
             [Out] Complex[] answer
         );
         #endif
@@ -144,7 +144,7 @@ namespace VectorField {
         static extern void DecompAndSolveCholReal(
             int ntrps,
             int nresult,
-            [In]  Trp<double>[] trplets,
+            [In]  TrpReal[] trplets,
             [In]  double[] result,
             [Out] double[] answer
         );
@@ -153,9 +153,50 @@ namespace VectorField {
         static extern void DecompAndSolveLUReal(
             int ntrps,
             int nresult,
-            [In]  Trp<double>[] trplets,
+            [In]  TrpReal[] trplets,
             [In]  double[] result,
             [Out] double[] answer
+        );
+        
+        [DllImport("EigenSolver.dll")]
+        static extern void DecompAndSolveQRReal(
+            int ntrps,
+            int nrows,
+            int ncols,
+            [In]  TrpReal[] a_strage,
+            [In]  double[] rhs,
+            [Out] double[] result
+        );
+        
+        [DllImport("EigenSolver.dll")]
+        static extern void DecompAndSolveLUComp(
+            int ntrps,
+            int nresult,
+            [In]  TrpComp[] trplets,
+            [In]  Complex[] result,
+            [Out] Complex[] answer
+        );
+        
+        [DllImport("EigenSolver.dll")]
+        static extern void SmallestEigenPositiveDefiniteReal(
+            int ntrpsA,
+            int ntrpsB,
+            int nrow,
+            int ncol,
+            [In]  TrpReal[] trpsA,
+            [In]  TrpReal[] trpsB,
+            [Out] double[] answer
+        );
+        
+        [DllImport("EigenSolver.dll")]
+        static extern void SmallestEigenPositiveDefinite(
+            int ntrpsA,
+            int ntrpsB,
+            int nrow,
+            int ncol,
+            [In]  TrpComp[] trpsA,
+            [In]  TrpComp[] trpsB,
+            [Out] Complex[] answer
         );
         #endif
 
@@ -164,7 +205,7 @@ namespace VectorField {
          * v: value
          * i: row number
          * j: clm number
-        */
+        // generic pattern does not work in win
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Trp<T> {
             public T v;
@@ -172,6 +213,33 @@ namespace VectorField {
             public int j;
 
             public Trp((int i, int j, T v) val) {
+                this.v = val.v;
+                this.i = val.i;
+                this.j = val.j;
+            }
+        }
+        */
+        
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct TrpReal {
+            public double v;
+            public int i;
+            public int j;
+
+            public TrpReal((int i, int j, double v) val) {
+                this.v = val.v;
+                this.i = val.i;
+                this.j = val.j;
+            }
+        }
+        
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct TrpComp {
+            public Complex v;
+            public int i;
+            public int j;
+
+            public TrpComp((int i, int j, Complex v) val) {
                 this.v = val.v;
                 this.i = val.i;
                 this.j = val.j;
