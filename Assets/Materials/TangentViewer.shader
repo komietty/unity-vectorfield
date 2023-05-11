@@ -68,8 +68,9 @@ Shader "VectorField/TangentSpaceViewer" {
             }
 
             float4 frag (v2f i) : SV_Target {
-                float v = pow(sin(_T * 5 + i.uv.x * PI + i.uv.y) * 0.5 + 0.5, 2);
-                return float4(i.colour, 1 - pow(v * 0.8, 2));
+                //float v = pow(sin(_T * 5 + i.uv.x * PI + i.uv.y) * 0.5 + 0.5, 2);
+                //return float4(i.colour, 1 - pow(v * 0.8, 2));
+                return float4(i.colour, 1);
             }
             ENDCG
         }

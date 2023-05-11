@@ -15,7 +15,7 @@ namespace VectorField {
         private readonly RVector crossSheets;
         private readonly CVector parameterization;
         private readonly CVector directionalField;
-        private readonly double fieldDegree = 2;
+        //private readonly double fieldDegree = 2;
         private readonly double lambda = 130; // initial global line frequency
         private readonly RSparse energyMatrix;
         private readonly RSparse massMatrix;

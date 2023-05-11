@@ -205,19 +205,7 @@ namespace VectorField {
          * v: value
          * i: row number
          * j: clm number
-        // generic pattern does not work in win
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public struct Trp<T> {
-            public T v;
-            public int i;
-            public int j;
-
-            public Trp((int i, int j, T v) val) {
-                this.v = val.v;
-                this.i = val.i;
-                this.j = val.j;
-            }
-        }
+         * NOTE: generic pattern does not work with .dll file!!
         */
         
         [StructLayout(LayoutKind.Sequential, Pack = 1)]

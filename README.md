@@ -20,11 +20,18 @@ This library is for vector field design especially parallel transport, based on 
 
 Other features and miscellaneous include curvature calculation (Gaussian / Mean / Principal / Normal), vector field generator by solving Poisson equation on mesh, basis finder for harmonic component, basis finder for homology group, ribbon drawer, etc. 
 
-## Gallaries
-
 
 ## Installation & Usage
 For installation, put the following address to UnitPackageManager.  
 `https://github.com/komietty/unity-vectorfield.git?path=/Packages/VectorField`
 
+
+
 To check the samples under Assets/Samples, just clone this repo and run.
+
+ <img src="Documents/p4.png" width="400"/>
+ <img src="Documents/p1.png" width="400"/>
+ <img src="Documents/p2.png" width="400"/>
+ <img src="Documents/p5.png" width="400"/>
+ <img src="Documents/p3.png" width="400"/>
+ <img src="Documents/p6.png" width="400"/>
