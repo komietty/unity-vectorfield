@@ -14,7 +14,7 @@ This library is for designing various vector fields based on  **Halfedge structu
 
 - [**Scalar heat method** [4]](#5) - A shortest distance computing method using the heat method for single or multiple-source on both flat and curved domains. 
 
-- [**Vector heat method** [5]](#6) - Another parallel transport algorithm using the heat method. Note that this library does not implements the applications mentioned in the paper. A c++ version by the original author is [here](https://github.com/nmwsharp/geometry-central).
+- [**Vector heat method** [5]](#6) - Another parallel transport using the heat method. Note that this library only implements the fundamental feature in the paper. A c++ version by the original author is [here](https://github.com/nmwsharp/geometry-central).
 
 - [**Killing vector filed** [6]](#3) - A method computes an approximated version of [Killig vector filed](https://en.wikipedia.org/wiki/Killing_vector_field). This vector field becomes very important when you want to compute an isometric pattern on a surface.  
 
