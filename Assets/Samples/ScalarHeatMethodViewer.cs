@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using MathNet.Numerics.LinearAlgebra;
 using Unity.Mathematics;
 
 namespace VectorField.Demo {
-    using V = Vector<double>;
+    using Vector = MathNet.Numerics.LinearAlgebra.Vector<double>;
 
     public class ScalarHeatMethodViewer : MonoBehaviour {
         [SerializeField] protected Gradient colScheme;
@@ -18,24 +17,23 @@ namespace VectorField.Demo {
         Material lineMat;
 
         void Start() {
-            var container = GetComponent<GeomContainer>();
-            var geom = container.geom;
-            lineMat = new Material(container.LineMat);
+            var c = GetComponent<GeomContainer>();
+            var g = c.geom;
+            lineMat = new Material(c.LineMat);
 
-            var s = new double[geom.nVerts];
-            for (var i = 0; i < geom.nVerts; i++) s[i] = 0;
-            s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
-            s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
-            s[UnityEngine.Random.Range(0, geom.nVerts)] = 1;
+            var s = Vector.Build.Dense(g.nVerts);
+            for (var i = 0; i < g.nVerts; i++) s[i] = 0;
+            s[UnityEngine.Random.Range(0, g.nVerts)] = 1;
+            s[UnityEngine.Random.Range(0, g.nVerts)] = 1;
+            s[UnityEngine.Random.Range(0, g.nVerts)] = 1;
 
-            var hm = new ScalarHeatMethod(geom); 
-            var hd = hm.Compute(V.Build.DenseOfArray(s));
-            var mx = hd.Max(v => v);
-            var cols = new Color[geom.nVerts];
-            for(var i = 0; i < geom.nVerts; i++) cols[i] = colScheme.Evaluate((float)(hd[i] / mx));
-            container.vertexColors = cols;
+            var dist = ScalarHeatMethod.ComputeScalarHeatFlow(g, s);
+            var max = dist.Max(v => v);
+            var cols = new Color[g.nVerts];
+            for(var i = 0; i < g.nVerts; i++) cols[i] = colScheme.Evaluate((float)(dist[i] / max));
+            c.vertexColors = cols;
             
-            tracers = Isoline.Build(geom, hd, (float)mx);
+            tracers = Isoline.Build(g, dist, (float)max);
 
             for(var i = 0; i < tracers.Count; i++) {
                 colours.Add(new Vector3(1, 1, 1));
@@ -48,6 +46,8 @@ namespace VectorField.Demo {
             tracerBuff.SetData(tracers);
             normalBuff.SetData(normals);
             colourBuff.SetData(colours);
+            
+            c.surfMode = GeomContainer.SurfMode.vertexColorBase;
         }
 
         protected void OnRenderObject() {
@@ -66,7 +66,7 @@ namespace VectorField.Demo {
     }
 
     public static class Isoline {
-        public static List<Vector3> Build(HeGeom g, V phi, float maxPhi) {
+        public static List<Vector3> Build(HeGeom g, Vector phi, float maxPhi) {
             var lines = new List<Vector3>();
             var sgmts = new List<Vector3>();
             var interval = maxPhi / 30;

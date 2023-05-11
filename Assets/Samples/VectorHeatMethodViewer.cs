@@ -1,48 +1,45 @@
 using System.Collections.Generic;
-using Unity.Mathematics;
 using UnityEngine;
 using System.Linq;
-using MathNet.Numerics.LinearAlgebra;
-using Random = UnityEngine.Random;
+using System.Numerics;
+using Vector = MathNet.Numerics.LinearAlgebra.Vector<System.Numerics.Complex>;
 
 namespace VectorField.Demo {
-    using C = System.Numerics.Complex;
-    using V = Vector<System.Numerics.Complex>;
-
     public class VectorHeatMethodViewer : MonoBehaviour {
-        GeomContainer container;
         [SerializeField] protected Gradient colScheme;
 
         void Start() {
-            container = GetComponent<GeomContainer>();
-            var geom = container.geom;
-            var vhmd = new VectorHeatMethod(geom);
-            var s = new C[geom.nVerts];
-            var sources = new List<(int vid, double value)>();
-            var i0 = Random.Range(0, geom.nVerts);
-            var i1 = Random.Range(0, geom.nVerts);
-            s[i0] = new C(0, 1);
-            s[i1] = new C(1 , 0);
-            sources.Add((i0, 3));
-            sources.Add((i1, 1));
-            container.PutSingularityPoint(i0);
-            container.PutSingularityPoint(i1);
+            var C = GetComponent<GeomContainer>();
+            var G = C.geom;
+            var srcVectors = Vector.Build.Dense(G.nVerts);
+            var srcScalars = new List<(int vid, double value)>();
+            var i0 = Random.Range(0, G.nVerts);
+            var i1 = Random.Range(0, G.nVerts);
+            srcVectors[i0] = new Complex(0, 1);
+            srcVectors[i1] = new Complex(1, 0);
+            srcScalars.Add((i0, 3));
+            srcScalars.Add((i1, 1));
+            C.PutSingularityPoint(i0);
+            C.PutSingularityPoint(i1);
 
-            var connection = vhmd.ComputeVectorHeatFlow(V.Build.DenseOfArray(s));
-            var magnitude  = vhmd.ExtendScaler(sources);
-            var field = vhmd.GenField(connection, magnitude);
-            container.BuildVertArrowBuffer(field);
-            //container.BuildRibbonBuffer(field);
-            ShowExtendedScalar(magnitude);
-        }
-
-        void ShowExtendedScalar(Vector<double> vals) {
-            var g = container.geom;
-            var max = vals.Max(v => v);
-            var min = vals.Min(v => v);
-            var cols = new Color[g.nVerts];
-            for(var i = 0; i < g.nVerts; i++) cols[i] = colScheme.Evaluate((float)((vals[i] - min) / (max - min)));
-            container.vertexColors = cols;
+            // Show vector field
+            var heat = new VectorHeatMethod(G);
+            var conn = heat.ComputeVectorHeatFlow(srcVectors);
+            var mags = heat.ComputeExtendedScalar(srcScalars);
+            var X    = heat.ComputeVectorField(conn, mags);
+            C.BuildVertArrowBuffer(X);
+            
+            // Show extend scalar
+            var max  = mags.Max(v => v);
+            var min  = mags.Min(v => v);
+            var cols = new Color[G.nVerts];
+            for(var i = 0; i < G.nVerts; i++)
+                cols[i] = colScheme.Evaluate((float)((mags[i] - min) / (max - min)));
+            C.vertexColors = cols;
+            C.showFaceArrow = false;
+            C.showVertArrow = true;
+            C.showFaceRibbon = false;
+            C.surfMode = GeomContainer.SurfMode.vertexColorBase;
         }
     }
 }

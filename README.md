@@ -1,23 +1,46 @@
 # unity-vectorfield
  <img src="Documents/vectorheat.jpeg"/>
 
-Unity-vectorfield is a vector field library, consisting of vector field generators on mesh and operators for them. It allows you to quick implementation of vector field algorithms on Unity, which is instantly applicable to game programming, media art creation, or physical simulation. This library refers a lot to [Lectures at CMU](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/) and [GeometryCentral](http://geometry-central.net/).
+Unity-vectorfield is a vector field library, consisting of vector field generators on mesh and operators for them. It allows you to quick implementation of vector field algorithms on Unity, which is instantly applicable to game programming, media art creation, or physical simulation.
 
 ## Features
-This library is for vector field design especially parallel transport, based on  **Halfedge structure** and **Discrete exterior calculus**. Beware some of the original algorithms referred to here support some geometric representations like point cloud or voxel grid, but this library only supports triangulated surface mesh. The main solvers are below.
+This library is for designing various vector fields based on  **Halfedge structure** and **Discrete exterior calculus**. Beware some of the original algorithms referred to here support some geometric representations, point cloud or voxel grid, but this library only supports triangulated closed surface with any genesis (meaning closed meshes with holes like torus. surface with boundaries will be supported soon). The main solvers are below, [] showing the reference number.
 
-- **Helmholtz-Hodge decomposition** - An implementation of hodge decomposition which you can learn in differential geometry textbooks. The discretization process is nicely explained in the [lecture notes](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/).
+- [**Hodge decomposition** [1]](#1) - An implementation of Helmholtz-Hodge decomposition. An arbitrally tangent field is decomposed into the three orhogonal spaces. The discretization process is nicely explained in [[7]](#7).
 
-- **Trivial connections** | [Paper](https://www.cs.cmu.edu/~kmcrane/Projects/TrivialConnections/) by Keenan et al. (2010) - A vector transport method as smooth as possible. Right now this implementation supports closed surfaces for any genesis. 
+- [**Trivial connections** [2]](#2) - A vector transport method to compute the smoothest vector field with user input singularity points. Singularities can be placed anywhere as long as they satisfy Gauss-bonnet theorem.
 
-- **Scalar heat method** | [Paper](https://www.cs.cmu.edu/~kmcrane/Projects/HeatMethod/index.html) by Keenan et al. (2017) - A shortest distance computing method using the heat method for single or multiple-source on both flat and curved domains.
+- [**Smooth vector field** [3]](#4) -A parallel transport method. Unlike the trivial connection, this method puts globally optimal singularities automatically. Currently, the curvature-aligned fields is not implemented yet. 
 
-- **Vector Heat Method** | [Paper](https://www.cs.cmu.edu/~kmcrane/Projects/VectorHeatMethod/paper.pdf) by Nicolas et al. (2019) - Another parallel transport algorithm using heat method. Right now this implementation supports closed surfaces for any genesis. You can find the C++ implementation by the original author [here](https://github.com/nmwsharp/geometry-central).
+- [**Scalar heat method** [4]](#5) - A shortest distance computing method using the heat method for single or multiple-source on both flat and curved domains. 
 
-Other misc includes curvature calculation (Gaussian / Mean / Principal / Normal), vector field generator by solving poisson equation on mesh, basis finder for hamonic component, basis finder for homology group, ribbon drawer, etc. 
+- [**Vector heat method** [5]](#6) - Another parallel transport using the heat method. Note that this library only implements the fundamental feature in the paper. A c++ version by the original author is [here](https://github.com/nmwsharp/geometry-central).
 
-## Installation & Usage
+- [**Killing vector filed** [6]](#3) - A method computes an approximated version of [Killig vector filed](https://en.wikipedia.org/wiki/Killing_vector_field). This vector field becomes very important when you want to compute an isometric pattern on a surface.  
+
+Miscellaneous includes curvature calculation, vector field generator by solving Poisson equation on mesh, basis finder for harmonic component, basis finder for homology group, ribbon drawer, etc. 
+
+
+## Installation 
 For installation, put the following address to UnitPackageManager.  
 `https://github.com/komietty/unity-vectorfield.git?path=/Packages/VectorField`
 
-To check the samples under Assets/Samples, just clone this repo and run.
+To check the samples under Assets/Samples, just clone this repo and run (tested on mac intel, apple silicon, and windows). Below are the images you will see in the samples.
+
+<div display="flex">
+ <img src="Documents/p4.png" width="412"/>
+ <img src="Documents/p2.png" width="412"/>
+ <img src="Documents/p5.png" width="412"/>
+ <img src="Documents/p1.png" width="412"/>
+ <img src="Documents/p3.png" width="412"/>
+ <img src="Documents/p6.png" width="412"/>
+ </div>
+
+ ## References
+ - <a id="1">[1]: Design of Tangent Vector Fields, Fisher et al., 2007</a>
+ - <a id="2">[2]: Trivial Connections on Discrete Surfaces, Keenan et al., 2010</a>
+ - <a id="3">[3]: On Discrete Killing Vector Fields and Patterns on Surfaces, Ben-Chen et al., 2010</a>
+ - <a id="4">[4]: Globally Optimal Direction Fields, Keenan et al., 2013</a>
+ - <a id="5">[5]: The Heat Method for Distance Computation, Keenan et al., 2017</a>
+ - <a id="6">[6]: The Vector Heat Method, Nicholas et al., 2019</a>
+ - <a id="7">[7]: [Discrete Differential Geometry: An Applied Introduction](https://www.cs.cmu.edu/~kmcrane/Projects/DDG/)</a>

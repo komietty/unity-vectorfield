@@ -1,20 +1,17 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
 
 namespace  VectorField {
     public class GeomContainer : MonoBehaviour {
-        public enum Surface { blackBase, whiteBase, vertexColorBase }
+        public enum SurfMode { blackBase, whiteBase, vertexColorBase }
 
-        [SerializeField] protected Surface surface;
         [SerializeField] protected Material lineMat;
         [SerializeField] protected Material arrowMat;
-        [SerializeField] protected bool showVertArrow;
-        [SerializeField] protected bool showFaceArrow;
-        [SerializeField] protected bool showFaceRibbon;
+        public SurfMode surfMode;
+        public bool showVertArrow;
+        public bool showFaceArrow;
+        public bool showFaceRibbon;
         public HeGeom geom { get; private set; }
         public Mesh mesh { get; private set; }
         [HideInInspector] public Color[] vertexColors;
@@ -48,16 +45,16 @@ namespace  VectorField {
         }
 
         void SwitchSurface() {
-            switch (surface) {
-                case Surface.blackBase:
+            switch (surfMode) {
+                case SurfMode.blackBase:
                     arrowColor = Color.white;
                     mesh.SetColors(Enumerable.Repeat(Color.black, geom.nVerts).ToArray());
                     break;
-                case Surface.whiteBase:
+                case SurfMode.whiteBase:
                     arrowColor = Color.black;
                     mesh.SetColors(Enumerable.Repeat(Color.white, geom.nVerts).ToArray());
                     break;
-                case Surface.vertexColorBase:
+                case SurfMode.vertexColorBase:
                     arrowColor = Color.black;
                     mesh.SetColors(vertexColors);
                     break;
@@ -70,14 +67,32 @@ namespace  VectorField {
             o.transform.localScale *= geom.MeanEdgeLength() * 0.3f;
         }
 
-        public void BuildVertArrowBuffer(float3[] vecs, bool clamp = true) { vertArrow = new TangentVertArrow(vecs, geom, clamp); }
-        public void BuildFaceArrowBuffer(float3[] vecs, bool clamp = true) { faceArrow = new TangentFaceArrow(vecs, geom, clamp); }
+        public void BuildVertArrowBuffer(float3[] vecs, bool clamp = true) {
+            vertArrow?.Dispose();
+            vertArrow = new TangentVertArrow(vecs, geom, clamp);
+        }
+
+        public void BuildFaceArrowBuffer(float3[] vecs, bool clamp = true) {
+            faceArrow?.Dispose();
+            faceArrow = new TangentFaceArrow(vecs, geom, clamp);
+        }
         
         
-        public void BuildRibbonBuffer(float3[] faceVector, Gradient colScheme) {
+        public void BuildRibbonBuffer(float3[] faceVector) {
+            faceRibbon?.Dispose();
             var n = math.min((int)(geom.nFaces * 0.5f), 2000);
             var l = math.min((int)(geom.nFaces * 0.1f), 400);
-            faceRibbon = new TangentRibbon(faceVector, geom, n, l, colScheme);
+            faceRibbon = new TangentRibbon(faceVector, geom, n, l);
+        }
+        
+        public void BuildFaceTangentSpaceBasisBuffer() { }
+        public void BuildVertTangentSpaceBasisBuffer() { }
+        
+        void DrawTangentSpaceBasis(GraphicsBuffer buff, int count) {
+            arrowMat.SetBuffer("_Lines", buff);
+            arrowMat.SetVector("_Color", arrowColor);
+            arrowMat.SetPass(0);
+            Graphics.DrawProceduralNow(MeshTopology.Lines, count * 6);
         }
         
         void DrawArrows(GraphicsBuffer buff, int count) {
@@ -87,6 +102,7 @@ namespace  VectorField {
             arrowMat.SetPass(1);
             Graphics.DrawProceduralNow(MeshTopology.Lines, count * 6);
         }
+        
         void DrawRibbons() {
             lineMat.SetBuffer("_Line", faceRibbon.tracerBuff);
             lineMat.SetBuffer("_Norm", faceRibbon.normalBuff);

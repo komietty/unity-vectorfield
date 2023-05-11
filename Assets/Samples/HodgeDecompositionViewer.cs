@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MathNet.Numerics.LinearAlgebra;
 using UnityEngine;
 
@@ -9,14 +10,10 @@ namespace VectorField {
     public class HodgeDecompositionViewer : MonoBehaviour {
         public enum Field { Random, Exact, CoExact, Harmonic }
         [SerializeField] protected Field field;
-        [SerializeField] protected Gradient colScheme;
         [SerializeField, Range(0, 10)] int hamonicBasisNum;
         V random, exact, coexact, harmonic;
-        HodgeDecomposition hd;
-        HamonicBasis hb;
-        HomologyGenerator hm;
-        List<V> bs;
         GeomContainer container;
+        List<V> bases;
         bool flag;
 
         void OnValidate(){
@@ -25,18 +22,19 @@ namespace VectorField {
         
         void Start() {
             container = GetComponent<GeomContainer>();
-            var g = container.geom;
-            hd = new HodgeDecomposition(g);
-            hb = new HamonicBasis(g);
-            hm = new HomologyGenerator(g);
-            bs = hb.Compute(hd, hm.BuildGenerators());
-            var (omega, sids, vids) = TangentField.GenRandomOneForm(g);
-            random   = omega;
-            exact    = hd.Exact(omega);
-            coexact  = hd.CoExact(omega);
-            harmonic = hd.Harmonic(omega, exact, coexact);
+            var G  = container.geom;
+            var h = new HodgeDecomposition(G);
+            var g = new HomologyGenerator(G).BuildGenerators();
+            random   = ScalarPoissonProblem.ComputeRandomOneForm(G);
+            bases    = g.Select(g => h.ComputeHarmonicBasis(g)).ToList();
+            exact    = h.ComputeExact(random);
+            coexact  = h.ComputeCoExact(random);
+            harmonic = h.ComputeHarmonic(random, exact, coexact);
             SwitchFlow();
             flag = true;
+            container.surfMode = GeomContainer.SurfMode.blackBase;
+            container.showVertArrow = false;
+            container.showFaceArrow = true;
         }
 
         void SwitchFlow() {
@@ -47,13 +45,13 @@ namespace VectorField {
                 case Field.Exact:   v = exact;   break;
                 case Field.CoExact: v = coexact; break;
                 case Field.Harmonic:
-                    var f = hamonicBasisNum < bs.Count;
-                    v = f ? bs[hamonicBasisNum] : harmonic; break;
+                    v = hamonicBasisNum < bases.Count ?
+                        bases[hamonicBasisNum] : harmonic; break;
             }
 
-            var flw = TangentField.InterpolateWhitney(v, container.geom);
-            container.BuildFaceArrowBuffer(flw);
-            container.BuildRibbonBuffer(flw, colScheme);
+            var f = DEC.InterpolateWhitney(v, container.geom);
+            container.BuildFaceArrowBuffer(f);
+            container.BuildRibbonBuffer(f);
         }
     }
 }
