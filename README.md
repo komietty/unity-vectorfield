@@ -29,9 +29,11 @@ For installation, put the following address to UnitPackageManager.
 
 To check the samples under Assets/Samples, just clone this repo and run.
 
+<div display="flex">
  <img src="Documents/p4.png" width="400"/>
- <img src="Documents/p1.png" width="400"/>
  <img src="Documents/p2.png" width="400"/>
  <img src="Documents/p5.png" width="400"/>
+ <img src="Documents/p1.png" width="400"/>
  <img src="Documents/p3.png" width="400"/>
  <img src="Documents/p6.png" width="400"/>
+ </div>
