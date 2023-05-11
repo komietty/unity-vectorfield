@@ -6,7 +6,7 @@ Unity-vectorfield is a vector field library, consisting of vector field generato
 ## Features
 This library is for designing various vector fields based on  **Halfedge structure** and **Discrete exterior calculus**. Beware some of the original algorithms referred to here support some geometric representations, point cloud or voxel grid, but this library only supports triangulated closed surface with any genesis (meaning closed meshes with holes like torus. surface with boundaries will be supported soon). The main solvers are below, [] showing the reference number.
 
-- [**Hodge decomposition** [1]](#1) - An implementation of Helmholtz-Hodge decomposition. An arbitrally tangent field is decomposed into the three orhogonal spaces. The discretization process is nicely explained in the [here](#7).
+- [**Hodge decomposition** [1]](#1) - An implementation of Helmholtz-Hodge decomposition. An arbitrally tangent field is decomposed into the three orhogonal spaces. The discretization process is nicely explained in [[7]](#7).
 
 - [**Trivial connections** [2]](#2) - A vector transport method to compute the smoothest vector field with user input singularity points. Singularities can be placed anywhere as long as they satisfy Gauss-bonnet theorem.
 
