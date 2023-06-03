@@ -1,27 +1,27 @@
-using System.Collections.Generic;
 using Unity.Mathematics;
 using System.Numerics;
+using System.Collections.Generic;
 using f3 = Unity.Mathematics.float3;
 using d2 = Unity.Mathematics.double2;
-using RSparse = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
-using CSparse = MathNet.Numerics.LinearAlgebra.Complex.SparseMatrix;
-using RVector = MathNet.Numerics.LinearAlgebra.Vector<double>;
+using RS = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
+using CS = MathNet.Numerics.LinearAlgebra.Complex.SparseMatrix;
+using RV = MathNet.Numerics.LinearAlgebra.Vector<double>;
 using static Unity.Mathematics.math;
 
 namespace VectorField {
     public static class DEC {
 
-        public static RSparse BuildHodgeStar0Form(HeGeom g) {
+        public static RS BuildHodgeStar0Form(HeGeom g) {
             var n = g.nVerts;
             var r = new double[n];
             for (var i = 0; i < n; i++) {
                 var v = g.Verts[i];
                 r[v.vid] = g.BarycentricDualArea(v);
             }
-            return RSparse.OfDiagonalArray(r);
+            return RS.OfDiagonalArray(r);
         }
 
-        public static RSparse BuildHodgeStar1Form(HeGeom g) {
+        public static RS BuildHodgeStar1Form(HeGeom g) {
             var n = g.nEdges;
             var r = new double[n];
             for (var i = 0; i < n; i++) {
@@ -29,10 +29,10 @@ namespace VectorField {
                 var h = g.halfedges[e.hid];
                 r[e.eid] = (g.Cotan(h) + g.Cotan(h.twin)) * 0.5;
             }
-            return RSparse.OfDiagonalArray(r);
+            return RS.OfDiagonalArray(r);
         }
 
-        public static RSparse BuildHodgeStar2Form(HeGeom g) {
+        public static RS BuildHodgeStar2Form(HeGeom g) {
             var n = g.nFaces;
             var r = new double[n];
             for (var i = 0; i < n; i++) {
@@ -44,19 +44,19 @@ namespace VectorField {
                 var s = (la + lb + lc) * 0.5;
                 r[f.fid] = 1 / sqrt(s * (s - la) * (s - lb) * (s - lc));
             }
-            return RSparse.OfDiagonalArray(r);
+            return RS.OfDiagonalArray(r);
         }
 
-        public static RSparse BuildExteriorDerivative0Form(HeGeom g) {
+        public static RS BuildExteriorDerivative0Form(HeGeom g) {
             var l = new List<(int, int, double)>();
             foreach (var e in g.Edges) {
                 l.Add((e.eid, g.halfedges[e.hid].vid, -1));
                 l.Add((e.eid, g.halfedges[e.hid].next.vid,  1));
             }
-            return RSparse.OfIndexed(g.nEdges, g.nVerts, l);
+            return RS.OfIndexed(g.nEdges, g.nVerts, l);
         }
 
-        public static RSparse BuildExteriorDerivative1Form(HeGeom g) {
+        public static RS BuildExteriorDerivative1Form(HeGeom g) {
             var l = new List<(int, int, double)>();
             foreach(var f in g.Faces) {
                 foreach(var h in g.GetAdjacentHalfedges(f)){
@@ -64,47 +64,70 @@ namespace VectorField {
                     l.Add((f.fid, h.edge.eid, dir));
                 }
             }
-            return RSparse.OfIndexed(g.nFaces, g.nEdges, l);
+            return RS.OfIndexed(g.nFaces, g.nEdges, l);
         }
         
         /*
          * Generates Real Mass Matrix
         */
-        public static RSparse Mass(HeGeom g){
+        public static RS Mass(HeGeom g){
             var n = g.nVerts;
             System.Span<double> a = stackalloc double[n];
-            for (var i = 0; i < n; i++) a[i] = g.BarycentricDualArea(i);
-            return RSparse.OfDiagonalArray(a.ToArray());
+            for (var i = 0; i < n; i++)
+                a[i] = g.BarycentricDualArea(i);
+            return RS.OfDiagonalArray(a.ToArray());
         }
 
         /*
          * Generates Complex Mass Matrix
         */
-        public static CSparse MassComplex(HeGeom g){
+        public static CS MassComplex(HeGeom g){
             var n = g.nVerts;
             System.Span<Complex> a = stackalloc Complex[n];
-            for (var i = 0; i < n; i++) a[i] = new Complex(g.BarycentricDualArea(i), 0);
-            return CSparse.OfDiagonalArray(a.ToArray());
+            for (var i = 0; i < n; i++)
+                a[i] = g.BarycentricDualArea(i); // TODO: Check cast works
+            return CS.OfDiagonalArray(a.ToArray());
         }
 
         /*
          * Generates Real Laplace Matrix
         */
-        public static RSparse Laplace(HeGeom g){
-            var t = new List<(int, int, double)>();
+        public static RS Laplace(HeGeom g){
             var n = g.nVerts;
+            var T = new List<(int, int, double)>();
             for (var i = 0; i < n; i++) {
                 var v = g.Verts[i];
                 var s = 0f;
                 foreach (var h in g.GetAdjacentHalfedges(v)) {
                     var w = g.EdgeCotan(h.edge); 
-                    t.Add((i, h.next.vid, -w));
+                    T.Add((i, h.next.vid, -w));
                     s += w;
                 }
-                t.Add((i, i, s));
+                T.Add((i, i, s));
             }
-            var M = RSparse.OfIndexed(n, n, t);
-            var C = RSparse.CreateDiagonal(n, n, 1e-8);
+            var M = RS.OfIndexed(n, n, T);
+            var C = RS.CreateDiagonal(n, n, 1e-8);
+            return M + C;
+        }
+        
+        /*
+         * Generates Complex Laplace Matrix
+        */
+        public static CS LaplaceComplex(HeGeom g){
+            var n = g.nVerts;
+            var T = new List<(int, int, Complex)>();
+            for (var i = 0; i < n; i++) {
+                var v = g.Verts[i];
+                var s = 0f;
+                foreach (var h in g.GetAdjacentHalfedges(v)) {
+                    var w = g.EdgeCotan(h.edge); 
+                    T.Add((i, h.next.vid, -w));
+                    s += w;
+                }
+                T.Add((i, i, s));
+            }
+            var M = CS.OfIndexed(n, n, T);
+            var C = CS.CreateDiagonal(n, n, 1e-8);
             return M + C;
         }
 
@@ -116,7 +139,7 @@ namespace VectorField {
          * Here I instead calc angles manually using AdjacentHes.
          * M should be Hermitian Matrix.
         */
-        public static CSparse ConnectionLaplace(HeGeom g) {
+        public static CS ConnectionLaplace(HeGeom g) {
             var t = new List<(int, int, Complex)>();
             var halfedgeVectorInVertex = new d2[g.halfedges.Length];
             var transportVectorAlongHe = new d2[g.halfedges.Length];
@@ -158,8 +181,8 @@ namespace VectorField {
                 t.Add((i, i, new Complex(diag[i], 0)));
 
             var n = g.nVerts;
-            var M = CSparse.OfIndexed(n, n, t);
-            var C = CSparse.CreateDiagonal(n, n, new Complex(1e-8f, 0));
+            var M = CS.OfIndexed(n, n, t);
+            var C = CS.CreateDiagonal(n, n, new Complex(1e-8f, 0));
             return M + C;
         }
         
@@ -167,7 +190,7 @@ namespace VectorField {
          * Interpolation to compute intrinsic vector on faces.
          * See Keenan's lecture 8 for Whitney interpolation theory.
         */
-        public static f3[] InterpolateWhitney(RVector oneForm, HeGeom g) {
+        public static f3[] InterpolateWhitney(RV oneForm, HeGeom g) {
             var X = new float3[g.nFaces];
             for (var i = 0; i < g.nFaces; i++) {
                 var f = g.Faces[i];

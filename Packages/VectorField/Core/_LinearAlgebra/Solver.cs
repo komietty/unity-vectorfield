@@ -45,6 +45,12 @@ namespace VectorField {
             );
             return CV.Build.DenseOfArray(res_x);
         }
+        
+        public static CV InversePowerMethod(CSprs A) {
+            var trpA = A.Storage.EnumerateNonZeroIndexed().Select(t => new TrpComp(t)).ToArray();
+            var res_x = new Complex[A.ColumnCount];
+            return CV.Build.DenseOfArray(res_x);
+        }
 
         public static RV Cholesky(RSprs lhs, RV rhs) => Cholesky(lhs, rhs.ToArray());
         public static RV Cholesky(RSprs lhs, double[] rhs){

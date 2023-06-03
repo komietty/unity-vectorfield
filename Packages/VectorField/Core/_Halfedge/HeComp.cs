@@ -15,6 +15,7 @@ namespace VectorField {
         public ReadOnlySpan<Vert> Verts => verts.AsSpan();
         public ReadOnlySpan<Edge> Edges => edges.AsSpan();
         public ReadOnlySpan<Face> Faces => faces.AsSpan();
+        public ReadOnlySpan<Face> Bunds => bunds.AsSpan();
         public int nVerts { get; private set; }
         public int nEdges { get; private set; }
         public int nFaces { get; private set; }
