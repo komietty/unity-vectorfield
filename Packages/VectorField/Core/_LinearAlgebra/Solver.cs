@@ -9,6 +9,8 @@ namespace VectorField {
     using Complex = System.Numerics.Complex;
     using RV = Vector<double>;
     using CV = Vector<System.Numerics.Complex>;
+    using RD = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix;
+    using CD = MathNet.Numerics.LinearAlgebra.Complex.DenseMatrix;
 
     public static class Solver {
 
@@ -47,9 +49,18 @@ namespace VectorField {
         }
         
         public static CV InversePowerMethod(CSprs A) {
-            var trpA = A.Storage.EnumerateNonZeroIndexed().Select(t => new TrpComp(t)).ToArray();
-            var res_x = new Complex[A.ColumnCount];
-            return CV.Build.DenseOfArray(res_x);
+            var n = A.RowCount;
+            var rhs = CV.Build.Random(n).ToArray();
+            var trp = A.Storage.EnumerateNonZeroIndexed().Select(t => new TrpComp(t)).ToArray();
+            for (var i = 0; i < 2; i++) {
+                var sln = new Complex[rhs.Length];
+                DecompAndSolveCholComp(trp.Length, rhs.Length, trp, rhs, sln);
+                var mean = new Complex();
+                for (var j = 0; j < sln.Length; j++) mean += sln[j];
+                mean /= sln.Length;
+                for (var j = 0; j < sln.Length; j++) rhs[j] = sln[j] - mean * new Complex(1, 1);
+            }
+            return CV.Build.DenseOfArray(rhs);
         }
 
         public static RV Cholesky(RSprs lhs, RV rhs) => Cholesky(lhs, rhs.ToArray());
@@ -81,6 +92,14 @@ namespace VectorField {
             var sln = new Complex[rhs.Length];
             var trp = lhs.Storage.EnumerateNonZeroIndexed().Select(t => new TrpComp(t)).ToArray();
             DecompAndSolveLUComp(trp.Length, rhs.Length, trp, rhs, sln);
+            return CV.Build.DenseOfArray(sln);
+        }
+        
+        public static CV CholeskyComp(CSprs lhs, CV rhs) => CholeskyComp(lhs, rhs.ToArray());
+        public static CV CholeskyComp(CSprs lhs, Complex[] rhs){
+            var sln = new Complex[rhs.Length];
+            var trp = lhs.Storage.EnumerateNonZeroIndexed().Select(t => new TrpComp(t)).ToArray();
+            DecompAndSolveCholComp(trp.Length, rhs.Length, trp, rhs, sln);
             return CV.Build.DenseOfArray(sln);
         }
 
@@ -115,6 +134,15 @@ namespace VectorField {
         
         [DllImport("EigenSolver.bundle")]
         static extern void DecompAndSolveLUComp(
+            int ntrps,
+            int nresult,
+            [In]  TrpComp[] trplets,
+            [In]  Complex[] result,
+            [Out] Complex[] answer
+        );
+        
+        [DllImport("EigenSolver.bundle")]
+        static extern void DecompAndSolveCholComp(
             int ntrps,
             int nresult,
             [In]  TrpComp[] trplets,

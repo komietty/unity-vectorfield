@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using UnityEngine;
 
 namespace VectorField {
     using M = UnityEngine.Mesh;
@@ -92,14 +93,13 @@ namespace VectorField {
             for (var i = 0; i < idxs.Length; i++) {
                 var tgt = halfedges[i];
                 if (tgt.twin == null) {
-                    Face f;
                     cyc.Clear();
                     var curr = tgt;
                     do {
                         var bh = new HalfEdge(len);
+                        var f  = new Face(bh.id, -1);
                         var next = curr.next;
                         while (hasTwins.Contains(next.id)) next = next.twin.next;
-                        f = new Face(i, -1);
                         bh.vid = next.vid;
                         bh.face = f;
                         bh.onBoundary = true;
@@ -107,6 +107,7 @@ namespace VectorField {
                         curr.twin = bh;
                         cyc.Add(bh);
                         halfedges[len] = bh;
+                        bunds[itr++] = f; 
                         curr = next;
                         len++;
                     } while (curr != tgt);
@@ -117,7 +118,6 @@ namespace VectorField {
                         h.next = cyc[(j + n - 1) % n];
                         h.prev = cyc[(j + 1) % n];
                     }
-                    this.bunds[itr++] = f; 
                 }
 
                 if (!tgt.onBoundary) {
