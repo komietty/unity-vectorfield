@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Runtime.InteropServices;
 using MathNet.Numerics.LinearAlgebra;
+using Unity.Mathematics;
 using UnityEngine.Assertions;
 
 namespace VectorField {
@@ -13,6 +14,11 @@ namespace VectorField {
     using CD = MathNet.Numerics.LinearAlgebra.Complex.DenseMatrix;
 
     public static class Solver {
+
+        static double Residual(CSprs A, CV x) {
+            var Ax = A * x;
+            return 0;
+        }
 
         public static RV SmallestEigenPositiveDefinite(RSprs A, RSprs B) {
             var trpA = A.Storage.EnumerateNonZeroIndexed().Select(t => new TrpReal(t)).ToArray();
@@ -52,13 +58,21 @@ namespace VectorField {
             var n = A.RowCount;
             var rhs = CV.Build.Random(n).ToArray();
             var trp = A.Storage.EnumerateNonZeroIndexed().Select(t => new TrpComp(t)).ToArray();
-            for (var i = 0; i < 2; i++) {
+            for (var i = 0; i < 10; i++) {
                 var sln = new Complex[rhs.Length];
                 DecompAndSolveCholComp(trp.Length, rhs.Length, trp, rhs, sln);
                 var mean = new Complex();
-                for (var j = 0; j < sln.Length; j++) mean += sln[j];
+                var norm = 0d;
+                for (var j = 0; j < sln.Length; j++) {
+                    var s = sln[j];
+                    mean += s;
+                    norm += s.Real * s.Real - s.Imaginary * s.Imaginary;
+                }
                 mean /= sln.Length;
-                for (var j = 0; j < sln.Length; j++) rhs[j] = sln[j] - mean * new Complex(1, 1);
+                norm = math.sqrt(norm);
+                
+                for (var j = 0; j < sln.Length; j++)
+                    rhs[j] = (sln[j] - mean * new Complex(1, 1)) * new Complex(1.0 / norm, 0);
             }
             return CV.Build.DenseOfArray(rhs);
         }
