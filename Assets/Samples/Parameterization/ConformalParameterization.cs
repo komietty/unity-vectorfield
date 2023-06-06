@@ -27,7 +27,7 @@ namespace VectorField {
                 var h = G.halfedges[f.hid];
                 var v = new Complex(0, 1);
                 var i = h.vid;
-                var j = h.next.vid;
+                var j = h.twin.vid;
                 T.Add((i, j, v *  0.25));
                 T.Add((j, i, v * -0.25));
             }
@@ -35,11 +35,8 @@ namespace VectorField {
             var nc = Ed.ColumnCount;
             var Ec = Ed - CS.OfIndexed(nr, nc, T);
             //var z = Solver.SmallestEigenPositiveDefinite(Ec, CS.CreateIdentity(nr));
-            //var z = Solver.InversePowerMethod(Ec);
-            var tmpEd = DEC.LaplaceComplexSingle(G) * 0.5f;
-            var zz = Solver.InversePowerMethodSingle(tmpEd);
-            return CV.Build.Random(nr);
-            //return z;
+            var z = Solver.InversePowerMethod(Ec);
+            return z;
         }
     }
 }

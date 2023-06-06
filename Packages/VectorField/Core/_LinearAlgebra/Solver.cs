@@ -19,7 +19,10 @@ namespace VectorField {
 
         static double Residual(CSprs A, CV x) {
             var Ax = A * x;
-            var lambda = x.Conjugate().DotProduct(Ax) - x.Conjugate().DotProduct(x);
+            var xc_Ax = x.Conjugate().DotProduct(Ax);
+            var lambda = xc_Ax - x.Conjugate().DotProduct(x);
+            Debug.Log(xc_Ax);
+            //Assert.IsTrue(xc_Ax > 0);
             return (Ax - lambda * x).L2Norm() / x.L2Norm();
         }
         
@@ -64,8 +67,8 @@ namespace VectorField {
         }
 
         public static Vector<Complex32> InversePowerMethodSingle(MathNet.Numerics.LinearAlgebra.Complex32.SparseMatrix A) {
-            Debug.Log(A);
-            Debug.Log(A.IsHermitian());
+            //Debug.Log(A);
+            //Debug.Log(A.IsHermitian());
             var n = A.RowCount;
             //var rhs = CV.Build.Random(n).ToArray();
             var rhs = MathNet.Numerics.LinearAlgebra.Complex32.Vector.Build.Random(n);
@@ -85,39 +88,37 @@ namespace VectorField {
                 //for (var j = 0; j < rhs.Length; j++) rhs[j] -= mean * new Complex(1d, 1d);
                 //var norm = vec_rhs.L2Norm();
                 //for (var j = 0; j < sln.Length; j++) rhs[j] *= new Complex(1d / norm, 0);
-                Debug.Log("residual: " + ResidualSingle(A, vec_rhs));
+                //Debug.Log("residual: " + ResidualSingle(A, vec_rhs));
             }
             //return CV.Build.DenseOfArray(rhs);
             return rhs;
         }
 
         public static CV InversePowerMethod(CSprs A) {
-            Debug.Log(A);
-            Debug.Log(A.IsHermitian());
             var n = A.RowCount;
-            //var rhs = CV.Build.Random(n).ToArray();
-            var rhs = CV.Build.Random(n);
+            var rhs = CV.Build.Random(n).ToArray();
+            //var rhs = CV.Build.Random(n);
             var trp = A.Storage.EnumerateNonZeroIndexed().Select(t => new TrpComp(t)).ToArray();
-            var llt = A.Cholesky(); 
+            //var llt = A.Cholesky(); 
             for (var i = 0; i < 3; i++) {
-                //var sln = new Complex[rhs.Length];
-                //DecompAndSolveCholComp(trp.Length, rhs.Length, trp, rhs, sln);
-                //for (var j = 0; j < sln.Length; j++) rhs[j] = sln[j];
+                var sln = new Complex[rhs.Length];
+                DecompAndSolveCholComp(trp.Length, rhs.Length, trp, rhs, sln);
+                for (var j = 0; j < sln.Length; j++) rhs[j] = sln[j];
 
-                var vec_rhs = llt.Solve(rhs);
-                var mean = vec_rhs.Sum() / rhs.Count;
-                for (var j = 0; j < rhs.Count; j++) rhs[j] -= mean * new Complex(1d, 1d);
-                var norm = vec_rhs.L2Norm();
-                for (var j = 0; j < rhs.Count; j++) rhs[j] *= new Complex(1d / norm, 0);
-                //var vec_rhs = CV.Build.DenseOfArray(rhs);
-                //var mean = vec_rhs.Sum() / rhs.Length;
-                //for (var j = 0; j < rhs.Length; j++) rhs[j] -= mean * new Complex(1d, 1d);
+                //var vec_rhs = llt.Solve(rhs);
+                //var mean = vec_rhs.Sum() / rhs.Count;
+                //for (var j = 0; j < rhs.Count; j++) rhs[j] -= mean * new Complex(1d, 1d);
                 //var norm = vec_rhs.L2Norm();
-                //for (var j = 0; j < sln.Length; j++) rhs[j] *= new Complex(1d / norm, 0);
+                //for (var j = 0; j < rhs.Count; j++) rhs[j] *= new Complex(1d / norm, 0);
+                var vec_rhs = CV.Build.DenseOfArray(rhs);
+                var mean = vec_rhs.Sum() / rhs.Length;
+                for (var j = 0; j < rhs.Length; j++) rhs[j] -= mean * new Complex(1d, 1d);
+                var norm = vec_rhs.L2Norm();
+                for (var j = 0; j < sln.Length; j++) rhs[j] *= new Complex(1d / norm, 0);
                 Debug.Log("residual: " + Residual(A, vec_rhs));
             }
-            //return CV.Build.DenseOfArray(rhs);
-            return rhs;
+            return CV.Build.DenseOfArray(rhs);
+            //return rhs;
         }
 
         public static RV Cholesky(RSprs lhs, RV rhs) => Cholesky(lhs, rhs.ToArray());

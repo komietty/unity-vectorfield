@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using Unity.Mathematics;
+using UnityEngine;
 using static Unity.Mathematics.math;
 
 namespace VectorField {
@@ -29,7 +30,8 @@ namespace VectorField {
             return length(Vector(h));
         }
 
-        public float Cotan(HalfEdge h){
+        public float Cotan(HalfEdge h) {
+            if (h.onBoundary) return 0;
             var p = Vector(h.prev);
             var n = Vector(h.next) * -1;
             return dot(p, n) / length(cross(p, n));

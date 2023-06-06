@@ -122,9 +122,10 @@ namespace VectorField {
                 var v = g.Verts[i];
                 var s = 0f;
                 foreach (var h in g.GetAdjacentHalfedges(v)) {
-                    var w = g.EdgeCotan(h.edge); 
+                    var w = g.EdgeCotan(h.edge);
                     T.Add((i, h.next.vid, new Complex32(-w, 0)));
                     s += w;
+                    //Debug.Log("vid: " + v.vid + ", hid: " + h.id + ", w: " + w);
                 }
                 T.Add((i, i, new Complex32(s, 0)));
             }
