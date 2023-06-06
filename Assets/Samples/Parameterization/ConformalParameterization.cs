@@ -34,7 +34,6 @@ namespace VectorField {
             var nr = Ed.RowCount;
             var nc = Ed.ColumnCount;
             var Ec = Ed - CS.OfIndexed(nr, nc, T);
-            //var z = Solver.SmallestEigenPositiveDefinite(Ec, CS.CreateIdentity(nr));
             var z = Solver.InversePowerMethod(Ec);
             return z;
         }
