@@ -1,6 +1,8 @@
 using Unity.Mathematics;
 using System.Numerics;
 using System.Collections.Generic;
+using MathNet.Numerics;
+using UnityEngine;
 using f3 = Unity.Mathematics.float3;
 using d2 = Unity.Mathematics.double2;
 using RS = MathNet.Numerics.LinearAlgebra.Double.SparseMatrix;
@@ -113,6 +115,23 @@ namespace VectorField {
         /*
          * Generates Complex Laplace Matrix
         */
+        public static MathNet.Numerics.LinearAlgebra.Complex32.SparseMatrix LaplaceComplexSingle(HeGeom g){
+            var n = g.nVerts;
+            var T = new List<(int, int, Complex32)>();
+            for (var i = 0; i < n; i++) {
+                var v = g.Verts[i];
+                var s = 0f;
+                foreach (var h in g.GetAdjacentHalfedges(v)) {
+                    var w = g.EdgeCotan(h.edge); 
+                    T.Add((i, h.next.vid, new Complex32(-w, 0)));
+                    s += w;
+                }
+                T.Add((i, i, new Complex32(s, 0)));
+            }
+            var M = MathNet.Numerics.LinearAlgebra.Complex32.SparseMatrix.OfIndexed(n, n, T);
+            var C = MathNet.Numerics.LinearAlgebra.Complex32.SparseMatrix.CreateDiagonal(n, n, 1e-8f);
+            return M;
+        }
         public static CS LaplaceComplex(HeGeom g){
             var n = g.nVerts;
             var T = new List<(int, int, Complex)>();

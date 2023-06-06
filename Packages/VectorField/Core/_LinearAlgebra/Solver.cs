@@ -1,7 +1,9 @@
 using System.Linq;
 using System.Runtime.InteropServices;
+using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Unity.Mathematics;
+using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace VectorField {
@@ -17,7 +19,14 @@ namespace VectorField {
 
         static double Residual(CSprs A, CV x) {
             var Ax = A * x;
-            return 0;
+            var lambda = x.Conjugate().DotProduct(Ax) - x.Conjugate().DotProduct(x);
+            return (Ax - lambda * x).L2Norm() / x.L2Norm();
+        }
+        
+        static float ResidualSingle(MathNet.Numerics.LinearAlgebra.Complex32.SparseMatrix A, Vector<Complex32> x) {
+            var Ax = A * x;
+            var lambda = x.Conjugate().DotProduct(Ax) - x.Conjugate().DotProduct(x);
+            return (float)((Ax - lambda * x).L2Norm() / x.L2Norm());
         }
 
         public static RV SmallestEigenPositiveDefinite(RSprs A, RSprs B) {
@@ -53,28 +62,62 @@ namespace VectorField {
             );
             return CV.Build.DenseOfArray(res_x);
         }
-        
-        public static CV InversePowerMethod(CSprs A) {
+
+        public static Vector<Complex32> InversePowerMethodSingle(MathNet.Numerics.LinearAlgebra.Complex32.SparseMatrix A) {
+            Debug.Log(A);
+            Debug.Log(A.IsHermitian());
             var n = A.RowCount;
-            var rhs = CV.Build.Random(n).ToArray();
-            var trp = A.Storage.EnumerateNonZeroIndexed().Select(t => new TrpComp(t)).ToArray();
-            for (var i = 0; i < 10; i++) {
-                var sln = new Complex[rhs.Length];
-                DecompAndSolveCholComp(trp.Length, rhs.Length, trp, rhs, sln);
-                var mean = new Complex();
-                var norm = 0d;
-                for (var j = 0; j < sln.Length; j++) {
-                    var s = sln[j];
-                    mean += s;
-                    norm += s.Real * s.Real - s.Imaginary * s.Imaginary;
-                }
-                mean /= sln.Length;
-                norm = math.sqrt(norm);
-                
-                for (var j = 0; j < sln.Length; j++)
-                    rhs[j] = (sln[j] - mean * new Complex(1, 1)) * new Complex(1.0 / norm, 0);
+            //var rhs = CV.Build.Random(n).ToArray();
+            var rhs = MathNet.Numerics.LinearAlgebra.Complex32.Vector.Build.Random(n);
+            var llt = A.Cholesky(); 
+            for (var i = 0; i < 3; i++) {
+                //var sln = new Complex[rhs.Length];
+                //DecompAndSolveCholComp(trp.Length, rhs.Length, trp, rhs, sln);
+                //for (var j = 0; j < sln.Length; j++) rhs[j] = sln[j];
+
+                var vec_rhs = llt.Solve(rhs);
+                var mean = vec_rhs.Sum() / rhs.Count;
+                for (var j = 0; j < rhs.Count; j++) rhs[j] -= mean * new Complex32(1f, 1f);
+                var norm = (float)vec_rhs.L2Norm();
+                for (var j = 0; j < rhs.Count; j++) rhs[j] *= new Complex32(1f / norm, 0);
+                //var vec_rhs = CV.Build.DenseOfArray(rhs);
+                //var mean = vec_rhs.Sum() / rhs.Length;
+                //for (var j = 0; j < rhs.Length; j++) rhs[j] -= mean * new Complex(1d, 1d);
+                //var norm = vec_rhs.L2Norm();
+                //for (var j = 0; j < sln.Length; j++) rhs[j] *= new Complex(1d / norm, 0);
+                Debug.Log("residual: " + ResidualSingle(A, vec_rhs));
             }
-            return CV.Build.DenseOfArray(rhs);
+            //return CV.Build.DenseOfArray(rhs);
+            return rhs;
+        }
+
+        public static CV InversePowerMethod(CSprs A) {
+            Debug.Log(A);
+            Debug.Log(A.IsHermitian());
+            var n = A.RowCount;
+            //var rhs = CV.Build.Random(n).ToArray();
+            var rhs = CV.Build.Random(n);
+            var trp = A.Storage.EnumerateNonZeroIndexed().Select(t => new TrpComp(t)).ToArray();
+            var llt = A.Cholesky(); 
+            for (var i = 0; i < 3; i++) {
+                //var sln = new Complex[rhs.Length];
+                //DecompAndSolveCholComp(trp.Length, rhs.Length, trp, rhs, sln);
+                //for (var j = 0; j < sln.Length; j++) rhs[j] = sln[j];
+
+                var vec_rhs = llt.Solve(rhs);
+                var mean = vec_rhs.Sum() / rhs.Count;
+                for (var j = 0; j < rhs.Count; j++) rhs[j] -= mean * new Complex(1d, 1d);
+                var norm = vec_rhs.L2Norm();
+                for (var j = 0; j < rhs.Count; j++) rhs[j] *= new Complex(1d / norm, 0);
+                //var vec_rhs = CV.Build.DenseOfArray(rhs);
+                //var mean = vec_rhs.Sum() / rhs.Length;
+                //for (var j = 0; j < rhs.Length; j++) rhs[j] -= mean * new Complex(1d, 1d);
+                //var norm = vec_rhs.L2Norm();
+                //for (var j = 0; j < sln.Length; j++) rhs[j] *= new Complex(1d / norm, 0);
+                Debug.Log("residual: " + Residual(A, vec_rhs));
+            }
+            //return CV.Build.DenseOfArray(rhs);
+            return rhs;
         }
 
         public static RV Cholesky(RSprs lhs, RV rhs) => Cholesky(lhs, rhs.ToArray());

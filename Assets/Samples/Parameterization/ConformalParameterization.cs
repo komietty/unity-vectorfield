@@ -1,6 +1,7 @@
 using Unity.Mathematics;
 using System.Numerics;
 using System.Collections.Generic;
+using UnityEngine;
 using f3 = Unity.Mathematics.float3;
 using f2 = Unity.Mathematics.double2;
 using d2 = Unity.Mathematics.double2;
@@ -13,6 +14,12 @@ using static Unity.Mathematics.math;
 namespace VectorField {
     public class Parameterization {
         
+        /*
+         * check:
+         * 1: laplaceComplex matrix
+         * 2: boundary
+         * 3: inversepowermethod
+         */
         public static CV SpectralConformal(HeGeom G) {
             var Ed = DEC.LaplaceComplex(G) * 0.5;
             var T = new List<(int, int, Complex)>();
@@ -28,8 +35,11 @@ namespace VectorField {
             var nc = Ed.ColumnCount;
             var Ec = Ed - CS.OfIndexed(nr, nc, T);
             //var z = Solver.SmallestEigenPositiveDefinite(Ec, CS.CreateIdentity(nr));
-            var z = Solver.InversePowerMethod(Ec);
-            return z;
+            //var z = Solver.InversePowerMethod(Ec);
+            var tmpEd = DEC.LaplaceComplexSingle(G) * 0.5f;
+            var zz = Solver.InversePowerMethodSingle(tmpEd);
+            return CV.Build.Random(nr);
+            //return z;
         }
     }
 }
