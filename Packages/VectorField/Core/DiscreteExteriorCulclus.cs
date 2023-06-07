@@ -126,7 +126,6 @@ namespace VectorField {
                     //var w = g.EdgeCotan(h.edge); 
                     var w = (g.Cotan(h) + g.Cotan(h.twin)) * 0.5; 
                     T.Add((i, j, -w));
-                    //Debug.Log("i:" + i + ", j:" + j + ", w:" + w);
                     s += w;
                 }
                 T.Add((i, i, s));
