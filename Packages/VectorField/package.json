@@ -1,12 +1,13 @@
 {
   "name": "com.komietty.vectorfield",
-  "displayName": "VectorFeild",
+  "displayName": "VectorField",
   "version": "0.2.0",
   "unity": "2022.2",
   "keywords": [
     "Vector Field",
     "Manifold",
-    "Geometry"
+    "Geometry",
+    "Parameterization"
   ],
   "description": "Vector field library for Unity using discrete exterior culclus (DEC) theory.",
   "dependencies": {
