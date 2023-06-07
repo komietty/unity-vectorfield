@@ -78,13 +78,17 @@ namespace VectorField {
         public static CV InversePowerMethod(CSprs A) {
             var n = A.RowCount;
             var rhs = CV.Build.Random(n).ToArray();
-            //var rhs = new [] {
-            //    new Complex(-1, -0.3099989682948212),
-            //    new Complex(0.5054183972559023, 0.5914905404632402),
-            //    new Complex(0.5547849133400176, -0.621571181165786),
-            //    new Complex(-0.7422678823313992, 0.20738213938073358),
-            //};
+            /*
+            var rhs = new [] {
+                new Complex(-1, -0.3099989682948212),
+                new Complex(0.5054183972559023, 0.5914905404632402),
+                new Complex(0.5547849133400176, -0.621571181165786),
+                new Complex(-0.7422678823313992, 0.20738213938073358),
+            };
+            */
             var trp = A.Storage.EnumerateNonZeroIndexed().Select(t => new TrpComp(t)).ToArray();
+            //Debug.Log("--A--");
+            //Debug.Log(A);
             for (var i = 0; i < 100; i++) {
                 var sln = new Complex[rhs.Length];
                 DecompAndSolveCholComp(trp.Length, rhs.Length, trp, rhs, sln);

@@ -2,6 +2,7 @@ using Unity.Mathematics;
 using System.Numerics;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 using f3 = Unity.Mathematics.float3;
 using f2 = Unity.Mathematics.double2;
 using d2 = Unity.Mathematics.double2;
@@ -22,6 +23,7 @@ namespace VectorField {
          */
         public static CV SpectralConformal(HeGeom G) {
             var Ed = DEC.LaplaceComplex(G) * 0.5;
+            Assert.IsTrue(Ed.IsSymmetric());
             var T = new List<(int, int, Complex)>();
             foreach(var f in G.Bunds) {
                 var h = G.halfedges[f.hid];

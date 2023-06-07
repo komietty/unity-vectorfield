@@ -115,33 +115,18 @@ namespace VectorField {
         /*
          * Generates Complex Laplace Matrix
         */
-        public static MathNet.Numerics.LinearAlgebra.Complex32.SparseMatrix LaplaceComplexSingle(HeGeom g){
-            var n = g.nVerts;
-            var T = new List<(int, int, Complex32)>();
-            for (var i = 0; i < n; i++) {
-                var v = g.Verts[i];
-                var s = 0f;
-                foreach (var h in g.GetAdjacentHalfedges(v)) {
-                    var w = g.EdgeCotan(h.edge);
-                    T.Add((i, h.next.vid, new Complex32(-w, 0)));
-                    s += w;
-                    //Debug.Log("vid: " + v.vid + ", hid: " + h.id + ", w: " + w);
-                }
-                T.Add((i, i, new Complex32(s, 0)));
-            }
-            var M = MathNet.Numerics.LinearAlgebra.Complex32.SparseMatrix.OfIndexed(n, n, T);
-            var C = MathNet.Numerics.LinearAlgebra.Complex32.SparseMatrix.CreateDiagonal(n, n, 1e-8f);
-            return M;
-        }
         public static CS LaplaceComplex(HeGeom g){
             var n = g.nVerts;
             var T = new List<(int, int, Complex)>();
             for (var i = 0; i < n; i++) {
                 var v = g.Verts[i];
-                var s = 0f;
+                var s = 0d;
                 foreach (var h in g.GetAdjacentHalfedges(v)) {
-                    var w = g.EdgeCotan(h.edge); 
-                    T.Add((i, h.next.vid, -w));
+                    var j = h.twin.vid;
+                    //var w = g.EdgeCotan(h.edge); 
+                    var w = (g.Cotan(h) + g.Cotan(h.twin)) * 0.5; 
+                    T.Add((i, j, -w));
+                    //Debug.Log("i:" + i + ", j:" + j + ", w:" + w);
                     s += w;
                 }
                 T.Add((i, i, s));
