@@ -9,7 +9,7 @@ namespace VectorField.Demo {
         void Start() {
             var C = GetComponent<GeomContainer>();
             var G = C.geom;
-            var connection = SmoothestSection.Compute(G);
+            var connection = Section.ComputeSmoothest(G);
             var X = ComputeVertVectorField(G, connection);
             C.BuildVertArrowBuffer(X);
             C.showVertArrow = true;

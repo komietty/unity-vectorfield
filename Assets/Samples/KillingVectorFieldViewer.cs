@@ -9,6 +9,7 @@ namespace VectorField {
             var G = C.geom;
             var O = KillingVectorField.Compute(G);
             var F = DEC.InterpolateWhitney(O, G).Select(f => f * 8.5f).ToArray();
+            Debug.Log(O);
 
             var max = 0f;
             var len = new float[G.nFaces];

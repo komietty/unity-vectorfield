@@ -392,7 +392,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 919132148688622484}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e687b064353b44772a39d5463e7b7191, type: 3}
   m_Name: 
@@ -674,7 +674,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1128588897}
-  m_Mesh: {fileID: -2432090755550338912, guid: b86bf54cf4b9c4aa1a2907e530227419, type: 3}
+  m_Mesh: {fileID: -2432090755550338912, guid: aa1dba6b0566648899717c3f2c7577f9, type: 3}
 --- !u!1 &1326472361
 GameObject:
   m_ObjectHideFlags: 0
@@ -975,7 +975,7 @@ MonoBehaviour:
     key7: {r: 0, g: 0, b: 0, a: 0}
     ctime0: 0
     ctime1: 32768
-    ctime2: 65535
+    ctime2: 50501
     ctime3: 0
     ctime4: 0
     ctime5: 0
@@ -993,7 +993,7 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 3
     m_NumAlphaKeys: 2
-  curvType: 1
+  curvType: 2
 --- !u!4 &1151388029014210678
 Transform:
   m_ObjectHideFlags: 0
@@ -1058,7 +1058,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8164078558031473485}
-  m_Mesh: {fileID: -2432090755550338912, guid: b342c832fd42e4e0eb56ad391ca20b17, type: 3}
+  m_Mesh: {fileID: -2432090755550338912, guid: 02899920672904796bb709ec74af2f0b, type: 3}
 --- !u!1 &8164078558031473485
 GameObject:
   m_ObjectHideFlags: 0

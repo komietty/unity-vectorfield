@@ -1,11 +1,9 @@
 using System.Collections.Generic;
 using System;
 using System.Linq;
-using UnityEngine;
+using M = UnityEngine.Mesh;
 
 namespace VectorField {
-    using M = UnityEngine.Mesh;
-
     /*
      * HalfEdge Complex
     */
@@ -146,12 +144,12 @@ namespace VectorField {
             nEdges = sortedEdges.Count;
             var nHalfedges = 2 * nEdges;
             var nInteriorHalfedges = nHalfedges - nBoundaryHe;
-            this.halfedges = new HalfEdge[nHalfedges];
-            this.corners = new Corner[nInteriorHalfedges];
-            this.verts = new Vert[nVerts];
-            this.edges = new Edge[nEdges];
-            this.faces = new Face[nFaces];
-            this.bunds = new Face[nBoundaryHe];
+            halfedges = new HalfEdge[nHalfedges];
+            corners = new Corner[nInteriorHalfedges];
+            verts = new Vert[nVerts];
+            edges = new Edge[nEdges];
+            faces = new Face[nFaces];
+            bunds = new Face[nBoundaryHe];
             eulerCharactaristics = nFaces - nEdges + nVerts;
         }
 

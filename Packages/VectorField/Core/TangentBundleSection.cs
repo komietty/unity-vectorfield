@@ -1,13 +1,19 @@
 using CVector = MathNet.Numerics.LinearAlgebra.Vector<System.Numerics.Complex>;
 
 namespace VectorField {
-    public static class SmoothestSection {
-        public static CVector Compute(HeGeom G, int fieldDegree = 1) {
+    public static class Section {
+        public static CVector ComputeSmoothest(HeGeom G, int fieldDegree = 1) {
             var engy = DEC.ConnectionLaplace(G);
             var mass = DEC.MassComplex(G);
             return Solver.SmallestEigenPositiveDefinite(engy, mass);
         }
-        
+
+        public static CVector ComputeCurvatureAligned(HeGeom G, int fieldDegree = 1) {
+            var engy = DEC.ConnectionLaplace(G);
+            var mass = DEC.MassComplex(G);
+            return Solver.SmallestEigenPositiveDefinite(engy, mass);
+        }
+
         /*
         RVector VertexPolarAngleForEachHe() {
             var angles = RVector.Build.Dense(G.halfedges.Length);
